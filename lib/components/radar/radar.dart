@@ -52,11 +52,17 @@ class _RadarState extends State<Radar> with TickerProviderStateMixin {
 
   dynamic onCanvasTap;
 
+  final String scanText = "Scanning For Devices...";
+  double scanTextChangeStep = 0;
+  String currentScanText = "";
+
   @override
   void initState() {
     super.initState();
 
     sweepAngle = startAngle;
+
+    scanTextChangeStep = (endAngle - startAngle) / (scanText.length + 1);
 
     controller = RadarController(
       onNewDevice: onNewDevice,
@@ -89,6 +95,8 @@ class _RadarState extends State<Radar> with TickerProviderStateMixin {
         setState(() {
           sweepAngle = _animationScan.value;
         });
+
+        changeScanText(_animationScan.value);
       });
 
     _animationScale = Tween(begin: startSize, end: endSize).animate(
@@ -105,6 +113,26 @@ class _RadarState extends State<Radar> with TickerProviderStateMixin {
           },
         );
       });
+  }
+
+  changeScanText(double value) {
+    int steps = ((value - startAngle) / scanTextChangeStep).toInt();
+
+    if (currentScanText.length == steps) return;
+
+    setState(() {
+      currentScanText = getCurrentScanText(steps);
+    });
+  }
+
+  String getCurrentScanText(int size) {
+    String text = "";
+
+    for (int i = 0; i < size; i++) {
+      if (i < scanText.length) text += scanText[i];
+    }
+
+    return text;
   }
 
   onNewDevice(String name, String address, int rssi) {
@@ -152,27 +180,35 @@ class _RadarState extends State<Radar> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTapDown: onTapDown,
-      child: CustomPaint(
-        painter: RadarPainter(
-          tcolor: widget.tcolor,
-          sweepAngle: sweepAngle,
-          scaleSize: scaleSize,
-          deviceIcon: widget.deviceIcon,
-          devices: devices,
-          maxRssi: maxRssi,
-          isScanRunning: isScanRunning,
-          scaleEffectTicker: scaleEffectTicker,
-          onTapCallback: (cb) {
-            onCanvasTap = cb;
-          },
-          onBluetoothIconClicked: () {
-            if (!isScanRunning) widget.onRescanClicked();
-          },
-          onDeviceClicked: (List device) {
-            widget.onDeviceClicked(device);
-          },
-        ),
-        size: Size(widget.diameter, widget.diameter / 2),
+      child: Column(
+        children: [
+          CustomPaint(
+            painter: RadarPainter(
+              tcolor: widget.tcolor,
+              sweepAngle: sweepAngle,
+              scaleSize: scaleSize,
+              deviceIcon: widget.deviceIcon,
+              devices: devices,
+              maxRssi: maxRssi,
+              isScanRunning: isScanRunning,
+              scaleEffectTicker: scaleEffectTicker,
+              onTapCallback: (cb) {
+                onCanvasTap = cb;
+              },
+              onBluetoothIconClicked: () {
+                if (!isScanRunning) widget.onRescanClicked();
+              },
+              onDeviceClicked: (List device) {
+                widget.onDeviceClicked(device);
+              },
+            ),
+            size: Size(widget.diameter, widget.diameter / 2),
+          ),
+          const SizedBox(
+            height: 30,
+          ),
+          Text(currentScanText, style: TextStyle(color: Colors.black87, fontSize: 15, fontFamily: 'Nunito',),),
+        ],
       ),
     );
   }

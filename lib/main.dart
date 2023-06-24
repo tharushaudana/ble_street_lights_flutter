@@ -18,7 +18,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       //home: SplashScreen(),
-      home: ScanScreen(),
+      //home: ScanScreen(),
+      home: HomeScreen(title: "BLE Street Lights"),
       routes: {
         '/home': (context) => HomeScreen(title: "title")
       },

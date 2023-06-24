@@ -31,11 +31,27 @@ class _ScanScreenState extends State<ScanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    /*return Scaffold(
       appBar: AppBar(
         title: Text("Scan"),
       ),
       body: FutureBuilder(
+        future: loadDeviceIconImage(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Text("Loading");
+          } else if (snapshot.connectionState == ConnectionState.done) {
+            ui.Image image = snapshot.data as ui.Image;
+            return ScannerLoadedLayout(deviceIcon: image);
+          }
+
+          return Text("error");
+        },
+      ),
+    );*/
+    return Container(
+      height: 400,
+      child: FutureBuilder(
         future: loadDeviceIconImage(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -76,11 +92,12 @@ class _ScannerLoadedLayoutState extends State<ScannerLoadedLayout> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    /*return Center(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(
+          const Spacer(),
+          const SizedBox(
             height: 50,
           ),
           Radar(
@@ -101,7 +118,7 @@ class _ScannerLoadedLayoutState extends State<ScannerLoadedLayout> {
               log(device[0] + " dd");
             },
           ),
-          SizedBox(
+          const SizedBox(
             height: 50,
           ),
           Text("data"),
@@ -129,6 +146,47 @@ class _ScannerLoadedLayoutState extends State<ScannerLoadedLayout> {
           ),
         ],
       ),
-    );
+    );*/
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const Spacer(),
+        const SizedBox(height: 20,),
+        Text("SCAN", style: TextStyle(color: Colors.black87, fontSize: 20, fontFamily: 'LexendPeta', fontWeight: FontWeight.bold),),
+        const SizedBox(height: 30,),
+        Radar(
+          diameter: 400,
+          color: Colors.blue,
+          tcolor: Colors.grey.shade50,
+          deviceIcon: widget.deviceIcon,
+          getController: (RadarController controller) {
+            radarController = controller;
+          },
+          onRescanClicked: () {
+            radarController.startScan();
+            setState(() {
+              b = true;
+            });
+          },
+          onDeviceClicked: (List device) {
+            log(device[0] + " dd");
+          },
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        //Text("data"),
+        TextButton(
+          onPressed: () {
+            if (i > 2) return;
+
+            List d = devices[i++];
+
+            radarController.addDevice(d[0], d[1], d[2]);
+          },
+          child: Text("Add Device"),
+        ),
+      ],
+    ).animate().fade(duration: 300.ms);
   }
 }

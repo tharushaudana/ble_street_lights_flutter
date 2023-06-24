@@ -80,6 +80,10 @@ flutter:
       fonts:
         - asset: assets/fonts/LexendPeta.ttf
         - asset: assets/fonts/LexendPeta-Bold.ttf
+    - family: Nunito
+      fonts:
+        - asset: assets/fonts/Nunito.ttf
+        - asset: assets/fonts/Nunito-Bold.ttf
   #         style: italic
   #   - family: Trajan Pro
   #     fonts:
