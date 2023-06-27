@@ -47,7 +47,7 @@ class _RadarState extends State<Radar> with TickerProviderStateMixin {
   late RadarController controller;
 
   List devices = [];
-  int maxRssi = 0;
+  int maxRssi = -5000;
   bool isScanRunning = false;
 
   dynamic onCanvasTap;
@@ -149,8 +149,11 @@ class _RadarState extends State<Radar> with TickerProviderStateMixin {
     setState(() {
       devices.clear();
       sweepAngle = startAngle;
+      maxRssi = -5000;
       isScanRunning = true;
     });
+
+    oldDeviceListSize = 0;
 
     _controllerScan.reset();
     _controllerScan.repeat(reverse: true);
@@ -159,6 +162,7 @@ class _RadarState extends State<Radar> with TickerProviderStateMixin {
   onStopScan() {
     setState(() {
       sweepAngle = startAngle;
+      currentScanText = "";
       isScanRunning = false;
     });
 
@@ -207,7 +211,14 @@ class _RadarState extends State<Radar> with TickerProviderStateMixin {
           const SizedBox(
             height: 30,
           ),
-          Text(currentScanText, style: TextStyle(color: Colors.black87, fontSize: 15, fontFamily: 'Nunito',),),
+          Text(
+            currentScanText,
+            style: const TextStyle(
+              color: Colors.black87,
+              fontSize: 15,
+              fontFamily: 'Nunito',
+            ),
+          ),
         ],
       ),
     );
