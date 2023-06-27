@@ -8,7 +8,9 @@ import 'package:geolocator/geolocator.dart' as geolocator;
 import 'package:ble_street_lights/screens/scan/scanner.dart';
 
 class ScanScreen extends StatefulWidget {
-  const ScanScreen();
+  const ScanScreen({super.key, required this.onAddDeviceClicked});
+
+  final onAddDeviceClicked;
 
   @override
   State<ScanScreen> createState() => _ScanScreenState();
@@ -110,7 +112,10 @@ class _ScanScreenState extends State<ScanScreen> {
                             bool isEnabled = snapshot.data as bool;
 
                             return isEnabled
-                                ? ScannerLayout()
+                                ? ScannerLayout(
+                                    onAddDeviceClicked:
+                                        widget.onAddDeviceClicked,
+                                  )
                                 : Column(
                                     children: [
                                       const Icon(
@@ -171,6 +176,10 @@ class _ScanScreenState extends State<ScanScreen> {
 }
 
 class ScannerLayout extends StatefulWidget {
+  const ScannerLayout({super.key, required this.onAddDeviceClicked});
+
+  final onAddDeviceClicked;
+
   @override
   State<StatefulWidget> createState() => _ScannerLayoutState();
 }
@@ -202,7 +211,10 @@ class _ScannerLayoutState extends State<ScannerLayout> {
             return const CircularProgressIndicator();
           } else if (snapshot.connectionState == ConnectionState.done) {
             ui.Image image = snapshot.data as ui.Image;
-            return Scanner(deviceIcon: image);
+            return Scanner(
+              deviceIcon: image,
+              onAddDeviceClicked: widget.onAddDeviceClicked,
+            );
           }
 
           return Text("Unknown Error!");

@@ -56,6 +56,8 @@ class _RadarState extends State<Radar> with TickerProviderStateMixin {
   double scanTextChangeStep = 0;
   String currentScanText = "";
 
+  bool isDisposed = false;
+
   @override
   void initState() {
     super.initState();
@@ -107,6 +109,7 @@ class _RadarState extends State<Radar> with TickerProviderStateMixin {
     )..addListener(() {
         WidgetsBinding.instance.addPostFrameCallback(
           (timeStamp) {
+            if (isDisposed) return;
             setState(() {
               scaleSize = _animationScale.value;
             });
@@ -228,6 +231,7 @@ class _RadarState extends State<Radar> with TickerProviderStateMixin {
   void dispose() {
     _controllerScan.dispose();
     _controllerScale.dispose();
+    isDisposed = true;
     super.dispose();
   }
 }

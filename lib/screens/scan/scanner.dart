@@ -6,9 +6,11 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 class Scanner extends StatefulWidget {
-  const Scanner({super.key, required this.deviceIcon});
+  const Scanner(
+      {super.key, required this.deviceIcon, required this.onAddDeviceClicked});
 
   final ui.Image deviceIcon;
+  final onAddDeviceClicked;
 
   @override
   State<StatefulWidget> createState() => _ScannerState();
@@ -16,7 +18,7 @@ class Scanner extends StatefulWidget {
 
 class _ScannerState extends State<Scanner> {
   late RadarController radarController;
-  
+
   FlutterBluePlus flutterBlue = FlutterBluePlus.instance;
 
   bool isScanning = false;
@@ -51,13 +53,87 @@ class _ScannerState extends State<Scanner> {
     radarController.addDevice(device.name, device.id.toString(), rssi);
   }
 
+  closeMain() {
+    Navigator.pop(context);
+  }
+
+  openDialogDeviceDetails(List device) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+          ),
+          title: Row(
+            children: [
+              const Image(
+                image: AssetImage("assets/images/device_icon.png"),
+                width: 42,
+                height: 42,
+              ),
+              const SizedBox(width: 15),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    device[0],
+                    style: TextStyle(
+                      fontFamily: 'Nunito',
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    device[1],
+                    style: TextStyle(
+                      fontFamily: 'Nunito',
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          content: Container(
+            child: TextButton(
+              onPressed: () {
+                flutterBlue.stopScan().then((value) {
+                  widget.onAddDeviceClicked(device);
+                  closeMain();
+                  Navigator.pop(context);
+                });
+              },
+              child: Row(
+                children: [
+                  const Icon(Icons.add),
+                  const SizedBox(width: 7),
+                  const Text("ADD"),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
-    
+
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       scanForDevices();
     });
+  }
+
+  @override
+  void dispose() {
+    if (flutterBlue.isScanningNow) {
+      flutterBlue.stopScan();
+    }
+    super.dispose();
   }
 
   @override
@@ -77,7 +153,7 @@ class _ScannerState extends State<Scanner> {
             scanForDevices();
           },
           onDeviceClicked: (List device) {
-            log(device[0] + " dd");
+            openDialogDeviceDetails(device);
           },
         ).animate().fade(duration: 300.ms),
       ],
