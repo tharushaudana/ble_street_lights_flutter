@@ -25,7 +25,9 @@ class _HomeScreenState extends State<HomeScreen> {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(30),
+        ),
       ),
       builder: (context) {
         return ScanScreen(

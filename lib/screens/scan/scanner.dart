@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:ble_street_lights/components/celluarbar/celluarbar.dart';
 import 'package:ble_street_lights/components/radar/radar.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
@@ -62,8 +63,10 @@ class _ScannerState extends State<Scanner> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(20)),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+              Radius.circular(20),
+            ),
           ),
           title: Row(
             children: [
@@ -78,14 +81,14 @@ class _ScannerState extends State<Scanner> {
                 children: [
                   Text(
                     device[0],
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontFamily: 'Nunito',
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Text(
                     device[1],
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontFamily: 'Nunito',
                       fontWeight: FontWeight.bold,
                       color: Colors.grey,
@@ -94,6 +97,22 @@ class _ScannerState extends State<Scanner> {
                   ),
                 ],
               ),
+              const SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CelluarBar(width: 22, rssi: device[2]),
+                  const SizedBox(height: 5),
+                  Text(
+                    "${device[2]} dBm",
+                    style: const TextStyle(
+                      fontSize: 9,
+                      fontFamily: 'Nunito',
+                    ),
+                  ),
+                ],
+              )
             ],
           ),
           content: Container(
