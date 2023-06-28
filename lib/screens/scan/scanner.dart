@@ -27,25 +27,27 @@ class _ScannerState extends State<Scanner> {
   List<BluetoothDevice> devices = [];
 
   scanForDevices() async {
-    flutterBlue.startScan(timeout: Duration(seconds: 5)).then((value) {
-      radarController.stopScan();
-      setState(() {
-        isScanning = false;
+    try {
+      flutterBlue.startScan(timeout: Duration(seconds: 5)).then((value) {
+        radarController.stopScan();
+        setState(() {
+          isScanning = false;
+        });
       });
-    });
 
-    flutterBlue.scanResults.listen((results) {
-      for (ScanResult r in results) {
-        addDevice(r.device, r.rssi);
-      }
-    });
+      flutterBlue.scanResults.listen((results) {
+        for (ScanResult r in results) {
+          addDevice(r.device, r.rssi);
+        }
+      });
 
-    radarController.startScan();
+      radarController.startScan();
 
-    setState(() {
-      devices.clear();
-      isScanning = true;
-    });
+      setState(() {
+        devices.clear();
+        isScanning = true;
+      });
+    } catch (e) {}
   }
 
   addDevice(BluetoothDevice device, int rssi) {
