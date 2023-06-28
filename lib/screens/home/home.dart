@@ -112,17 +112,17 @@ class _DeviceCardState extends State<DeviceCard> {
       ),
       child: Row(
         children: [
-          Icon(
+          const Icon(
             Icons.wifi,
             color: Colors.black,
             size: 30,
           ),
-          SizedBox(
+          const SizedBox(
             width: 15,
           ),
           Text(
             widget.name,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 15,
               fontFamily: 'Nunito',
               fontWeight: FontWeight.bold,

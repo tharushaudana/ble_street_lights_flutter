@@ -92,23 +92,34 @@ class _ScannerState extends State<Scanner> {
                       fontFamily: 'Nunito',
                       fontWeight: FontWeight.bold,
                       color: Colors.grey,
-                      fontSize: 14,
+                      fontSize: 12,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
+              const Spacer(),
+              const SizedBox(width: 15),
+              Stack(
                 children: [
-                  CelluarBar(width: 22, rssi: device[2]),
-                  const SizedBox(height: 5),
-                  Text(
-                    "${device[2]} dBm",
-                    style: const TextStyle(
-                      fontSize: 9,
-                      fontFamily: 'Nunito',
+                  Container(
+                    width: 33,
+                    height: 15,
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      "${device[2]} dBm",
+                      style: const TextStyle(
+                        fontSize: 7,
+                        fontFamily: 'Nunito',
+                      ),
+                    ),
+                  ),
+                  Container(
+                    width: 40,
+                    height: 38,
+                    alignment: Alignment.centerRight,
+                    child: CelluarBar(
+                      width: 27,
+                      rssi: device[2],
                     ),
                   ),
                 ],
