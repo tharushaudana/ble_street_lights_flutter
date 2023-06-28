@@ -145,6 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Home"),
+        elevation: 0,
       ),
       body: devices.isNotEmpty
           ? LiquidPullToRefresh(
@@ -237,11 +238,42 @@ class _DeviceCardState extends State<DeviceCard> with TickerProviderStateMixin {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: 22, horizontal: 18),
-      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 18),
       decoration: BoxDecoration(
-        border: Border.all(
-            color: Colors.grey.shade400, width: 1, style: BorderStyle.solid),
+        //border: Border.all(
+        //    color: Colors.grey.shade400, width: 1, style: BorderStyle.solid),
         borderRadius: BorderRadius.all(Radius.circular(15)),
+        //color: Colors.grey.shade300,
+        //color: Theme.of(context).scaffoldBackgroundColor,
+        color: Colors.blue.withOpacity(0.1),
+        boxShadow: [
+          BoxShadow(
+            //color: Colors.grey.shade600,
+            color: Colors.blue.withOpacity(0.2),
+//            offset: Offset(4, 4),
+            offset: Offset(1, 1),
+            blurRadius: 15,
+            spreadRadius: 1,
+          ),
+          BoxShadow(
+            //color: Colors.white,
+            color: Theme.of(context).scaffoldBackgroundColor,
+            offset: Offset(-4, -4),
+            blurRadius: 15,
+            spreadRadius: 1,
+          ),
+          //------------------------
+          /*BoxShadow(
+            color: Colors.white,
+            offset: Offset(-4, -4),
+            blurRadius: 30,
+          ),
+          BoxShadow(
+            color: Color(0xFFA7A9AF),
+            offset: Offset(15, 15),
+            blurRadius: 30,
+          ),*/
+        ],
       ),
       child: Row(
         children: [
