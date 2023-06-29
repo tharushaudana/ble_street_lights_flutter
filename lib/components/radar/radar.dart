@@ -56,27 +56,6 @@ class _RadarState extends State<Radar> with TickerProviderStateMixin {
   double scanTextChangeStep = 0;
   String currentScanText = "";
 
-  bool isDisposed = false;
-
-  @override
-  void initState() {
-    super.initState();
-
-    sweepAngle = startAngle;
-
-    scanTextChangeStep = (endAngle - startAngle) / (scanText.length + 1);
-
-    controller = RadarController(
-      onNewDevice: onNewDevice,
-      onStartScan: onStartScan,
-      onStopScan: onStopScan,
-    );
-
-    if (widget.getController != null) widget.getController(controller);
-
-    initAnimations();
-  }
-
   void initAnimations() {
     _controllerScan = AnimationController(
       vsync: this,
@@ -109,7 +88,6 @@ class _RadarState extends State<Radar> with TickerProviderStateMixin {
     )..addListener(() {
         WidgetsBinding.instance.addPostFrameCallback(
           (timeStamp) {
-            if (isDisposed) return;
             setState(() {
               scaleSize = _animationScale.value;
             });
@@ -183,6 +161,32 @@ class _RadarState extends State<Radar> with TickerProviderStateMixin {
     onCanvasTap(localPos);
   }
 
+    @override
+  void initState() {
+    super.initState();
+
+    sweepAngle = startAngle;
+
+    scanTextChangeStep = (endAngle - startAngle) / (scanText.length + 1);
+
+    controller = RadarController(
+      onNewDevice: onNewDevice,
+      onStartScan: onStartScan,
+      onStopScan: onStopScan,
+    );
+
+    if (widget.getController != null) widget.getController(controller);
+
+    initAnimations();
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    //### for prevent error: "setState called after dispose"
+    if (!mounted) return;
+    super.setState(fn);
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -231,7 +235,6 @@ class _RadarState extends State<Radar> with TickerProviderStateMixin {
   void dispose() {
     _controllerScan.dispose();
     _controllerScale.dispose();
-    isDisposed = true;
     super.dispose();
   }
 }

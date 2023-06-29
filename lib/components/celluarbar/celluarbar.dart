@@ -46,13 +46,38 @@ class _CelluarBarState extends State<CelluarBar> {
     strengthColor = strengthColors[activeBarCount - 1];
   }
 
+  List<Widget> getBars(int rssi) {
+    List<Widget> bars = [];
+
+    setActiveBarCount(widget.rssi);
+
+    for (int i = 0; i < 4; i++) {
+      bars.add(
+        Container(
+          width: widthPerBar,
+          height: getBarHeight(i),
+          margin: EdgeInsets.only(right: i < 3 ? spaceBetween : 0),
+          decoration: BoxDecoration(
+            color: i + 1 <= activeBarCount
+                ? strengthColor
+                : strengthColor.withOpacity(0.2),
+            borderRadius: BorderRadius.all(
+              Radius.circular(widthPerBar / 2),
+            ),
+          ),
+        ).animate().fade(duration: 300.ms, delay: (50 * (i + 1)).ms),
+      );
+    }
+
+    return bars;
+  }
+
   @override
   void initState() {
     height = widget.width;
     width = widget.width;
     spaceBetween = (SPACE_BETWEEN_FOR_WIDTH_50 / 50) * width;
     widthPerBar = (width - spaceBetween * 3) / 4;
-    setActiveBarCount(widget.rssi);
     super.initState();
   }
 
@@ -63,22 +88,7 @@ class _CelluarBarState extends State<CelluarBar> {
       height: height,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          for (int i = 0; i < 4; i++)
-            Container(
-              width: widthPerBar,
-              height: getBarHeight(i),
-              margin: EdgeInsets.only(right: i < 3 ? spaceBetween : 0),
-              decoration: BoxDecoration(
-                color: i + 1 <= activeBarCount
-                    ? strengthColor
-                    : strengthColor.withOpacity(0.2),
-                borderRadius: BorderRadius.all(
-                  Radius.circular(widthPerBar / 2),
-                ),
-              ),
-            ).animate().fade(duration: 300.ms, delay: (50 * (i + 1)).ms),
-        ],
+        children: getBars(widget.rssi)
       ),
     );
   }

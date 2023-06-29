@@ -1,10 +1,10 @@
 import 'dart:developer';
 import 'dart:async';
+import 'package:ble_street_lights/helpers/bluetooth.dart';
+import 'package:ble_street_lights/helpers/location.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:geolocator/geolocator.dart' as geolocator;
 import 'package:ble_street_lights/screens/scan/scanner.dart';
 
 class ScanScreen extends StatefulWidget {
@@ -21,6 +21,9 @@ class _ScanScreenState extends State<ScanScreen> {
   bool isBluetoothLocationListenerTriggered = false;
   bool isBluetoothEnabled = false;
   bool isLocationEnabled = false;
+
+  BluetoothHelper bluetooth = BluetoothHelper();
+  LocationHelper location = LocationHelper();
 
   checkPermissionsStates() async {
     isPermissionsGranted = (await Permission.location.status.isGranted);
@@ -40,32 +43,29 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
   checkIsBluetoothAndLocationEnabled() async {
-    isBluetoothEnabled = await FlutterBluePlus.instance.isOn;
-    isLocationEnabled =
-        await geolocator.GeolocatorPlatform.instance.isLocationServiceEnabled();
-
-    if (!isBluetoothLocationListenerTriggered) {
-      listenBluetoothAndLocationServiceStatus();
-      isBluetoothLocationListenerTriggered = true;
-    }
-
-    return isBluetoothEnabled && isLocationEnabled;
+    await bluetooth.checkIsEnabled();
+    await location.checkIsEnabled();
+    return bluetooth.isEnabled && location.isEnabled;
   }
 
   listenBluetoothAndLocationServiceStatus() {
-    FlutterBluePlus.instance.state.listen((state) {
-      setState(() {
-        isBluetoothEnabled = state == BluetoothState.on;
-      });
-    });
+    bluetooth.listenForServiceStatusChanges(null);
+    location.listenForServiceStatusChanges(null);
+  }
 
-    geolocator.GeolocatorPlatform.instance
-        .getServiceStatusStream()
-        .listen((geolocator.ServiceStatus status) {
-      setState(() {
-        isLocationEnabled = status == geolocator.ServiceStatus.enabled;
-      });
-    });
+  @override
+  void initState() {
+    super.initState();
+    bluetooth.setStateClass(this);
+    location.setStateClass(this);
+    listenBluetoothAndLocationServiceStatus();
+  }
+
+  @override
+  void dispose() {
+    bluetooth.dispose();
+    location.dispose();
+    super.dispose();
   }
 
   @override

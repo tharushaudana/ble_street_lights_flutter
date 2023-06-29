@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:ble_street_lights/components/celluarbar/celluarbar.dart';
+import 'package:ble_street_lights/helpers/bluetooth.dart';
 import 'package:ble_street_lights/screens/scan/scan.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -19,7 +20,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late SharedPreferences sharedPrefs;
-  FlutterBluePlus flutterBlue = FlutterBluePlus.instance;
+
+  BluetoothHelper bluetooth = BluetoothHelper();
 
   List devices = [
     //["Test Device 01", "BE:AC:10:00:00:01", -54],
@@ -31,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List availableDeviceIds = [];
 
-  bool isScanning = false;
+  //bool isScanning = false;
 
   initSharedPrefs() async {
     sharedPrefs = await SharedPreferences.getInstance();
@@ -61,7 +63,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   openScanner() {
-    if (isScanning) return;
+    if (bluetooth.isScanning) return;
+
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -80,27 +83,27 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   scanForDevices() async {
-    try {
-      availableDeviceIds.clear();
+    await bluetooth.startScan(
+      started: () {
+        availableDeviceIds.clear();
+      },
+      stopped: () {},
+    );
+  }
 
-      flutterBlue.scanResults.listen((results) {
-        for (ScanResult r in results) {
-          updateDeviceDetails(r.device, r.rssi);
-        }
-      });
+  listenForBluetooth() {
+    /*bluetooth.listenForScanStateChanges(
+      started: () {
+        availableDeviceIds.clear();
+      },
+      stopped: () {},
+    );*/
 
-      setState(() {
-        isScanning = true;
-      });
-
-      await flutterBlue
-          .startScan(timeout: const Duration(seconds: 5))
-          .then((value) {
-        setState(() {
-          isScanning = false;
-        });
-      });
-    } catch (e) {}
+    bluetooth.listenForScanResults((List<ScanResult> results) {
+      for (ScanResult r in results) {
+        updateDeviceDetails(r.device, r.rssi);
+      }
+    });
   }
 
   updateDeviceDetails(BluetoothDevice device, int rssi) {
@@ -135,9 +138,18 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
 
+    bluetooth.setStateClass(this);
+    listenForBluetooth();
+
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       initSharedPrefs();
     });
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    if (!mounted) return;
+    super.setState(fn);
   }
 
   @override
@@ -161,8 +173,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       address: devices[i][1],
                       rssi: devices[i][2],
                       available: isDeviceAvailable(devices[i][1]),
-                      ischecking:
-                          isScanning && !isDeviceAvailable(devices[i][1]),
+                      ischecking: bluetooth.isScanning &&
+                          !isDeviceAvailable(devices[i][1]),
                     )
                         .animate()
                         .fade(duration: 300.ms, delay: (100 * (i + 1)).ms)
@@ -191,12 +203,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => openScanner(),
-        tooltip: 'Scan',
-        child: const Icon(Icons.radar),
-      ),
+      floatingActionButton: bluetooth.isScanning
+          ? null
+          : FloatingActionButton(
+              onPressed: () => openScanner(),
+              tooltip: 'Scan',
+              child: const Icon(Icons.radar),
+            ).animate().scale(duration: 300.ms).fade(duration: 300.ms),
     ).animate().move(duration: 200.ms);
+  }
+
+  @override
+  void dispose() {
+    bluetooth.dispose();
+    super.dispose();
   }
 }
 
@@ -235,124 +255,148 @@ class _DeviceCardState extends State<DeviceCard> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: 22, horizontal: 18),
-      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 18),
-      decoration: BoxDecoration(
-        //border: Border.all(
-        //    color: Colors.grey.shade400, width: 1, style: BorderStyle.solid),
-        borderRadius: BorderRadius.all(Radius.circular(15)),
-        //color: Colors.grey.shade300,
-        //color: Theme.of(context).scaffoldBackgroundColor,
-        color: Colors.blue.withOpacity(0.1),
-        boxShadow: [
-          BoxShadow(
-            //color: Colors.grey.shade600,
-            color: Colors.blue.withOpacity(0.2),
-//            offset: Offset(4, 4),
-            offset: Offset(1, 1),
-            blurRadius: 15,
-            spreadRadius: 1,
-          ),
-          BoxShadow(
-            //color: Colors.white,
-            color: Theme.of(context).scaffoldBackgroundColor,
-            offset: Offset(-4, -4),
-            blurRadius: 15,
-            spreadRadius: 1,
-          ),
-          //------------------------
-          /*BoxShadow(
-            color: Colors.white,
-            offset: Offset(-4, -4),
-            blurRadius: 30,
-          ),
-          BoxShadow(
-            color: Color(0xFFA7A9AF),
-            offset: Offset(15, 15),
-            blurRadius: 30,
-          ),*/
-        ],
-      ),
-      child: Row(
-        children: [
-          const Image(
-            image: AssetImage("assets/images/device_icon.png"),
-            width: 48,
-            height: 48,
-          ),
-          const SizedBox(
-            width: 10,
-          ),
-          const SizedBox(width: 15),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.name,
-                style: const TextStyle(
-                  fontFamily: 'Nunito',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
+    return Stack(
+      children: [
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(vertical: 22, horizontal: 18),
+          margin: EdgeInsets.symmetric(vertical: 8, horizontal: 18),
+          decoration: BoxDecoration(
+            //border: Border.all(
+            //    color: Colors.grey.shade400, width: 1, style: BorderStyle.solid),
+            borderRadius: BorderRadius.all(Radius.circular(15)),
+            //color: Colors.grey.shade300,
+            //color: Theme.of(context).scaffoldBackgroundColor,
+            color: Colors.blue.withOpacity(0.1),
+            boxShadow: [
+              BoxShadow(
+                //color: Colors.grey.shade600,
+                color: Colors.blue.withOpacity(0.2),
+                //            offset: Offset(4, 4),
+                offset: Offset(1, 1),
+                blurRadius: 15,
+                spreadRadius: 1,
               ),
-              Text(
-                widget.address,
-                style: const TextStyle(
-                  fontFamily: 'Nunito',
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey,
-                  fontSize: 12,
-                ),
+              BoxShadow(
+                //color: Colors.white,
+                color: Theme.of(context).scaffoldBackgroundColor,
+                offset: Offset(-4, -4),
+                blurRadius: 15,
+                spreadRadius: 1,
               ),
+              //------------------------
+              /*BoxShadow(
+              color: Colors.white,
+              offset: Offset(-4, -4),
+              blurRadius: 30,
+            ),
+            BoxShadow(
+              color: Color(0xFFA7A9AF),
+              offset: Offset(15, 15),
+              blurRadius: 30,
+            ),*/
             ],
           ),
-          const Spacer(),
-          const SizedBox(width: 15),
-          !widget.ischecking
-              ? widget.available
-                  ? Stack(
-                      children: [
-                        Container(
-                          width: 33,
-                          height: 15,
-                          alignment: Alignment.centerRight,
-                          child: Text(
-                            "${widget.rssi} dBm",
-                            style: const TextStyle(
-                              fontSize: 7,
-                              fontFamily: 'Nunito',
+          child: Row(
+            children: [
+              const Image(
+                image: AssetImage("assets/images/device_icon.png"),
+                width: 48,
+                height: 48,
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              const SizedBox(width: 15),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.name,
+                    style: const TextStyle(
+                      fontFamily: 'Nunito',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  Text(
+                    widget.address,
+                    style: const TextStyle(
+                      fontFamily: 'Nunito',
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+              const Spacer(),
+              const SizedBox(width: 15),
+              !widget.ischecking
+                  ? widget.available
+                      ? Stack(
+                          children: [
+                            Container(
+                              margin: EdgeInsets.only(top: 10),
+                              width: 33,
+                              height: 15,
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                "${widget.rssi} dBm",
+                                style: const TextStyle(
+                                  fontSize: 7,
+                                  fontFamily: 'Nunito',
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        Container(
-                          width: 40,
-                          height: 38,
-                          alignment: Alignment.centerRight,
-                          child: CelluarBar(
-                            width: 27,
-                            rssi: widget.rssi,
-                          ),
-                        ),
-                      ],
-                    )
+                            Container(
+                              margin: EdgeInsets.only(top: 10),
+                              width: 40,
+                              height: 38,
+                              alignment: Alignment.centerRight,
+                              child: CelluarBar(
+                                width: 27,
+                                rssi: widget.rssi,
+                              ),
+                            ),
+                          ],
+                        )
+                      : const Icon(
+                          Icons.signal_cellular_off_rounded,
+                          size: 32,
+                          color: Colors.red,
+                        )
                   : const Icon(
-                      Icons.signal_cellular_off_rounded,
+                      Icons.signal_cellular_4_bar_rounded,
                       size: 32,
-                      color: Colors.red,
+                      color: Colors.grey,
                     )
-              : const Icon(
-                  Icons.signal_cellular_4_bar_rounded,
-                  size: 32,
-                  color: Colors.grey,
-                )
-                  .animate(
-                    onPlay: (controller) => controller.repeat(),
-                  )
-                  .shimmer(duration: 600.ms, delay: 1000.ms),
-        ],
-      ),
+                      .animate(
+                        onPlay: (controller) => controller.repeat(),
+                      )
+                      .shimmer(duration: 600.ms, delay: 1000.ms),
+            ],
+          ),
+        ),
+        //##################### GREEN DOT #####################
+        widget.available
+            ? Container(
+                alignment: Alignment.topRight,
+                margin: const EdgeInsets.only(
+                  right: 27,
+                  top: 17,
+                ),
+                child: Container(
+                  height: 9,
+                  width: 9,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.greenAccent.shade700,
+                  ),
+                ),
+              ).animate().fade(duration: 300.ms)
+            : Container(),
+      ],
     );
   }
 }

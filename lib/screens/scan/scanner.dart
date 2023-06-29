@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:ble_street_lights/components/celluarbar/celluarbar.dart';
 import 'package:ble_street_lights/components/radar/radar.dart';
+import 'package:ble_street_lights/helpers/bluetooth.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'package:flutter_animate/flutter_animate.dart';
@@ -20,34 +21,43 @@ class Scanner extends StatefulWidget {
 class _ScannerState extends State<Scanner> {
   late RadarController radarController;
 
-  FlutterBluePlus flutterBlue = FlutterBluePlus.instance;
-
-  bool isScanning = false;
+  BluetoothHelper bluetooth = BluetoothHelper();
 
   List<BluetoothDevice> devices = [];
 
-  scanForDevices() async {
-    try {
-      flutterBlue.startScan(timeout: Duration(seconds: 5)).then((value) {
-        radarController.stopScan();
+  scanForDevices() {
+    bluetooth.startScan(
+      started: () {
+        radarController.startScan();
+
         setState(() {
-          isScanning = false;
+          devices.clear();
         });
-      });
+      },
+      stopped: () {
+        radarController.stopScan();
+      },
+    );
+  }
 
-      flutterBlue.scanResults.listen((results) {
-        for (ScanResult r in results) {
-          addDevice(r.device, r.rssi);
-        }
-      });
+  listenForBluetooth() {
+    /*bluetooth.listenForScanStateChanges(
+      started: () {
+        radarController.startScan();
+        setState(() {
+          devices.clear();
+        });
+      },
+      stopped: () {
+        radarController.stopScan();
+      },
+    );*/
 
-      radarController.startScan();
-
-      setState(() {
-        devices.clear();
-        isScanning = true;
-      });
-    } catch (e) {}
+    bluetooth.listenForScanResults((List<ScanResult> results) {
+      for (ScanResult r in results) {
+        addDevice(r.device, r.rssi);
+      }
+    });
   }
 
   addDevice(BluetoothDevice device, int rssi) {
@@ -131,7 +141,7 @@ class _ScannerState extends State<Scanner> {
           content: Container(
             child: TextButton(
               onPressed: () {
-                flutterBlue.stopScan().then((value) {
+                bluetooth.stopScan(() {
                   widget.onAddDeviceClicked(device);
                   closeMain();
                   Navigator.pop(context);
@@ -155,17 +165,19 @@ class _ScannerState extends State<Scanner> {
   void initState() {
     super.initState();
 
+    bluetooth.setStateClass(this);
+
+    listenForBluetooth();
+
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       scanForDevices();
     });
   }
 
   @override
-  void dispose() {
-    if (flutterBlue.isScanningNow) {
-      flutterBlue.stopScan();
-    }
-    super.dispose();
+  void setState(VoidCallback fn) {
+    if (!mounted) return;
+    super.setState(fn);
   }
 
   @override
@@ -190,5 +202,11 @@ class _ScannerState extends State<Scanner> {
         ).animate().fade(duration: 300.ms),
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    bluetooth.dispose();
+    super.dispose();
   }
 }
