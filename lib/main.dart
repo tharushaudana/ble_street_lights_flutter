@@ -1,3 +1,4 @@
+import 'package:ble_street_lights/screens/device/device.dart';
 import 'package:ble_street_lights/screens/home/home.dart';
 import 'package:ble_street_lights/screens/splash.dart';
 import 'package:ble_street_lights/screens/scan/scan.dart';
@@ -19,7 +20,8 @@ class MyApp extends StatelessWidget {
       ),
       //home: SplashScreen(),
       //home: ScanScreen(),
-      home: HomeScreen(title: "BLE Street Lights"),
+      //home: HomeScreen(title: "BLE Street Lights"),
+      home: DeviceScreen(),
       routes: {
         '/home': (context) => HomeScreen(title: "title")
       },
