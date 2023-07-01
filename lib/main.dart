@@ -20,8 +20,8 @@ class MyApp extends StatelessWidget {
       ),
       //home: SplashScreen(),
       //home: ScanScreen(),
-      //home: HomeScreen(title: "BLE Street Lights"),
-      home: DeviceScreen(),
+      home: HomeScreen(title: "BLE Street Lights"),
+      //home: DeviceScreen(),
       routes: {
         '/home': (context) => HomeScreen(title: "title"),
         '/device': (context) => DeviceScreen(),
