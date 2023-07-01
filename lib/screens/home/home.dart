@@ -60,6 +60,8 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     //devices.add(["Test Device 04", "BE:AC:10:00:00:06", -54]);
+    //devices.add(["Test Device 05", "BE:AC:10:00:00:07", -54]);
+    //devices.add(["Test Device 06", "BE:AC:10:00:00:08", -54]);
 
     if (devices.isNotEmpty) scanForDevices();
   }
