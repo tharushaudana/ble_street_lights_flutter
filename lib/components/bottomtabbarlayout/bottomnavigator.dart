@@ -5,10 +5,12 @@ class BottomNavigator extends StatefulWidget {
   const BottomNavigator({
     super.key,
     required this.tabs,
+    required this.tabController,
     required this.onSelectChanged,
   });
 
   final List<List> tabs;
+  final TabController tabController;
   final dynamic onSelectChanged;
 
   @override
@@ -22,8 +24,11 @@ class _BottomNavigatorState extends State<BottomNavigator> {
   final double spaceBetweenIconAndText = 8;
   final Color unselectedColor = Colors.black87;
   final int animDurationMillis = 200;
-  final textStyle =
-      const TextStyle(fontFamily: 'Nunito', fontWeight: FontWeight.bold);
+  final textStyle = const TextStyle(
+    fontFamily: 'Nunito',
+    fontSize: 14,
+    fontWeight: FontWeight.bold,
+  );
 
   List textWidths = [];
   List containerWidths = [];
@@ -34,6 +39,7 @@ class _BottomNavigatorState extends State<BottomNavigator> {
     final textPainter = TextPainter(
       text: TextSpan(text: text, style: textStyle),
       textDirection: TextDirection.ltr,
+      maxLines: 1,
     );
 
     textPainter.layout();
@@ -43,7 +49,7 @@ class _BottomNavigatorState extends State<BottomNavigator> {
 
   generateData() {
     for (List label in widget.tabs) {
-      textWidths.add(getTextWidth(label[0]) + spaceBetweenIconAndText);
+      textWidths.add(getTextWidth(label[0]) + spaceBetweenIconAndText + 5);
       containerWidths.add(iconSize + tabPadding * 2);
     }
 
@@ -67,7 +73,12 @@ class _BottomNavigatorState extends State<BottomNavigator> {
     if (index == selectedIndex) return;
     setOpenCloseOfTab(selectedIndex, false);
     setOpenCloseOfTab(index, true);
-    widget.onSelectChanged(index);
+
+    widget.tabController.index = index;
+
+    if (widget.onSelectChanged != null) {
+      widget.onSelectChanged(index);
+    }
   }
 
   List<Widget> renderTabs() {
@@ -113,7 +124,7 @@ class _BottomNavigatorState extends State<BottomNavigator> {
                                   ? widget.tabs[i][2]
                                   : unselectedColor,
                             ),
-                            overflow: TextOverflow.fade,
+                            overflow: TextOverflow.clip,
                             softWrap: false,
                           ),
                         ),
@@ -138,6 +149,13 @@ class _BottomNavigatorState extends State<BottomNavigator> {
   @override
   void initState() {
     generateData();
+
+    widget.tabController.addListener(() {
+      if (selectedIndex != widget.tabController.index) {
+        onTapTab(widget.tabController.index);
+      }
+    });
+
     super.initState();
   }
 

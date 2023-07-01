@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:ble_street_lights/components/bottomtabbarlayout/bottomnavigator.dart';
 import 'package:flutter/material.dart';
 
@@ -23,6 +24,10 @@ class _BottomTabBarLayoutState extends State<BottomTabBarLayout>
   void initState() {
     tabController = TabController(length: widget.tabs.length, vsync: this);
 
+    tabController.addListener(() {
+      log(tabController.index.toString());
+    });
+
     super.initState();
   }
 
@@ -38,9 +43,8 @@ class _BottomTabBarLayoutState extends State<BottomTabBarLayout>
         ),
         BottomNavigator(
           tabs: widget.tabs,
-          onSelectChanged: (int index) {
-            tabController.index = index;
-          },
+          tabController: tabController,
+          onSelectChanged: null,
         ),
       ],
     );
