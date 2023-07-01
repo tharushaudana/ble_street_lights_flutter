@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:ble_street_lights/components/hideanimatedlistitem/hideanimatedlistitem.dart';
 import 'package:ble_street_lights/helpers/bluetooth.dart';
 import 'package:ble_street_lights/helpers/location.dart';
 import 'package:ble_street_lights/screens/home/widgets/devicecard.dart';
@@ -34,6 +35,8 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   List availableDeviceIds = [];
+  List selectedDeviceIds = [];
+  List deletedDeviceIds = [];
 
   bool isInitialized = false;
   bool isPulledForRefresh = false;
@@ -192,6 +195,20 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  deleteSelectedDevices() {
+    for (List device in devices) {
+      if (selectedDeviceIds.contains(device[1])) {
+        setState(() {
+          deletedDeviceIds.add(device[1]);
+        });
+      }
+    }
+
+    setState(() {
+      selectedDeviceIds.clear();
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -215,7 +232,30 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Home"),
+        title: Row(
+          children: [
+            Text("Home"),
+            Spacer(),
+            selectedDeviceIds.isNotEmpty
+                ? Row(
+                    children: [
+                      Text("${selectedDeviceIds.length}")
+                          .animate()
+                          .fade(duration: 300.ms),
+                      const SizedBox(width: 20),
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            selectedDeviceIds.clear();
+                          });
+                        },
+                        icon: const Icon(Icons.close),
+                      ).animate().fade(duration: 300.ms),
+                    ],
+                  ) //.animate().scale(duration: 300.ms)
+                : Container(),
+          ],
+        ),
         elevation: 0,
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(
@@ -227,29 +267,48 @@ class _HomeScreenState extends State<HomeScreen> {
               : Container(),
         ),
       ),
-      body: devices.isNotEmpty
+      body: devices.isNotEmpty && devices.length != deletedDeviceIds.length
           ? LiquidPullToRefresh(
               onRefresh: onRefreshList,
               showChildOpacityTransition: false,
               child: Container(
-                margin: EdgeInsets.only(top: 10),
+                margin: const EdgeInsets.only(top: 10),
                 child: ListView.builder(
                   itemCount: devices.length,
                   itemBuilder: (context, i) {
-                    return DeviceCard(
-                      name: devices[i][0],
-                      address: devices[i][1],
-                      rssi: devices[i][2],
-                      available: isDeviceAvailable(devices[i][1]),
-                      ischecking: bluetooth.isScanning &&
-                          !isDeviceAvailable(devices[i][1]),
-                      onTap: () {
-                        openDeviceScreen(i);
-                      },
-                    )
-                        .animate()
-                        .fade(duration: 300.ms, delay: (100 * (i + 1)).ms)
-                        .moveX(duration: 300.ms, delay: (100 * (i + 1)).ms);
+                    return HideAnimatedListItem(
+                      hidden: deletedDeviceIds.contains(devices[i][1]),
+                      child: DeviceCard(
+                        name: devices[i][0],
+                        address: devices[i][1],
+                        rssi: devices[i][2],
+                        available: isDeviceAvailable(devices[i][1]),
+                        ischecking: bluetooth.isScanning &&
+                            !isDeviceAvailable(devices[i][1]),
+                        selectOnTap: selectedDeviceIds.isNotEmpty,
+                        selected: selectedDeviceIds.contains(devices[i][1]),
+                        onTap: () {
+                          openDeviceScreen(i);
+                        },
+                        onSelect: () {
+                          if (!selectedDeviceIds.contains(devices[i][1])) {
+                            setState(() {
+                              selectedDeviceIds.add(devices[i][1]);
+                            });
+                          }
+                        },
+                        onUnselect: () {
+                          if (selectedDeviceIds.contains(devices[i][1])) {
+                            setState(() {
+                              selectedDeviceIds.remove(devices[i][1]);
+                            });
+                          }
+                        },
+                      )
+                          .animate()
+                          .fade(duration: 300.ms, delay: (100 * (i + 1)).ms)
+                          .moveX(duration: 300.ms, delay: (100 * (i + 1)).ms),
+                    );
                   },
                 ),
               ),
@@ -278,17 +337,28 @@ class _HomeScreenState extends State<HomeScreen> {
               : Container(),
       floatingActionButton: bluetooth.isScanning
           ? null
-          : FloatingActionButton(
-              onPressed: () => openScanner(),
-              tooltip: 'Scan',
-              child: const Icon(Icons.radar),
-            ).animate().scale(duration: 300.ms),
-    ).animate().move(duration: 200.ms);
+          : selectedDeviceIds.isEmpty
+              ? FloatingActionButton(
+                  onPressed: () => openScanner(),
+                  tooltip: 'Scan',
+                  child: const Icon(Icons.radar),
+                ).animate().scale(duration: 300.ms)
+              : FloatingActionButton(
+                  onPressed: () => deleteSelectedDevices(),
+                  tooltip: 'Delete',
+                  backgroundColor: Colors.red,
+                  child: const Icon(
+                    Icons.delete,
+                  ),
+                ).animate().scale(duration: 300.ms, delay: 500.ms),
+    );
+    //.animate().move(duration: 200.ms);
   }
 
   @override
   void dispose() {
     bluetooth.dispose();
+    location.dispose();
     super.dispose();
   }
 }

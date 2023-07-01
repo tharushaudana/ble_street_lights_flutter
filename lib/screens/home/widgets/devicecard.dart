@@ -1,5 +1,6 @@
 import 'dart:developer';
-
+import 'dart:math' as math;
+import 'package:ble_street_lights/components/flippablelayout/flippablelayout.dart';
 import 'package:flutter/material.dart';
 import 'package:ble_street_lights/components/celluarbar/celluarbar.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -12,7 +13,11 @@ class DeviceCard extends StatefulWidget {
     required this.rssi,
     required this.available,
     required this.ischecking,
+    required this.selectOnTap,
+    this.selected = true,
     required this.onTap,
+    required this.onSelect,
+    required this.onUnselect,
   });
 
   final String name;
@@ -20,7 +25,11 @@ class DeviceCard extends StatefulWidget {
   final int rssi;
   final bool available;
   final bool ischecking;
+  final bool selectOnTap;
+  final bool selected;
   final VoidCallback onTap;
+  final VoidCallback onSelect;
+  final VoidCallback onUnselect;
 
   @override
   State<StatefulWidget> createState() => _DeviceCardState();
@@ -39,63 +48,77 @@ class _DeviceCardState extends State<DeviceCard> with TickerProviderStateMixin {
     super.initState();
   }
 
+  callbackSelectChange(bool select) {
+    if (widget.selected) {
+      widget.onUnselect();
+    } else {
+      widget.onSelect();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         GestureDetector(
           onTap: () {
-            widget.onTap();
+            if (widget.selected) {
+              callbackSelectChange(false);
+            } else if (widget.selectOnTap) {
+              callbackSelectChange(true);
+            } else {
+              widget.onTap();
+            }
           },
           onLongPress: () {
-            log("message");
+            if (widget.selected || widget.selectOnTap) return;
+            callbackSelectChange(true);
           },
           child: Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 18),
             margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 18),
             decoration: BoxDecoration(
-              //border: Border.all(
-              //    color: Colors.grey.shade400, width: 1, style: BorderStyle.solid),
               borderRadius: const BorderRadius.all(Radius.circular(15)),
-              //color: Colors.grey.shade300,
-              //color: Theme.of(context).scaffoldBackgroundColor,
               color: Colors.blue.withOpacity(0.1),
               boxShadow: [
                 BoxShadow(
-                  //color: Colors.grey.shade600,
                   color: Colors.blue.withOpacity(0.2),
-                  //            offset: Offset(4, 4),
                   offset: Offset(1, 1),
                   blurRadius: 15,
                   spreadRadius: 1,
                 ),
                 BoxShadow(
-                  //color: Colors.white,
                   color: Theme.of(context).scaffoldBackgroundColor,
                   offset: Offset(-4, -4),
                   blurRadius: 15,
                   spreadRadius: 1,
                 ),
-                //------------------------
-                /*BoxShadow(
-                color: Colors.white,
-                offset: Offset(-4, -4),
-                blurRadius: 30,
-              ),
-              BoxShadow(
-                color: Color(0xFFA7A9AF),
-                offset: Offset(15, 15),
-                blurRadius: 30,
-              ),*/
               ],
             ),
             child: Row(
               children: [
-                const Image(
-                  image: AssetImage("assets/images/device_icon.png"),
-                  width: 48,
-                  height: 48,
+                FlippableLayout(
+                  duration: const Duration(milliseconds: 600),
+                  flipped: widget.selected,
+                  front: const Image(
+                    image: AssetImage("assets/images/device_icon.png"),
+                    width: 48,
+                    height: 48,
+                  ),
+                  back: Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      color: Colors.blue,
+                    ),
+                    child: const Icon(
+                      Icons.check,
+                      color: Colors.white70,
+                      size: 25,
+                    ).animate().scale(duration: 300.ms, delay: 100.ms),
+                  ),
                 ),
                 const SizedBox(
                   width: 10,
