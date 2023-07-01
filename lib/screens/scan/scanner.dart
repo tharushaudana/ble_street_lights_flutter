@@ -148,10 +148,10 @@ class _ScannerState extends State<Scanner> {
                 });
               },
               child: Row(
-                children: [
-                  const Icon(Icons.add),
-                  const SizedBox(width: 7),
-                  const Text("ADD"),
+                children: const [
+                  Icon(Icons.add),
+                  SizedBox(width: 7),
+                  Text("ADD"),
                 ],
               ),
             ),

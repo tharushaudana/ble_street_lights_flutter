@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:ble_street_lights/components/celluarbar/celluarbar.dart';
 import 'package:ble_street_lights/helpers/bluetooth.dart';
+import 'package:ble_street_lights/helpers/location.dart';
 import 'package:ble_street_lights/screens/scan/scan.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -22,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late SharedPreferences sharedPrefs;
 
   BluetoothHelper bluetooth = BluetoothHelper();
+  LocationHelper location = LocationHelper();
 
   List devices = [
     //["Test Device 01", "BE:AC:10:00:00:01", -54],
@@ -33,17 +35,25 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List availableDeviceIds = [];
 
+  bool isInitialized = false;
+  bool isPulledForRefresh = false;
+
   //bool isScanning = false;
 
   initSharedPrefs() async {
     sharedPrefs = await SharedPreferences.getInstance();
 
-    if (!sharedPrefs.containsKey("devices")) return;
+    if (sharedPrefs.containsKey("devices")) {
+      String json = (await sharedPrefs.getString("devices")) as String;
 
-    String json = (await sharedPrefs.getString("devices")) as String;
+      setState(() {
+        devices = jsonDecode(json);
+        isInitialized = true;
+      });
+    }
 
     setState(() {
-      devices = jsonDecode(json);
+      isInitialized = true;
     });
 
     //devices.add(["Test Device 04", "BE:AC:10:00:00:06", -54]);
@@ -80,6 +90,10 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
     );
+  }
+
+  openDeviceScreen(int index) {
+    Navigator.pushNamed(context, "/device");
   }
 
   scanForDevices() async {
@@ -131,7 +145,51 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> onRefreshList() async {
+    if (!await bluetooth.checkIsEnabled() || !await location.checkIsEnabled()) {
+      showUnableToScanAlert();
+      return;
+    }
+
+    setState(() {
+      isPulledForRefresh = true;
+    });
+
     await scanForDevices();
+
+    setState(() {
+      isPulledForRefresh = false;
+    });
+  }
+
+  showUnableToScanAlert() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          icon: Icon(
+            Icons.warning_rounded,
+            size: 60,
+            color: Colors.red.shade400,
+          ),
+          title: const Text(
+            "Can't Refresh",
+            style: TextStyle(
+              fontFamily: 'Nunito',
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+              Radius.circular(20),
+            ),
+          ),
+          content: const Text(
+            "Please enable Location & Bluetooth",
+            style: TextStyle(fontFamily: 'Nunito'),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -139,6 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
 
     bluetooth.setStateClass(this);
+    location.setStateClass(this);
     listenForBluetooth();
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -158,6 +217,15 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Text("Home"),
         elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(
+              bluetooth.isScanning && !isPulledForRefresh ? 6.0 : 0),
+          child: bluetooth.isScanning && !isPulledForRefresh
+              ? LinearProgressIndicator(
+                  color: Colors.blue.shade400,
+                )
+              : Container(),
+        ),
       ),
       body: devices.isNotEmpty
           ? LiquidPullToRefresh(
@@ -175,6 +243,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       available: isDeviceAvailable(devices[i][1]),
                       ischecking: bluetooth.isScanning &&
                           !isDeviceAvailable(devices[i][1]),
+                      onTap: () {
+                        openDeviceScreen(i);
+                      },
                     )
                         .animate()
                         .fade(duration: 300.ms, delay: (100 * (i + 1)).ms)
@@ -183,33 +254,35 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             )
-          : Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.exposure_zero,
-                    size: 150,
-                    color: Colors.grey.withAlpha(100),
+          : isInitialized
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.exposure_zero,
+                        size: 150,
+                        color: Colors.grey.withAlpha(100),
+                      ),
+                      Text(
+                        "DEVICES",
+                        style: TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey.withAlpha(100),
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    "DEVICES",
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey.withAlpha(100),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                )
+              : Container(),
       floatingActionButton: bluetooth.isScanning
           ? null
           : FloatingActionButton(
               onPressed: () => openScanner(),
               tooltip: 'Scan',
               child: const Icon(Icons.radar),
-            ).animate().scale(duration: 300.ms).fade(duration: 300.ms),
+            ).animate().scale(duration: 300.ms),
     ).animate().move(duration: 200.ms);
   }
 
@@ -228,6 +301,7 @@ class DeviceCard extends StatefulWidget {
     required this.rssi,
     required this.available,
     required this.ischecking,
+    required this.onTap,
   });
 
   final String name;
@@ -235,6 +309,7 @@ class DeviceCard extends StatefulWidget {
   final int rssi;
   final bool available;
   final bool ischecking;
+  final VoidCallback onTap;
 
   @override
   State<StatefulWidget> createState() => _DeviceCardState();
@@ -258,14 +333,17 @@ class _DeviceCardState extends State<DeviceCard> with TickerProviderStateMixin {
     return Stack(
       children: [
         GestureDetector(
+          onTap: () {
+            widget.onTap();
+          },
           child: Container(
             width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: 22, horizontal: 18),
-            margin: EdgeInsets.symmetric(vertical: 8, horizontal: 18),
+            padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 18),
+            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 18),
             decoration: BoxDecoration(
               //border: Border.all(
               //    color: Colors.grey.shade400, width: 1, style: BorderStyle.solid),
-              borderRadius: BorderRadius.all(Radius.circular(15)),
+              borderRadius: const BorderRadius.all(Radius.circular(15)),
               //color: Colors.grey.shade300,
               //color: Theme.of(context).scaffoldBackgroundColor,
               color: Colors.blue.withOpacity(0.1),

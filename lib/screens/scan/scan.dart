@@ -74,8 +74,14 @@ class _ScanScreenState extends State<ScanScreen> {
       height: 400,
       child: Column(
         children: [
-          const SizedBox(
-            height: 20,
+          Container(
+            margin: EdgeInsets.only(top: 10, bottom: 20),
+            width: 60,
+            height: 6,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade400,
+              borderRadius: BorderRadius.circular(3),
+            ),
           ),
           const Text(
             "SCAN",
@@ -94,9 +100,7 @@ class _ScanScreenState extends State<ScanScreen> {
             future: checkPermissionsStates(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
+                return Container();
               } else if (snapshot.connectionState == ConnectionState.done) {
                 bool isGranted = snapshot.data as bool;
 
@@ -106,7 +110,7 @@ class _ScanScreenState extends State<ScanScreen> {
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
-                            return const CircularProgressIndicator();
+                            return Container();
                           } else if (snapshot.connectionState ==
                               ConnectionState.done) {
                             bool isEnabled = snapshot.data as bool;
@@ -117,14 +121,14 @@ class _ScanScreenState extends State<ScanScreen> {
                                         widget.onAddDeviceClicked,
                                   )
                                 : Column(
-                                    children: [
-                                      const Icon(
+                                    children: const [
+                                      Icon(
                                         Icons.signal_wifi_0_bar_sharp,
                                         size: 70,
                                         color: Colors.grey,
                                       ),
-                                      const SizedBox(height: 10),
-                                      const Text(
+                                      SizedBox(height: 10),
+                                      Text(
                                         'Please enable Bluetooth & Location.',
                                         style: TextStyle(
                                           color: Colors.grey,
@@ -178,7 +182,7 @@ class _ScanScreenState extends State<ScanScreen> {
 class ScannerLayout extends StatefulWidget {
   const ScannerLayout({super.key, required this.onAddDeviceClicked});
 
-  final onAddDeviceClicked;
+  final dynamic onAddDeviceClicked;
 
   @override
   State<StatefulWidget> createState() => _ScannerLayoutState();
@@ -208,7 +212,7 @@ class _ScannerLayoutState extends State<ScannerLayout> {
         future: loadDeviceIconImage(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return Container();
           } else if (snapshot.connectionState == ConnectionState.done) {
             ui.Image image = snapshot.data as ui.Image;
             return Scanner(
@@ -217,7 +221,7 @@ class _ScannerLayoutState extends State<ScannerLayout> {
             );
           }
 
-          return Text("Unknown Error!");
+          return const Text("Unknown Error!");
         },
       ),
     );
