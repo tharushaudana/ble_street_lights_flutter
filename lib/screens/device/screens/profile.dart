@@ -18,7 +18,7 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
       body: CustomScrollView(
         slivers: [
           WaStyleAppBar(
-            title: Text("Hello World"),
+            title: Text(widget.deviceData[0]),
             extendHeight: 160,
             logoChild: Hero(
               tag: 'img_profile',

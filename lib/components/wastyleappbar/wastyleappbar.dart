@@ -113,9 +113,9 @@ class _AppBarDelegate extends SliverPersistentHeaderDelegate {
       title: Row(
         children: [
           SizedBox(width: logoChildInitialSize + 10,),
-          Transform.scale(
-            scale: 1.2,
-            child: Text('Your App'),
+          Opacity (
+            opacity: shrinkPercentage > 0.08 ? 0 : (0.08 - shrinkPercentage) / 0.08,
+            child: title,
           ),
         ],
       ),
