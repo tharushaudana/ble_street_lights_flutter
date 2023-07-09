@@ -20,7 +20,7 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
           WaStyleAppBar(
             title: Text(widget.deviceData[0]),
             extendHeight: 160,
-            logoChild: Hero(
+            logoChild: const Hero(
               tag: 'img_profile',
               child: Image(
                 image: AssetImage("assets/images/device_icon.png"),
@@ -35,7 +35,7 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
                 children: [
                   Text(
                     widget.deviceData[0],
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 25,
                       fontWeight: FontWeight.bold,
@@ -43,7 +43,7 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
                   ),
                     Text(
                     widget.deviceData[1],
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                     ),
