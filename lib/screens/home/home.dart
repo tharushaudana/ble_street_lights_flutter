@@ -13,7 +13,7 @@ import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.title});
+  const HomeScreen({super.key, required this.title,});
 
   final String title;
 
@@ -104,7 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => DeviceScreen(
-          name: devices[index][0],
+          deviceData: devices[index],
         ),
       ),
     );

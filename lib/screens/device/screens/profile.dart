@@ -3,6 +3,10 @@ import 'package:ble_street_lights/components/wastyleappbar/wastyleappbar.dart';
 import 'package:flutter/material.dart';
 
 class DeviceProfileScreen extends StatefulWidget {
+  const DeviceProfileScreen({super.key, required this.deviceData});
+
+  final List deviceData;
+
   @override
   State<StatefulWidget> createState() => _DeviceProfileScreenState();
 }
@@ -15,10 +19,37 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
         slivers: [
           WaStyleAppBar(
             title: Text("Hello World"),
+            extendHeight: 160,
             logoChild: Hero(
               tag: 'img_profile',
               child: Image(
                 image: AssetImage("assets/images/device_icon.png"),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Container(
+              color: Colors.blue,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    widget.deviceData[0],
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                    Text(
+                    widget.deviceData[1],
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                ],
               ),
             ),
           ),

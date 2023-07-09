@@ -110,9 +110,18 @@ class _AppBarDelegate extends SliverPersistentHeaderDelegate {
     );
 
     return AppBar(
-      //title: Text('Your App'),
+      title: Row(
+        children: [
+          SizedBox(width: logoChildInitialSize + 10,),
+          Transform.scale(
+            scale: 1.2,
+            child: Text('Your App'),
+          ),
+        ],
+      ),
       backgroundColor: backgroundColor, 
       elevation: 0, 
+      titleSpacing: 0,
       flexibleSpace: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

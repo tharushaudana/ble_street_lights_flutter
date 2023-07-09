@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 
 class DeviceScreen extends StatefulWidget {
   const DeviceScreen({
-    required this.name,
+    required this.deviceData,
   });
 
-  final String name;
+  final List deviceData;
 
   @override
   State<StatefulWidget> createState() => _DeviceScreenState();
@@ -19,7 +19,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => DeviceProfileScreen(),
+        builder: (context) => DeviceProfileScreen(deviceData: widget.deviceData,),
       ),
     );
   }
@@ -45,7 +45,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  Text(widget.name),
+                  Text(widget.deviceData[0]),
                 ],
               ),
             ),
