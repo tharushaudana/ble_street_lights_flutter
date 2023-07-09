@@ -72,6 +72,8 @@ class _AppBarDelegate extends SliverPersistentHeaderDelegate {
         math.min(1, shrinkOffset / (maxExtent - minExtent));
     shrinkPercentage = (1 - shrinkPercentage);
 
+    double imgScale = 1 + (2 * shrinkPercentage);
+
     final screenWidth = MediaQuery.of(context).size.width;
 
     return SizedBox.expand(
@@ -80,14 +82,23 @@ class _AppBarDelegate extends SliverPersistentHeaderDelegate {
         backgroundColor: Colors.blue, // Customize the app bar color
         elevation: 0, // Optional: Set the elevation as per your design
         flexibleSpace: Container(
-          padding: EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(horizontal: 0,),
           child: Row(
             children: [
-              SizedBox(width: screenWidth / 2 * shrinkPercentage),
-              Transform.scale(
-                scale: 1 + (2 * shrinkPercentage),
-                child: image,
-              )
+              /*SizedBox(
+                  width: (screenWidth / 2 - (image.width! * imgScale / 2)) *
+                      shrinkPercentage),*/
+              Container(
+                margin: EdgeInsets.only(
+                  left:
+                      (screenWidth / 2 - (image.width! / 2)) *
+                          shrinkPercentage,
+                ),
+                child: Transform.scale(
+                  scale: imgScale,
+                  child: image,
+                ),
+              ),
               /*SizedBox(width: 16),
           Expanded(
             child: title,
