@@ -18,8 +18,8 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
             title: Text("Hello World"),
             image: Image(
               image: AssetImage("assets/images/device_icon.png"),
-              width: 30,
-              height: 30,
+              width: 40,
+              height: 40,
             ),
           ),
           /*SliverAppBar(

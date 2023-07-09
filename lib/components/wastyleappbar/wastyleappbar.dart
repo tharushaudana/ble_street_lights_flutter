@@ -14,11 +14,13 @@ class WaStyleAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final statusBarHeight = MediaQuery.of(context).viewPadding.top;
+
     return SliverPersistentHeader(
       pinned: true,
       delegate: _AppBarDelegate(
-        maxHeight: 168,
-        minHeight: 80,
+        maxHeight: 200,
+        minHeight: statusBarHeight + 56,
         title: title,
         image: image,
       ),
@@ -75,37 +77,37 @@ class _AppBarDelegate extends SliverPersistentHeaderDelegate {
     double imgScale = 1 + (2 * shrinkPercentage);
 
     final screenWidth = MediaQuery.of(context).size.width;
+    final statusBarHeight = MediaQuery.of(context).viewPadding.top;
 
-    return SizedBox.expand(
-      child: AppBar(
-        //title: Text('Your App'),
-        backgroundColor: Colors.blue, // Customize the app bar color
-        elevation: 0, // Optional: Set the elevation as per your design
-        flexibleSpace: Container(
-          padding: EdgeInsets.symmetric(horizontal: 0,),
-          child: Row(
-            children: [
-              /*SizedBox(
-                  width: (screenWidth / 2 - (image.width! * imgScale / 2)) *
-                      shrinkPercentage),*/
-              Container(
-                margin: EdgeInsets.only(
-                  left:
-                      (screenWidth / 2 - (image.width! / 2)) *
-                          shrinkPercentage,
-                ),
-                child: Transform.scale(
-                  scale: imgScale,
-                  child: image,
-                ),
-              ),
-              /*SizedBox(width: 16),
-          Expanded(
-            child: title,
-          ),*/
-            ],
+    return AppBar(
+      //title: Text('Your App'),
+      backgroundColor: Colors.blue, // Customize the app bar color
+      elevation: 0, // Optional: Set the elevation as per your design
+      flexibleSpace: Column(
+        //mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: statusBarHeight),
+          SizedBox(height: (minHeight - statusBarHeight - image.height!) / 2),
+          Container(
+            margin: EdgeInsets.only(
+              //top: 25,
+              left: ((screenWidth / 2 - (image.width! * imgScale / 2)) - 56) *
+                      shrinkPercentage +
+                  56,
+            ),
+            /*child: Transform.scale(
+              scale: imgScale,
+              child: image,
+            ),*/
+            child: Container(
+              width: image.width! * imgScale,
+              height: image.height! * imgScale,
+              color: Colors.red,
+              child: Image(image: AssetImage("assets/images/device_icon.png")),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
