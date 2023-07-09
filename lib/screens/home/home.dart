@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:ble_street_lights/components/hideanimatedlistitem/hideanimatedlistitem.dart';
 import 'package:ble_street_lights/helpers/bluetooth.dart';
 import 'package:ble_street_lights/helpers/location.dart';
+import 'package:ble_street_lights/screens/device/device.dart';
 import 'package:ble_street_lights/screens/home/widgets/devicecard.dart';
 import 'package:ble_street_lights/screens/scan/scan.dart';
 import 'package:flutter/material.dart';
@@ -98,7 +99,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   openDeviceScreen(int index) {
-    Navigator.pushNamed(context, "/device");
+    //Navigator.pushNamed(context, "/device");
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DeviceScreen(
+          name: devices[index][0],
+        ),
+      ),
+    );
   }
 
   scanForDevices() async {

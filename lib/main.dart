@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       //home: DeviceScreen(),
       routes: {
         '/home': (context) => HomeScreen(title: "title"),
-        '/device': (context) => DeviceScreen(),
+        //'/device': (context) => DeviceScreen(),
       },
       /*onGenerateRoute: (settings) {
         
