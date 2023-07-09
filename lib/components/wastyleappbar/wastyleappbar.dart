@@ -6,11 +6,13 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 class WaStyleAppBar extends StatelessWidget {
   const WaStyleAppBar({
     required this.title,
-    required this.image,
+    required this.logoChild,
+    this.logoChildSize = 40,
   });
 
   final Widget title;
-  final Image image;
+  final Widget logoChild;
+  final double logoChildSize;
 
   @override
   Widget build(BuildContext context) {
@@ -22,33 +24,8 @@ class WaStyleAppBar extends StatelessWidget {
         maxHeight: 200,
         minHeight: statusBarHeight + 56,
         title: title,
-        image: image,
-      ),
-    );
-  }
-}
-
-class _FlexibleSpaceBg extends StatelessWidget {
-  const _FlexibleSpaceBg({
-    required this.title,
-    required this.image,
-  });
-
-  final Widget title;
-  final Image image;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          image,
-          /*SizedBox(width: 16),
-          Expanded(
-            child: title,
-          ),*/
-        ],
+        logoChild: logoChild,
+        logoChildSize: logoChildSize,
       ),
     );
   }
@@ -58,13 +35,15 @@ class _AppBarDelegate extends SliverPersistentHeaderDelegate {
   final double maxHeight;
   final double minHeight;
   final Widget title;
-  final Image image;
+  final Widget logoChild;
+  final double logoChildSize;
 
   _AppBarDelegate({
     required this.maxHeight,
     required this.minHeight,
     required this.title,
-    required this.image,
+    required this.logoChild,
+    required this.logoChildSize,
   });
 
   @override
@@ -88,11 +67,11 @@ class _AppBarDelegate extends SliverPersistentHeaderDelegate {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(height: statusBarHeight),
-          SizedBox(height: (minHeight - statusBarHeight - image.height!) / 2),
+          SizedBox(height: (minHeight - statusBarHeight - logoChildSize) / 2),
           Container(
             margin: EdgeInsets.only(
               //top: 25,
-              left: ((screenWidth / 2 - (image.width! * imgScale / 2)) - 56) *
+              left: ((screenWidth / 2 - (logoChildSize * imgScale / 2)) - 56) *
                       shrinkPercentage +
                   56,
             ),
@@ -101,10 +80,9 @@ class _AppBarDelegate extends SliverPersistentHeaderDelegate {
               child: image,
             ),*/
             child: Container(
-              width: image.width! * imgScale,
-              height: image.height! * imgScale,
-              color: Colors.red,
-              child: Image(image: AssetImage("assets/images/device_icon.png")),
+              width: logoChildSize * imgScale,
+              height: logoChildSize * imgScale,
+              child: logoChild,
             ),
           ),
         ],

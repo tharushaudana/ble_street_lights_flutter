@@ -16,10 +16,11 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
         slivers: [
           WaStyleAppBar(
             title: Text("Hello World"),
-            image: Image(
-              image: AssetImage("assets/images/device_icon.png"),
-              width: 40,
-              height: 40,
+            logoChild: Hero(
+              tag: 'img_profile',
+              child: Image(
+                image: AssetImage("assets/images/device_icon.png"),
+              ),
             ),
           ),
           /*SliverAppBar(
