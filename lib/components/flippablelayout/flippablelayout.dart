@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
-import 'package:flutter_animate/flutter_animate.dart';
 
 class FlippableLayout extends StatefulWidget {
   const FlippableLayout({
