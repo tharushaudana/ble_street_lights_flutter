@@ -149,7 +149,7 @@ class _TableRowDeviceDetail extends TableRow {
   final Widget detail;
 
   @override
-  List<Widget>? get children => [
+  List<Widget> get children => [
         TableCell(
           child: Container(
             alignment: Alignment.centerLeft,
