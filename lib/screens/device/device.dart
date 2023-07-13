@@ -1,6 +1,6 @@
 import 'package:ble_street_lights/components/bottomtabbarlayout/bottomnavigator.dart';
 import 'package:ble_street_lights/components/bottomtabbarlayout/bottomtabbarlayout.dart';
-import 'package:ble_street_lights/screens/device/screens/profile.dart';
+import 'package:ble_street_lights/screens/device/screens/profile/profile.dart';
 import 'package:flutter/material.dart';
 
 class DeviceScreen extends StatefulWidget {
