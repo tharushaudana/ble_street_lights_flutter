@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:ble_street_lights/bledevice/bledevice.dart';
 import 'package:flutter/services.dart';
@@ -99,7 +97,7 @@ class _DeviceConnectingDialogState extends State<DeviceConnectingDialog> {
                     onPressed: () {
                       connectDevice();
                     },
-                    child: Text("TRY AGAIN"),
+                    child: const Text("TRY AGAIN"),
                   )
                 : Container(),
           ],
