@@ -10,13 +10,20 @@ class BLEDeviceConnectionProvider extends ChangeNotifier implements IBLEDeviceCo
 
   late BLEDeviceConnectionProviderLink _link;
 
+  bool isDisposed = false;
+
   BLEDeviceConnectionProvider(BLEDeviceConnectionProviderLink link) {
     _link = link;
     _link._connectionProvider = this;
     _link.initLink();
   }
 
+  disposeProvider() {
+    isDisposed = true;
+  }
+
   _notify() {
+    if (isDisposed) return;
     notifyListeners();
   }
   

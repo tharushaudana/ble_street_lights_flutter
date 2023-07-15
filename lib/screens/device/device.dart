@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'package:ble_street_lights/bledevice/bledevice.dart';
@@ -5,12 +6,14 @@ import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/components/bottomtabbarlayout/bottomtabbarlayout.dart';
 import 'package:ble_street_lights/screens/device/deviceconnectingdialog.dart';
 import 'package:ble_street_lights/screens/device/screens/profile/profile.dart';
+import 'package:ble_street_lights/time/time.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 class DeviceScreen extends StatefulWidget {
   const DeviceScreen({
+    super.key,
     required this.deviceData,
   });
 
@@ -24,6 +27,10 @@ class _DeviceScreenState extends State<DeviceScreen> {
   late BLEDevice device;
 
   bool isConnected = false;
+
+  DateTime lastSeenTime = Time.now();
+  Timer? timerLastSeenUpdate;
+  String lastSeenStr = "recently";
 
   openProfileScreen() {
     Navigator.push(
@@ -63,19 +70,32 @@ class _DeviceScreenState extends State<DeviceScreen> {
         setState(() {
           isConnected = true;
         });
+
+        if (timerLastSeenUpdate != null && timerLastSeenUpdate!.isActive) {
+          timerLastSeenUpdate!.cancel();
+        }
       },
       onDisconnected: () {
         setState(() {
           isConnected = false;
         });
+
+        lastSeenTime = Time.now();
+
+        timerLastSeenUpdate = Timer.periodic(
+          const Duration(seconds: 30),
+          (timer) {
+            setState(() {
+              lastSeenStr = Time.dateTimeToHumanDiff(lastSeenTime);
+            });
+          },
+        );
       },
       /*onMessage: (message) {
         log(message.type.toString());
         log(jsonEncode(message.data));
       },*/
     );
-
-    linkDeviceAndConnectionProvider();
 
     super.initState();
 
@@ -84,11 +104,6 @@ class _DeviceScreenState extends State<DeviceScreen> {
         openConnectingDialog();
       },
     );
-  }
-
-  linkDeviceAndConnectionProvider() {
-    //final deviceConnectionProvider = Provider.of<BLEDeviceConnectionProvider>(context, listen: false);
-    //deviceConnectionProvider.setLink(device);
   }
 
   @override
@@ -112,7 +127,21 @@ class _DeviceScreenState extends State<DeviceScreen> {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  Text(widget.deviceData[0]),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(widget.deviceData[0]),
+                      const SizedBox(height: 3),
+                      Text(
+                        isConnected ? "online" : "last seen $lastSeenStr",
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                    ],
+                  )
                 ],
               ),
             ),
@@ -162,6 +191,11 @@ class _DeviceScreenState extends State<DeviceScreen> {
   @override
   void dispose() {
     device.disconnect();
+
+    if (timerLastSeenUpdate != null && timerLastSeenUpdate!.isActive) {
+      timerLastSeenUpdate!.cancel();
+    }
+
     super.dispose();
   }
 }

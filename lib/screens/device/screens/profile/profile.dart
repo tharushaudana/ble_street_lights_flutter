@@ -4,6 +4,7 @@ import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/components/celluarbar/celluarbar.dart';
 import 'package:ble_street_lights/components/wastyleappbar/wastyleappbar.dart';
 import 'package:ble_street_lights/screens/device/screens/profile/locationviewer.dart';
+import 'package:ble_street_lights/time/time.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
@@ -18,10 +19,37 @@ class DeviceProfileScreen extends StatefulWidget {
 }
 
 class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
+  late Timer timerSystemTimeUpdate;
+
+  String systemTimeStr = "";
+
+  BLEDeviceConnectionProvider? provider;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      timerSystemTimeUpdate = Timer.periodic(
+        const Duration(seconds: 1),
+        (timer) {
+          setState(() {
+            systemTimeStr = Time.dateTimeToString(Time.now());
+          });
+        },
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Consumer<BLEDeviceConnectionProvider>(
-        builder: (context, provider, _) {
+    return Consumer<BLEDeviceConnectionProvider>(builder: (
+      context,
+      provider,
+      _,
+    ) {
+      this.provider = provider;
+
       bool isConnected = provider.deviceData.isConnected;
       Map? currentValues = provider.deviceData.currentValues;
 
@@ -115,28 +143,31 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
                         ),
                         _TableRowDeviceDetail(
                           title: "RTC",
-                          detail: Text(currentValues?['t'] ?? "..."),
+                          detail: Text(
+                            currentValues?['t'] ?? "...",
+                            style: TextStyle(
+                              color: Colors.amber[900],
+                            ),
+                          ),
                         ),
                         _TableRowDeviceDetail(
                           title: "System Time",
-                          detail: Text("0000-00-00 00:00:00"),
+                          detail: Text(systemTimeStr),
                         ),
                       ],
                     ),
                     Row(
                       children: [
-                        Expanded(
-                          child: FilledButton(
-                            onPressed: () {},
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Icon(Icons.watch_later_rounded),
-                                SizedBox(width: 10),
-                                Text("SYNC TIME"),
-                              ],
-                            ),
+                        FilledButton(
+                          onPressed: () {},
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(Icons.watch_later_rounded),
+                              SizedBox(width: 5),
+                              Text("SYNC TIME"),
+                            ],
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -150,8 +181,8 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Icon(Icons.location_on_rounded),
-                                SizedBox(width: 10),
-                                Text("LOCATION"),
+                                SizedBox(width: 5),
+                                Text("SYNC LOCATION"),
                               ],
                             ),
                           ),
@@ -197,6 +228,13 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
         ),
       );
     });
+  }
+
+  @override
+  void dispose() {
+    timerSystemTimeUpdate.cancel();
+    provider?.disposeProvider();
+    super.dispose();
   }
 }
 

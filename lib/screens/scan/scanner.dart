@@ -66,8 +66,14 @@ class _ScannerState extends State<Scanner> {
 
   addDevice(BluetoothDevice device, int rssi) {
     if (devices.contains(device)) return;
-    devices.add(device);
-    radarController.addDevice(device.name, device.id.toString(), rssi);
+    
+    BluetoothDevice deviceModified = BluetoothDevice.fromId(
+      device.id.toString(),
+      name: device.name.replaceAll(RegExp(r'BLE_'), ''),
+    );
+    
+    devices.add(deviceModified);
+    radarController.addDevice(deviceModified.name, deviceModified.id.toString(), rssi);
   }
 
   closeMain() {
