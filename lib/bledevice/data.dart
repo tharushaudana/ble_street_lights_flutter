@@ -1,0 +1,3 @@
+class BLEDeviceData {
+  Map currentValues = {};
+}

@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:developer';
-
 import 'package:ble_street_lights/bledevice/bledevice.dart';
+import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/components/bottomtabbarlayout/bottomtabbarlayout.dart';
 import 'package:ble_street_lights/screens/device/deviceconnectingdialog.dart';
 import 'package:ble_street_lights/screens/device/screens/profile/profile.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:provider/provider.dart';
 
 class DeviceScreen extends StatefulWidget {
   const DeviceScreen({
@@ -27,8 +29,10 @@ class _DeviceScreenState extends State<DeviceScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => DeviceProfileScreen(
-          deviceData: widget.deviceData,
+        builder: (context) => withChangeNotifierProvider(
+          DeviceProfileScreen(
+            deviceData: widget.deviceData,
+          ),
         ),
       ),
     );
@@ -41,6 +45,13 @@ class _DeviceScreenState extends State<DeviceScreen> {
       builder: (context) {
         return DeviceConnectingDialog(device: device);
       },
+    );
+  }
+
+  withChangeNotifierProvider(Widget child) {
+    return ChangeNotifierProvider(
+      create: (_) => BLEDeviceConnectionProvider(device),
+      child: child,
     );
   }
 
@@ -64,6 +75,8 @@ class _DeviceScreenState extends State<DeviceScreen> {
       },*/
     );
 
+    linkDeviceAndConnectionProvider();
+
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback(
@@ -71,6 +84,11 @@ class _DeviceScreenState extends State<DeviceScreen> {
         openConnectingDialog();
       },
     );
+  }
+
+  linkDeviceAndConnectionProvider() {
+    //final deviceConnectionProvider = Provider.of<BLEDeviceConnectionProvider>(context, listen: false);
+    //deviceConnectionProvider.setLink(device);
   }
 
   @override

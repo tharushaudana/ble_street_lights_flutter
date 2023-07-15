@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 class BLEDeviceMessage {
-  final MSGTYPE_CURRENT_VALUES = 0;
+  static const int MSGTYPE_CURRENT_VALUES = 0;
 
   int type = -1;
   Map data = {};

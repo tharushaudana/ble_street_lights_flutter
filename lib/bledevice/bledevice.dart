@@ -1,16 +1,20 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'package:ble_street_lights/bledevice/connectionprovider.dart';
+import 'package:ble_street_lights/bledevice/data.dart';
 import 'package:ble_street_lights/bledevice/message.dart';
 import 'package:ble_street_lights/bledevice/packetsdecoder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
-class BLEDevice {
+class BLEDevice extends BLEDeviceConnectionProviderLink {
   final String _characteristic_uuid = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
 
   late BluetoothDevice device;
-  late PacketsDecoder packetsDecoder;
+  late BLEDeviceData deviceData;
+
+  late PacketsDecoder _packetsDecoder;
 
   StreamSubscription<BluetoothDeviceState>? _stateSubscription;
   StreamSubscription<List<int>>? _characteristicValueStateSubscription;
@@ -29,8 +33,9 @@ class BLEDevice {
     this.onMessage,
   }) {
     device = BluetoothDevice.fromId(id);
+    deviceData = BLEDeviceData();
 
-    packetsDecoder = PacketsDecoder(
+    _packetsDecoder = PacketsDecoder(
       onStarted: () {},
       onMessage: (data) {
         BLEDeviceMessage? message = BLEDeviceMessage.fromBytes(data);
@@ -39,10 +44,32 @@ class BLEDevice {
           return;
         }
 
+        _saveAndNotifyRequiredData(message);
+
         if (onMessage != null) onMessage!(message);
       },
       onFailed: () {},
     );
+  }
+
+  @override
+  initLink() {
+    notifyDeviceDataChange(deviceData);
+    return super.initLink();
+  }
+
+  @override
+  test() {
+    log("message llllllll");
+  }
+
+  _saveAndNotifyRequiredData(BLEDeviceMessage message) {
+    switch (message.type) {
+      case BLEDeviceMessage.MSGTYPE_CURRENT_VALUES:
+        deviceData.currentValues = message.data;
+        notifyDeviceDataChange(deviceData);
+        break;
+    }
   }
 
   Future<void> connect(int timeoutMillis) async {
@@ -103,7 +130,7 @@ class BLEDevice {
           _characteristic!.value.listen(null);
 
       _characteristicValueStateSubscription!.onData((data) {
-        if (packetsDecoder.processPacket(data)) {
+        if (_packetsDecoder.processPacket(data)) {
           //String msg = utf8.decode(data);
           //if (msg.trim().isEmpty) return;
           //Do something...
