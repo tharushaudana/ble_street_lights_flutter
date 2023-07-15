@@ -6,7 +6,7 @@ abstract class IBLEDeviceConnectionProviderLink {
 }
 
 class BLEDeviceConnectionProvider extends ChangeNotifier implements IBLEDeviceConnectionProviderLink {
-  BLEDeviceData deviceValues = BLEDeviceData();
+  BLEDeviceData deviceData = BLEDeviceData();
 
   late BLEDeviceConnectionProviderLink _link;
 
@@ -29,6 +29,11 @@ class BLEDeviceConnectionProvider extends ChangeNotifier implements IBLEDeviceCo
 class BLEDeviceConnectionProviderLink implements IBLEDeviceConnectionProviderLink {
   BLEDeviceConnectionProvider? _connectionProvider;
   
+  notifyDeviceDataChange(BLEDeviceData deviceData) {
+    _connectionProvider?.deviceData = deviceData;
+    _connectionProvider?._notify();
+  }
+
   @override
   void test() {
     
@@ -36,10 +41,5 @@ class BLEDeviceConnectionProviderLink implements IBLEDeviceConnectionProviderLin
 
   initLink() {
 
-  }
-
-  notifyDeviceDataChange(BLEDeviceData deviceData) {
-    _connectionProvider?.deviceValues = deviceData;
-    _connectionProvider?._notify();
   }
 }

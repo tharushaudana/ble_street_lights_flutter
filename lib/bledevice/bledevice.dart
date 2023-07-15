@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 class BLEDevice extends BLEDeviceConnectionProviderLink {
-  final String _characteristic_uuid = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
+  final String _characteristicUuid = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
 
   late BluetoothDevice device;
   late BLEDeviceData deviceData;
@@ -38,6 +38,7 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
     _packetsDecoder = PacketsDecoder(
       onStarted: () {},
       onMessage: (data) {
+        log("message llllllll llkk");
         BLEDeviceMessage? message = BLEDeviceMessage.fromBytes(data);
 
         if (message == null) {
@@ -105,8 +106,13 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
       if (state == BluetoothDeviceState.connected) {
         onConnected();
         _getCharacteristic();
+        deviceData.isConnected = true;
+        notifyDeviceDataChange(deviceData);
       } else if (state == BluetoothDeviceState.disconnected) {
         onDisconnected();
+        deviceData.isConnected = false;
+        notifyDeviceDataChange(deviceData);
+        _characteristicValueStateSubscription!.cancel();
       }
     });
   }
@@ -116,7 +122,7 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
 
     for (BluetoothService service in services) {
       for (BluetoothCharacteristic c in service.characteristics) {
-        if (c.uuid.toString() == _characteristic_uuid) {
+        if (c.uuid.toString() == _characteristicUuid) {
           _characteristic = c;
           break;
         }
