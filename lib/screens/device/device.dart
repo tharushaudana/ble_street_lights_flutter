@@ -1,7 +1,12 @@
+import 'dart:developer';
+
+import 'package:ble_street_lights/bledevice/bledevice.dart';
 import 'package:ble_street_lights/components/bottomtabbarlayout/bottomnavigator.dart';
 import 'package:ble_street_lights/components/bottomtabbarlayout/bottomtabbarlayout.dart';
+import 'package:ble_street_lights/screens/device/deviceconnectingdialog.dart';
 import 'package:ble_street_lights/screens/device/screens/profile/profile.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class DeviceScreen extends StatefulWidget {
   const DeviceScreen({
@@ -15,12 +20,61 @@ class DeviceScreen extends StatefulWidget {
 }
 
 class _DeviceScreenState extends State<DeviceScreen> {
+  late BLEDevice device;
+
+  late BuildContext contextConnectingDialog;
+
+  bool isTimeout = false;
+  bool isConnected = false;
+
   openProfileScreen() {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => DeviceProfileScreen(deviceData: widget.deviceData,),
+        builder: (context) => DeviceProfileScreen(
+          deviceData: widget.deviceData,
+        ),
       ),
+    );
+  }
+
+  openConnectingDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        //contextConnectingDialog = context;
+
+        //if (isConnected) Navigator.pop(context);
+
+        return DeviceConnectingDialog(device: device);
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    device = BLEDevice(
+      widget.deviceData[1],
+      onConnected: () {
+        //contextConnectingDialog.mo
+        setState(() {
+          isConnected = true;
+        });
+      },
+      onDisconnected: () {
+        setState(() {
+          isConnected = false;
+        });
+      },
+    );
+
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback(
+      (timeStamp) {
+        openConnectingDialog();
+      },
     );
   }
 
@@ -90,5 +144,11 @@ class _DeviceScreenState extends State<DeviceScreen> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    device.disconnect();
+    super.dispose();
   }
 }

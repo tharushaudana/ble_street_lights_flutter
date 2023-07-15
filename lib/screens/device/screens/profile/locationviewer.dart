@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -76,6 +78,9 @@ class _DeviceLocationViewerState extends State<DeviceLocationViewer> {
         zoom: 14.5,
       ),
       zoomControlsEnabled: false,
+      gestureRecognizers: {
+        Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer()),
+      },
       markers: {
         Marker(
           markerId: const MarkerId("device_location"),

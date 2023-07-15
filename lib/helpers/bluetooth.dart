@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'package:ble_street_lights/helpers/helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';

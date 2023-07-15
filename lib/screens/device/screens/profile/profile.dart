@@ -110,17 +110,38 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
                       ),
                     ],
                   ),
-                  FilledButton(
-                    onPressed: () {},
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(Icons.sync_rounded),
-                        SizedBox(width: 10),
-                        Text("SYNC TIME"),
-                      ],
-                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: FilledButton(
+                          onPressed: () {},
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(Icons.watch_later_rounded),
+                              SizedBox(width: 10),
+                              Text("SYNC TIME"),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: FilledButton(
+                          onPressed: () {},
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(Icons.location_on_rounded),
+                              SizedBox(width: 10),
+                              Text("SYNC LOCATION"),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   Expanded(
                     child: Container(
