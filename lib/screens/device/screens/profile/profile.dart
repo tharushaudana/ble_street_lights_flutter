@@ -5,6 +5,7 @@ import 'package:ble_street_lights/bledevice/request.dart';
 import 'package:ble_street_lights/components/celluarbar/celluarbar.dart';
 import 'package:ble_street_lights/components/wastyleappbar/wastyleappbar.dart';
 import 'package:ble_street_lights/screens/device/screens/profile/locationviewer.dart';
+import 'package:ble_street_lights/screens/device/screens/profile/syncdialog.dart';
 import 'package:ble_street_lights/time/time.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -175,11 +176,20 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
                                   },
                                 );
 
-                              request.listen(
-                                onSuccess: (response) {},
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) => DeviceSyncDialog(
+                                  title: "Syncing time to RTC...",
+                                  doSync: (dialog) {
+                                    request.listen(
+                                      onSuccess: (_) => dialog.completed(),
+                                      onTimeOut: () => dialog.timeout(),
+                                    );
+                                    provider.makeRequest(request);
+                                  },
+                                ),
                               );
-
-                              provider.makeRequest(request);
                             },
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
