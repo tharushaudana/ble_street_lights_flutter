@@ -172,7 +172,7 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
                                     'w': now.weekday,
                                     'd': now.day,
                                     'n': now.month,
-                                    'y': now.year,
+                                    'y': int.parse(now.year.toString().substring(1)),
                                   },
                                 );
 
