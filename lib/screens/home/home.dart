@@ -69,6 +69,10 @@ class _HomeScreenState extends State<HomeScreen> {
     if (devices.isNotEmpty) scanForDevices();
   }
 
+  updateSharedPrefs() {
+    sharedPrefs.setString("devices", jsonEncode(devices));
+  }
+
   addDevice(List device) {
     if (devices.any((elem) => elem[1] == device[1])) return;
 
@@ -77,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
       availableDeviceIds.add(device[1]);
     });
 
-    sharedPrefs.setString("devices", jsonEncode(devices));
+    updateSharedPrefs();
   }
 
   openScanner() {
@@ -220,6 +224,20 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       selectedDeviceIds.clear();
     });
+
+    deletePermenently();
+  }
+
+  deletePermenently() {
+    for (int i = 0; i < devices.length; i++) {
+      if (deletedDeviceIds.contains(devices[i][1])) {
+        devices.removeAt(i);
+      }
+    }
+
+    deletedDeviceIds.clear();
+
+    updateSharedPrefs();
   }
 
   @override
@@ -352,8 +370,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ? null
           : selectedDeviceIds.isEmpty
               ? FloatingActionButton(
-                  //onPressed: () => openScanner(),
-                  onPressed: () => throw Exception("Test exception."),
+                  onPressed: () => openScanner(),
+                  //onPressed: () => throw Exception("Test exception."),
                   tooltip: 'Scan',
                   child: const Icon(Icons.radar),
                 ).animate().scale(duration: 300.ms)

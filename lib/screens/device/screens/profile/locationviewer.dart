@@ -10,13 +10,15 @@ class DeviceLocationViewer extends StatefulWidget {
     this.isPreview = false,
     required this.deviceName,
     required this.position,
-    required this.onEditClick,
+    required this.onFullscreenClick,
+    required this.onCreated,
   });
 
   final bool isPreview;
   final String deviceName;
   final LatLng position;
-  final VoidCallback onEditClick;
+  final VoidCallback onFullscreenClick;
+  final Function(GoogleMapController controller) onCreated;
 
   @override
   State<StatefulWidget> createState() => _DeviceLocationViewerState();
@@ -26,53 +28,14 @@ class _DeviceLocationViewerState extends State<DeviceLocationViewer> {
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
 
-  onLongPress(LatLng pos) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(20),
-            ),
-          ),
-          content: Container(
-            height: 210,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.sync_rounded,
-                  size: 90,
-                  color: Colors.blue,
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                const Text(
-                  "Sync is required for change device's location.",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontFamily: 'Nunito'),
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                TextButton(
-                  onPressed: () {},
-                  child: Text("SYNC NOW"),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final map = GoogleMap(
       mapType: MapType.hybrid,
+      trafficEnabled: true,
+      buildingsEnabled: true,
+      myLocationEnabled: true,
+      myLocationButtonEnabled: !widget.isPreview,
       initialCameraPosition: CameraPosition(
         target: widget.position,
         zoom: 14.5,
@@ -93,9 +56,9 @@ class _DeviceLocationViewerState extends State<DeviceLocationViewer> {
       },
       onMapCreated: (GoogleMapController controller) {
         controller.showMarkerInfoWindow(const MarkerId("device_location"));
+        widget.onCreated(controller);
         //_controller.complete(controller);
       },
-      onLongPress: onLongPress,
     );
 
     //### Render the Widget
@@ -136,8 +99,8 @@ class _DeviceLocationViewerState extends State<DeviceLocationViewer> {
                 ),
                 const Spacer(),
                 FilledButton(
-                  onPressed: widget.onEditClick,
-                  child: const Icon(Icons.edit),
+                  onPressed: widget.onFullscreenClick,
+                  child: const Icon(Icons.fullscreen_rounded),
                   //color: Colors.blue,
                 )
               ],

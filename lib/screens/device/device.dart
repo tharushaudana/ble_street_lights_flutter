@@ -133,7 +133,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
                             Text(widget.deviceData[0]),
                             const SizedBox(height: 3),
                             Text(
-                              isConnected ? "online" : "last seen $lastSeenStr",
+                              isConnected ? "online" : "active $lastSeenStr",
                               style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.normal,

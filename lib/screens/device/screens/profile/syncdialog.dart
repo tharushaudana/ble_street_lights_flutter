@@ -20,8 +20,16 @@ class DeviceSyncDialog extends StatefulWidget {
 }
 
 class _DeviceSyncDialogState extends State<DeviceSyncDialog> {
-  bool _isTimeout = false;
+  bool _isFailed = false;
   bool _isCompleted = false;
+
+  String title = "";
+
+  changeTitle(String newTitle) {
+    setState(() {
+      title = newTitle;
+    });
+  }
 
   completed() {
     setState(() {
@@ -29,15 +37,15 @@ class _DeviceSyncDialogState extends State<DeviceSyncDialog> {
     });
   }
 
-  timeout() {
+  failed() {
     setState(() {
-      _isTimeout = true;
+      _isFailed = true;
     });
   }
 
   _startSync() async {
     setState(() {
-      _isTimeout = false;
+      _isFailed = false;
       _isCompleted = false;
     });
 
@@ -54,6 +62,8 @@ class _DeviceSyncDialogState extends State<DeviceSyncDialog> {
 
   @override
   void initState() {
+    title = widget.title;
+
     super.initState();
 
     Future.delayed(const Duration(milliseconds: 2000), () {
@@ -75,11 +85,12 @@ class _DeviceSyncDialogState extends State<DeviceSyncDialog> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            !_isCompleted && !_isTimeout
+            !_isCompleted && !_isFailed
                 ? SpinKitThreeBounce(
                     color: Colors.blue,
+                    size: 35,
                   )
-                : _isTimeout
+                : _isFailed
                     ? Icon(
                         Icons.warning_amber_rounded,
                         size: 80,
@@ -93,17 +104,13 @@ class _DeviceSyncDialogState extends State<DeviceSyncDialog> {
             const SizedBox(height: 10),
             Center(
               child: Text(
-                !_isCompleted && !_isTimeout
-                    ? widget.title
-                    : _isTimeout
-                        ? "No Response!"
-                        : "Sync Completed.",
+                title,
                 style: const TextStyle(
                   fontFamily: 'Nunito',
                 ),
               ),
             ),
-            _isTimeout || _isCompleted
+            _isFailed || _isCompleted
                 ? TextButton(
                     onPressed: () {
                       //connectDevice();
