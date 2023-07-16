@@ -95,7 +95,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) {
-        openConnectingDialog();
+        //openConnectingDialog();
       },
     );
   }
@@ -106,10 +106,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
       appBar: AppBar(
         title: Row(
           children: [
-            GestureDetector(
-              onTap: () {
-                openProfileScreen();
-              },
+            Expanded(
               child: Row(
                 children: [
                   const Hero(
@@ -120,26 +117,36 @@ class _DeviceScreenState extends State<DeviceScreen> {
                       height: 40,
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(widget.deviceData[0]),
-                      const SizedBox(height: 3),
-                      Text(
-                        isConnected ? "online" : "last seen $lastSeenStr",
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.normal,
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        openProfileScreen();
+                      },
+                      child: Container(
+                        height: 56,
+                        margin: EdgeInsets.only(left: 10),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(widget.deviceData[0]),
+                            const SizedBox(height: 3),
+                            Text(
+                              isConnected ? "online" : "last seen $lastSeenStr",
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   )
                 ],
               ),
             ),
-            const Spacer(),
             IconButton(
               onPressed: () {},
               icon: Icon(Icons.more_vert),

@@ -165,13 +165,13 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
                                 ..subject('rtc')
                                 ..data(
                                   {
-                                    'second': now.second,
-                                    'minute': now.minute,
-                                    'hour': now.hour,
-                                    'weekday': now.weekday,
-                                    'monthday': now.day,
-                                    'month': now.month,
-                                    'year': now.year,
+                                    's': now.second,
+                                    'm': now.minute,
+                                    'h': now.hour,
+                                    'w': now.weekday,
+                                    'd': now.day,
+                                    'n': now.month,
+                                    'y': now.year,
                                   },
                                 );
 
