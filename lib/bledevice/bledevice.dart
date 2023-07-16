@@ -1,10 +1,11 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:developer';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/bledevice/data.dart';
 import 'package:ble_street_lights/bledevice/message.dart';
 import 'package:ble_street_lights/bledevice/packetsdecoder.dart';
+import 'package:ble_street_lights/bledevice/request.dart';
+import 'package:ble_street_lights/bledevice/requesthandler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
@@ -15,6 +16,7 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
   late BLEDeviceData deviceData;
 
   late PacketsDecoder _packetsDecoder;
+  late BLEDeviceRequestHandler _requestHandler;
 
   StreamSubscription<BluetoothDeviceState>? _stateSubscription;
   StreamSubscription<List<int>>? _characteristicValueStateSubscription;
@@ -35,6 +37,8 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
     device = BluetoothDevice.fromId(id);
     deviceData = BLEDeviceData();
 
+    _requestHandler = BLEDeviceRequestHandler();
+
     _packetsDecoder = PacketsDecoder(
       onStarted: () {},
       onMessage: (data) {
@@ -46,6 +50,8 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
         }
 
         _saveAndNotifyRequiredData(message);
+
+        _requestHandler.watchForResponse(message);
 
         if (onMessage != null) onMessage!(message);
       },
@@ -60,8 +66,9 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
   }
 
   @override
-  test() {
-    log("message llllllll");
+  void makeRequest(BLEDeviceRequest request) {
+    if (!deviceData.isConnected) return;
+    _requestHandler.handle(request);
   }
 
   _saveAndNotifyRequiredData(BLEDeviceMessage message) {
@@ -143,5 +150,7 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
         }
       });
     }
+
+    _requestHandler.characteristic = _characteristic;
   }
 }

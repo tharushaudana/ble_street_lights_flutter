@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
+import 'package:ble_street_lights/bledevice/request.dart';
 import 'package:ble_street_lights/components/celluarbar/celluarbar.dart';
 import 'package:ble_street_lights/components/wastyleappbar/wastyleappbar.dart';
 import 'package:ble_street_lights/screens/device/screens/profile/locationviewer.dart';
@@ -22,8 +23,6 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
   late Timer timerSystemTimeUpdate;
 
   String systemTimeStr = "";
-
-  BLEDeviceConnectionProvider? provider;
 
   @override
   void initState() {
@@ -49,8 +48,6 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
         provider,
         _,
       ) {
-        //this.provider = provider;
-
         bool isConnected = provider.deviceData.isConnected;
         Map? currentValues = provider.deviceData.currentValues;
 
@@ -161,7 +158,29 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
                       Row(
                         children: [
                           FilledButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              DateTime now = Time.now();
+
+                              BLEDeviceRequest request = BLEDeviceRequest('set')
+                                ..subject('rtc')
+                                ..data(
+                                  {
+                                    'second': now.second,
+                                    'minute': now.minute,
+                                    'hour': now.hour,
+                                    'weekday': now.weekday,
+                                    'monthday': now.day,
+                                    'month': now.month,
+                                    'year': now.year,
+                                  },
+                                );
+
+                              request.listen(
+                                onSuccess: (response) {},
+                              );
+
+                              provider.makeRequest(request);
+                            },
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -175,9 +194,7 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
                           const SizedBox(width: 10),
                           Expanded(
                             child: FilledButton(
-                              onPressed: () {
-                                provider.test();
-                              },
+                              onPressed: () {},
                               child: const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -231,188 +248,11 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
         );
       },
     );
-
-    /*return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          WaStyleAppBar(
-            title: Text(widget.deviceData[0]),
-            extendHeight: 125,
-            extendedScale: 1.1,
-            logoChild: const Hero(
-              tag: 'img_profile',
-              child: Image(
-                image: AssetImage("assets/images/device_icon.png"),
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Container(
-              color: Colors.blue,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    widget.deviceData[0],
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    widget.deviceData[1],
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                ],
-              ),
-            ),
-          ),
-          SliverFillRemaining(
-            hasScrollBody: false,
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-              child: Column(
-                children: [
-                  Table(
-                    children: [
-                      _TableRowDeviceDetail(
-                        title: "BLE Signal",
-                        detail: Stack(
-                          children: [
-                            Container(
-                              margin: EdgeInsets.only(top: 10),
-                              width: 33,
-                              height: 15,
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                "${widget.deviceData[2]} dBm",
-                                style: const TextStyle(
-                                  fontSize: 7,
-                                  fontFamily: 'Nunito',
-                                ),
-                              ),
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(top: 10),
-                              width: 40,
-                              height: 38,
-                              alignment: Alignment.centerRight,
-                              child: CelluarBar(
-                                width: 27,
-                                rssi: widget.deviceData[2],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      _TableRowDeviceDetail(
-                        title: "Device Status",
-                        detail: Text(
-                          "Disconnected",
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      _TableRowDeviceDetail(
-                        title: "RTC",
-                        detail: Text(
-                          "...",
-                          style: TextStyle(
-                            color: Colors.amber[900],
-                          ),
-                        ),
-                      ),
-                      _TableRowDeviceDetail(
-                        title: "System Time",
-                        detail: Text(systemTimeStr),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      FilledButton(
-                        onPressed: () {},
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Icon(Icons.watch_later_rounded),
-                            SizedBox(width: 5),
-                            Text("SYNC TIME"),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: FilledButton(
-                          onPressed: () {
-
-                          },
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Icon(Icons.location_on_rounded),
-                              SizedBox(width: 5),
-                              Text("SYNC LOCATION"),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Expanded(
-                    child: Container(
-                      margin: const EdgeInsets.only(
-                        top: 10,
-                        bottom: 15,
-                      ),
-                      child: DeviceLocationViewer(
-                        isPreview: true,
-                        deviceName: widget.deviceData[0],
-                        position: LatLng(
-                          37.42796133580664,
-                          -122.085749655962,
-                        ),
-                        onEditClick: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DeviceLocationViewer(
-                                deviceName: widget.deviceData[0],
-                                position: LatLng(
-                                  37.42796133580664,
-                                  -122.085749655962,
-                                ),
-                                onEditClick: () {},
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );*/
   }
 
   @override
   void dispose() {
     timerSystemTimeUpdate.cancel();
-    //provider?.disposeProvider();
-     //Provider.of<BLEDeviceConnectionProvider>(context).disposeProvider();
     super.dispose();
   }
 }

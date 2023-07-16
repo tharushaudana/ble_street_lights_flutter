@@ -1,8 +1,9 @@
 import 'package:ble_street_lights/bledevice/data.dart';
+import 'package:ble_street_lights/bledevice/request.dart';
 import 'package:flutter/material.dart';
 
 abstract class IBLEDeviceConnectionProviderLink {
-  void test();  
+  void makeRequest(BLEDeviceRequest request);  
 }
 
 class BLEDeviceConnectionProvider extends ChangeNotifier implements IBLEDeviceConnectionProviderLink {
@@ -29,8 +30,8 @@ class BLEDeviceConnectionProvider extends ChangeNotifier implements IBLEDeviceCo
   }
   
   @override
-  void test() {
-    _link.test();
+  void makeRequest(BLEDeviceRequest request) {
+    _link.makeRequest(request);
   }
 }
 
@@ -42,12 +43,12 @@ class BLEDeviceConnectionProviderLink implements IBLEDeviceConnectionProviderLin
     _connectionProvider?._notify();
   }
 
-  @override
-  void test() {
-    
-  }
-
   initLink() {
 
+  }
+  
+  @override
+  void makeRequest(BLEDeviceRequest request) {
+    // TODO: implement makeRequest
   }
 }

@@ -36,14 +36,6 @@ class _DeviceScreenState extends State<DeviceScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        /*builder: (context) => withChangeNotifierProvider(
-          DeviceProfileScreen(
-            deviceData: widget.deviceData,
-          ),
-        ),*/
-        /*builder: (context) => DeviceProfileScreen(
-          deviceData: widget.deviceData,
-        ),*/
         builder: (context) => ChangeNotifierProvider(
           create: (_) => BLEDeviceConnectionProvider(device),
           child: DeviceProfileScreen(
@@ -61,13 +53,6 @@ class _DeviceScreenState extends State<DeviceScreen> {
       builder: (context) {
         return DeviceConnectingDialog(device: device);
       },
-    );
-  }
-
-  withChangeNotifierProvider(Widget child) {
-    return ChangeNotifierProvider(
-      create: (_) => BLEDeviceConnectionProvider(device),
-      child: child,
     );
   }
 
