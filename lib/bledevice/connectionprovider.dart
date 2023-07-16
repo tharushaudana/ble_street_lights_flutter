@@ -23,7 +23,8 @@ class BLEDeviceConnectionProvider extends ChangeNotifier implements IBLEDeviceCo
   }
 
   _notify() {
-    if (isDisposed) return;
+    //if (isDisposed) return;
+    if (!hasListeners) return;
     notifyListeners();
   }
   
