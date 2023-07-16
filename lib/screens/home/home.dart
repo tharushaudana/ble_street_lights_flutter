@@ -352,7 +352,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ? null
           : selectedDeviceIds.isEmpty
               ? FloatingActionButton(
-                  onPressed: () => openScanner(),
+                  //onPressed: () => openScanner(),
+                  onPressed: () => throw Exception("Test exception."),
                   tooltip: 'Scan',
                   child: const Icon(Icons.radar),
                 ).animate().scale(duration: 300.ms)

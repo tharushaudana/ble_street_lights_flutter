@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "385800409693",
+    "project_id": "ble-street-lights-project",
+    "storage_bucket": "ble-street-lights-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:385800409693:android:bb87cd87a1cbd7cd70f3b4",
+        "android_client_info": {
+          "package_name": "com.example.ble_street_lights"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "385800409693-bl8256vn14qse66vnad4k6ad1lsp3ls3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXVlkcxxHGuI7Bq2ToSE7lDAvatnSWTNM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "385800409693-bl8256vn14qse66vnad4k6ad1lsp3ls3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "385800409693-55vp1eh87m1ovlvmmhnt00aktnadtcjp.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.bleStreetLights"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
