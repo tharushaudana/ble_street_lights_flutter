@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/bledevice/request.dart';
 import 'package:ble_street_lights/components/celluarbar/celluarbar.dart';
@@ -24,7 +23,9 @@ class DeviceProfileScreen extends StatefulWidget {
 class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
   late Timer timerSystemTimeUpdate;
 
-  late GoogleMapController mapController;
+  GoogleMapController? mapController;
+
+  bool shouldMoveCameraWhenInitialized = false;
 
   String systemTimeStr = "";
 
@@ -47,8 +48,16 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
     setState(() {
       position = newPosition;
     });
+    moveCameraToCurrentPosition();
+  }
 
-    mapController.animateCamera(
+  moveCameraToCurrentPosition() {
+    if (mapController == null) {
+      shouldMoveCameraWhenInitialized = true;
+      return;
+    }
+
+    mapController!.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(
           target: position,
@@ -56,6 +65,10 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
         ),
       ),
     );
+  }
+
+  parseToDouble(dynamic value) {
+    return double.tryParse(value.toString());
   }
 
   @override
@@ -85,12 +98,25 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
         bool isConnected = provider.deviceData.isConnected;
         Map? currentValues = provider.deviceData.currentValues;
 
+        //### update device location
+        if (currentValues != null) {
+          try {
+            double lat = parseToDouble(currentValues['l']['t']);
+            double lng = parseToDouble(currentValues['l']['n']);
+            if (lat != position.latitude || lng != position.longitude) {
+              position = LatLng(lat, lng);
+              moveCameraToCurrentPosition();
+            }
+          // ignore: empty_catches
+          } catch (e) {}
+        }
+
         return Scaffold(
           body: CustomScrollView(
             slivers: [
               WaStyleAppBar(
                 title: Text(widget.deviceData[0]),
-                extendHeight: 125,
+                //extendHeight: 125,
                 extendedScale: 1.1,
                 logoChild: const Hero(
                   tag: 'img_profile',
@@ -132,75 +158,76 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
                   child: Column(
                     children: [
                       _ContentCard(
-                        child: Table(
+                        child: Column(
                           children: [
-                            _TableRowDeviceDetail(
-                              title: "BLE Signal",
-                              detail: Stack(
-                                children: [
-                                  Container(
-                                    margin: EdgeInsets.only(top: 10),
-                                    width: 33,
-                                    height: 15,
-                                    alignment: Alignment.centerRight,
-                                    child: Text(
-                                      "${widget.deviceData[2]} dBm",
-                                      style: const TextStyle(
-                                        fontSize: 7,
-                                        fontFamily: 'Nunito',
+                            Table(
+                              children: [
+                                _TableRowDeviceDetail(
+                                  title: "BLE Signal",
+                                  detail: Stack(
+                                    children: [
+                                      Container(
+                                        margin: EdgeInsets.only(top: 10),
+                                        width: 33,
+                                        height: 15,
+                                        alignment: Alignment.centerRight,
+                                        child: Text(
+                                          "${widget.deviceData[2]} dBm",
+                                          style: const TextStyle(
+                                            fontSize: 7,
+                                            fontFamily: 'Nunito',
+                                          ),
+                                        ),
                                       ),
+                                      Container(
+                                        margin: EdgeInsets.only(top: 10),
+                                        width: 40,
+                                        height: 38,
+                                        alignment: Alignment.centerRight,
+                                        child: CelluarBar(
+                                          width: 27,
+                                          rssi: widget.deviceData[2],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                _TableRowDeviceDetail(
+                                  title: "Device Status",
+                                  detail: Text(
+                                    isConnected ? "Connected" : "Disconnected",
+                                    style: TextStyle(
+                                      color: isConnected
+                                          ? Colors.green
+                                          : Colors.red,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  Container(
-                                    margin: EdgeInsets.only(top: 10),
-                                    width: 40,
-                                    height: 38,
-                                    alignment: Alignment.centerRight,
-                                    child: CelluarBar(
-                                      width: 27,
-                                      rssi: widget.deviceData[2],
+                                ),
+                                _TableRowDeviceDetail(
+                                  title: "RTC",
+                                  detail: Text(
+                                    currentValues?['t'] ?? "[Not Received Yet]",
+                                    style: TextStyle(
+                                      color: Colors.amber[900],
                                     ),
                                   ),
-                                ],
-                              ),
-                            ),
-                            _TableRowDeviceDetail(
-                              title: "Device Status",
-                              detail: Text(
-                                isConnected ? "Connected" : "Disconnected",
-                                style: TextStyle(
-                                  color:
-                                      isConnected ? Colors.green : Colors.red,
-                                  fontWeight: FontWeight.bold,
                                 ),
-                              ),
-                            ),
-                            _TableRowDeviceDetail(
-                              title: "RTC",
-                              detail: Text(
-                                currentValues?['t'] ?? "...",
-                                style: TextStyle(
-                                  color: Colors.amber[900],
+                                _TableRowDeviceDetail(
+                                  title: "System Time",
+                                  detail: Text(systemTimeStr),
                                 ),
-                              ),
+                              ],
                             ),
-                            _TableRowDeviceDetail(
-                              title: "System Time",
-                              detail: Text(systemTimeStr),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        margin: EdgeInsets.symmetric(horizontal: 10),
-                        child: Row(
-                          children: [
-                            FilledButton(
-                              onPressed: () {
-                                DateTime now = Time.now();
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                FilledButton(
+                                  onPressed: () {
+                                    DateTime now = Time.now();
 
-                                BLEDeviceRequest request =
-                                    BLEDeviceRequest('set')
+                                    BLEDeviceRequest request = BLEDeviceRequest(
+                                        'set')
                                       ..subject('rtc')
                                       ..data(
                                         {
@@ -215,112 +242,123 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
                                         },
                                       );
 
-                                showDialog(
-                                  context: context,
-                                  barrierDismissible: false,
-                                  builder: (context) => DeviceSyncDialog(
-                                    title: "Syncing time to RTC...",
-                                    doSync: (dialog) {
-                                      request.listen(
-                                        onSuccess: (_) {
-                                          dialog.completed();
-                                          dialog.changeTitle("Sync Completed.");
+                                    showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (context) => DeviceSyncDialog(
+                                        title: "Syncing time to RTC...",
+                                        doSync: (dialog) {
+                                          request.listen(
+                                            onSuccess: (_) {
+                                              dialog.completed();
+                                              dialog.changeTitle(
+                                                  "Sync Completed.");
+                                            },
+                                            onTimeOut: () {
+                                              dialog.failed();
+                                              dialog
+                                                  .changeTitle("Sync Failed!");
+                                            },
+                                          );
+                                          provider.makeRequest(request);
                                         },
-                                        onTimeOut: () {
-                                          dialog.failed();
-                                          dialog.changeTitle("Sync Failed!");
-                                        },
-                                      );
-                                      provider.makeRequest(request);
-                                    },
+                                      ),
+                                    );
+                                  },
+                                  child: const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.watch_later_rounded),
+                                      SizedBox(width: 5),
+                                      Text("SYNC TIME"),
+                                    ],
                                   ),
-                                );
-                              },
-                              child: const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.watch_later_rounded),
-                                  SizedBox(width: 5),
-                                  Text("SYNC TIME"),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: FilledButton(
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    barrierDismissible: false,
-                                    builder: (context) => DeviceSyncDialog(
-                                      title: "Getting Location...",
-                                      doSync: (dialog) async {
-                                        LatLng? cpos =
-                                            await getCurrentLocation();
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: FilledButton(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (context) => DeviceSyncDialog(
+                                          title: "Getting Location...",
+                                          doSync: (dialog) async {
+                                            LatLng? cpos =
+                                                await getCurrentLocation();
 
-                                        if (cpos == null) {
-                                          dialog.failed();
-                                          dialog.changeTitle("Failed to Get!");
-                                          return;
-                                        }
+                                            if (cpos == null) {
+                                              dialog.failed();
+                                              dialog.changeTitle(
+                                                  "Failed to Get!");
+                                              return;
+                                            }
 
-                                        dialog
-                                            .changeTitle("Syncing Location...");
+                                            dialog.changeTitle(
+                                                "Syncing Location...");
 
-                                        Future.delayed(
-                                          const Duration(seconds: 2),
-                                          () {
-                                            BLEDeviceRequest request =
-                                                BLEDeviceRequest('set')
-                                                  ..subject('loc')
-                                                  ..data(
-                                                    {
-                                                      't': cpos.latitude,
-                                                      'n': cpos.longitude,
-                                                    },
-                                                  );
+                                            Future.delayed(
+                                              const Duration(seconds: 2),
+                                              () {
+                                                BLEDeviceRequest request =
+                                                    BLEDeviceRequest('set')
+                                                      ..subject('loc')
+                                                      ..data(
+                                                        {
+                                                          't': cpos.latitude,
+                                                          'n': cpos.longitude,
+                                                        },
+                                                      );
 
-                                            request.listen(
-                                              onSuccess: (_) {
-                                                dialog.completed();
-                                                dialog.changeTitle(
-                                                    "Sync Completed.");
-                                                updateDeviceLocationInMap(cpos);
-                                              },
-                                              onTimeOut: () {
-                                                dialog.failed();
-                                                dialog.changeTitle(
-                                                    "Sync Failed!");
+                                                request.listen(
+                                                  onSuccess: (_) {
+                                                    dialog.completed();
+                                                    dialog.changeTitle(
+                                                        "Sync Completed.");
+                                                    updateDeviceLocationInMap(
+                                                        cpos);
+                                                  },
+                                                  onTimeOut: () {
+                                                    dialog.failed();
+                                                    dialog.changeTitle(
+                                                        "Sync Failed!");
+                                                  },
+                                                );
+                                                provider.makeRequest(request);
                                               },
                                             );
-                                            provider.makeRequest(request);
                                           },
-                                        );
-                                      },
+                                        ),
+                                      );
+                                    },
+                                    child: const Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.location_on_rounded),
+                                        SizedBox(width: 5),
+                                        Text("SYNC LOCATION"),
+                                      ],
                                     ),
-                                  );
-                                },
-                                child: const Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.location_on_rounded),
-                                    SizedBox(width: 5),
-                                    Text("SYNC LOCATION"),
-                                  ],
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
                           ],
                         ),
                       ),
                       Expanded(
-                        child: Container(
-                          margin: const EdgeInsets.only(
-                            top: 15,
+                        child: _ContentCard(
+                          /*margin: const EdgeInsets.only(
+                            top: 0,
                             bottom: 15,
-                          ),
+                          ),*/
+                          padding: const EdgeInsets.all(0),
+                          activeBottomMargin: true,
                           child: DeviceLocationViewer(
                             isPreview: true,
                             deviceName: widget.deviceData[0],
@@ -340,6 +378,11 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
                             },
                             onCreated: (controller) {
                               mapController = controller;
+
+                              if (shouldMoveCameraWhenInitialized) {
+                                moveCameraToCurrentPosition();
+                                shouldMoveCameraWhenInitialized = false;
+                              }
                             },
                           ),
                         ),
@@ -406,21 +449,25 @@ class _ContentCard extends StatelessWidget {
   const _ContentCard({
     super.key,
     required this.child,
+    this.padding = const EdgeInsets.symmetric(
+      horizontal: 15,
+      vertical: 10,
+    ),
+    this.activeBottomMargin = false,
   });
 
   final Widget child;
+  final EdgeInsets padding;
+  final bool activeBottomMargin;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(
-        top: 15,
-        bottom: 15,
+      margin: EdgeInsets.only(
+        top: 10,
+        bottom: activeBottomMargin ? 10 : 0,
       ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 15,
-        vertical: 10,
-      ),
+      padding: padding,
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [

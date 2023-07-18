@@ -1,13 +1,9 @@
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart' as foundation;
-import 'package:ble_street_lights/screens/device/device.dart';
 import 'package:ble_street_lights/screens/home/home.dart';
-import 'package:ble_street_lights/screens/splash.dart';
-import 'package:ble_street_lights/screens/scan/scan.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
 
 /*void main() {
   runApp(const MyApp());

@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -25,9 +24,6 @@ class DeviceLocationViewer extends StatefulWidget {
 }
 
 class _DeviceLocationViewerState extends State<DeviceLocationViewer> {
-  final Completer<GoogleMapController> _controller =
-      Completer<GoogleMapController>();
-
   @override
   Widget build(BuildContext context) {
     final map = GoogleMap(
@@ -111,7 +107,7 @@ class _DeviceLocationViewerState extends State<DeviceLocationViewer> {
     } else {
       return Scaffold(
         appBar: AppBar(
-          title: Text("Choose Location"),
+          title: const Text("Location"),
         ),
         body: map,
       );

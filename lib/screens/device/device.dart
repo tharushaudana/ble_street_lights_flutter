@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:developer';
 import 'package:ble_street_lights/bledevice/bledevice.dart';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/components/bottomtabbarlayout/bottomtabbarlayout.dart';
@@ -8,7 +6,6 @@ import 'package:ble_street_lights/screens/device/deviceconnectingdialog.dart';
 import 'package:ble_street_lights/screens/device/screens/profile/profile.dart';
 import 'package:ble_street_lights/time/time.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 class DeviceScreen extends StatefulWidget {

@@ -1,5 +1,3 @@
-import 'dart:developer';
-import 'package:ble_street_lights/components/celluarbar/celluarbar.dart';
 import 'package:ble_street_lights/components/radar/radar.dart';
 import 'package:ble_street_lights/helpers/bluetooth.dart';
 import 'package:ble_street_lights/screens/scan/dialogs/devicedetailsdialog.dart';

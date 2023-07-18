@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ble_street_lights/bledevice/bledevice.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:ble_street_lights/safestate/safestate.dart';
 
 class DeviceConnectingDialog extends StatefulWidget {
   const DeviceConnectingDialog({
@@ -15,7 +16,7 @@ class DeviceConnectingDialog extends StatefulWidget {
   State<StatefulWidget> createState() => _DeviceConnectingDialogState();
 }
 
-class _DeviceConnectingDialogState extends State<DeviceConnectingDialog> {
+class _DeviceConnectingDialogState extends SafeState<DeviceConnectingDialog> {
   bool isTimeout = false;
 
   connectDevice() async {

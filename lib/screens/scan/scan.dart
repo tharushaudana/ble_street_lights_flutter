@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:async';
 import 'package:ble_street_lights/helpers/bluetooth.dart';
 import 'package:ble_street_lights/helpers/location.dart';

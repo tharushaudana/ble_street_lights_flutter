@@ -1,9 +1,8 @@
-import 'package:ble_street_lights/bledevice/connectionprovider.dart';
-import 'package:ble_street_lights/bledevice/request.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:ble_street_lights/safestate/safestate.dart';
 
 class DeviceSyncDialog extends StatefulWidget {
   const DeviceSyncDialog({
@@ -19,7 +18,7 @@ class DeviceSyncDialog extends StatefulWidget {
   State<StatefulWidget> createState() => _DeviceSyncDialogState();
 }
 
-class _DeviceSyncDialogState extends State<DeviceSyncDialog> {
+class _DeviceSyncDialogState extends SafeState<DeviceSyncDialog> {
   bool _isFailed = false;
   bool _isCompleted = false;
 

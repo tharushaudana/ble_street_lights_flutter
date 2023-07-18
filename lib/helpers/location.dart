@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:ble_street_lights/helpers/helper.dart';
-import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart' as geolocator;
 
 class LocationHelper extends Helper {

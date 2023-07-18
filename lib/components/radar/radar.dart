@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:ble_street_lights/components/radar/radarpainter.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;

@@ -10,7 +10,7 @@ class WaStyleAppBar extends StatelessWidget {
     required this.logoChild,
     this.logoChildSize = 40,
     this.extendedScale = 2,
-    this.extendHeight = 200,
+    this.extendHeight = 0,
     this.backgroundColor = Colors.blue,
   });
 
@@ -34,6 +34,7 @@ class WaStyleAppBar extends StatelessWidget {
         logoChild: logoChild,
         logoChildInitialSize: logoChildSize,
         extendedScale: extendedScale,
+        statusBarHeight: statusBarHeight,
         backgroundColor: backgroundColor,
       ),
     );
@@ -47,6 +48,7 @@ class _AppBarDelegate extends SliverPersistentHeaderDelegate {
   final Widget logoChild;
   final double logoChildInitialSize;
   final double extendedScale;
+  final double statusBarHeight;
   final Color backgroundColor;
 
   _AppBarDelegate({
@@ -56,6 +58,7 @@ class _AppBarDelegate extends SliverPersistentHeaderDelegate {
     required this.logoChild,
     required this.logoChildInitialSize,
     required this.extendedScale,
+    required this.statusBarHeight,
     required this.backgroundColor,
   });
 
@@ -91,6 +94,20 @@ class _AppBarDelegate extends SliverPersistentHeaderDelegate {
     return d;
   }
 
+  double _fitMaxHeight() {
+    double d;
+
+    d = _logoChildSize(1);
+    d += statusBarHeight; 
+    d += (minHeight - statusBarHeight - logoChildInitialSize);
+
+    return d;
+  }
+
+  double _getMaxHeight() {
+    return maxHeight > _fitMaxHeight() ? maxHeight : _fitMaxHeight();
+  }
+
   @override
   Widget build(
     BuildContext context,
@@ -98,7 +115,6 @@ class _AppBarDelegate extends SliverPersistentHeaderDelegate {
     bool overlapsContent,
   ) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final statusBarHeight = MediaQuery.of(context).viewPadding.top;
 
     double shrinkPercentage = _shrinkPercentage(shrinkOffset);
     double logoChildSize = _logoChildSize(shrinkPercentage);
@@ -142,7 +158,7 @@ class _AppBarDelegate extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  double get maxExtent => maxHeight;
+  double get maxExtent => _getMaxHeight();
 
   @override
   double get minExtent => minHeight;
