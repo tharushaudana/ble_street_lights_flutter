@@ -22,7 +22,7 @@ class _BottomTabBarLayoutState extends State<BottomTabBarLayout>
 
   @override
   void initState() {
-    tabController = TabController(length: widget.tabs.length, vsync: this);
+    tabController = TabController(length: widget.tabs.length, vsync: this,);
 
     tabController.addListener(() {
       log(tabController.index.toString());
@@ -38,6 +38,7 @@ class _BottomTabBarLayoutState extends State<BottomTabBarLayout>
         Expanded(
           child: TabBarView(
             controller: tabController,
+            physics: const NeverScrollableScrollPhysics(),
             children: widget.children,
           ),
         ),
