@@ -3,6 +3,7 @@ import 'package:ble_street_lights/bledevice/bledevice.dart';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/components/bottomtabbarlayout/bottomtabbarlayout.dart';
 import 'package:ble_street_lights/screens/device/deviceconnectingdialog.dart';
+import 'package:ble_street_lights/screens/device/screens/home/home.dart';
 import 'package:ble_street_lights/screens/device/screens/profile/profile.dart';
 import 'package:ble_street_lights/time/time.dart';
 import 'package:flutter/material.dart';
@@ -92,7 +93,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) {
-        openConnectingDialog();
+        //openConnectingDialog();
       },
     );
   }
@@ -161,11 +162,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
           ["Logs", Icons.list_alt, Color(0xFF1193A9)],
         ],
         children: [
-          Center(
-              child: Text(
-            "Home",
-            style: TextStyle(fontSize: 30),
-          )),
+          DeviceHomeScreen(),
           Center(
               child: Text(
             "Settings",
