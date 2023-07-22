@@ -117,7 +117,7 @@ class _Card extends StatelessWidget {
               BoxShadow(
                 color: Colors.grey.shade300,
                 offset: const Offset(0, 1),
-                blurRadius: 3,
+                blurRadius: 2,
                 //spreadRadius: 2,
               ),
             ],
