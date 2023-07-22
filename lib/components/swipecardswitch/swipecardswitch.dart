@@ -1,29 +1,42 @@
-import 'dart:developer';
-import 'dart:math' as math;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class SwipeCardSwitch extends StatefulWidget {
   const SwipeCardSwitch({
     super.key,
-    required this.p,
+    this.color = Colors.blue,
+    this.cardSize = 140,
+    required this.child1,
+    required this.child2,
+    this.initialSwitchedChild = 1,
+    required this.onSwitching,
   });
 
-  final double p;
+  final double cardSize;
+  final Color color;
+  final Widget child1;
+  final Widget child2;
+  final int initialSwitchedChild;
+  final bool Function(int willSwitchingChild) onSwitching;
 
   @override
   State<StatefulWidget> createState() => _SwipeCardSwitchState();
 }
 
-class _SwipeCardSwitchState extends State<SwipeCardSwitch> {
-  final double _height = 200;
-  final double _cardSize = 140;
+class _SwipeCardSwitchState extends State<SwipeCardSwitch>
+    with SingleTickerProviderStateMixin {
+
   final double _hiddenScale = 0.8;
 
   double _startX = 0;
   double _preX = 0;
 
   double _percentage = 0;
+
+  int switchedChild = 1;
+
+  late Animation<double> _anim;
+  late AnimationController _animController;
 
   double _scaleOfCard1(double p) {
     return 1 - (1 - _hiddenScale) * p;
@@ -34,59 +47,126 @@ class _SwipeCardSwitchState extends State<SwipeCardSwitch> {
   }
 
   double _shiftedOfCard1(double p) {
-    return p < 0.5 ? 0 : (_cardSize / 4) * (p - 0.5) / 0.5;
+    return p < 0.5 ? 0 : (widget.cardSize / 4) * (p - 0.5) / 0.5;
   }
 
   double _shiftedOfCard2(double p) {
-    return p > 0.5 ? 0 : (_cardSize / 4) * (0.5 - p) / 0.5;
+    return p > 0.5 ? 0 : (widget.cardSize / 4) * (0.5 - p) / 0.5;
   }
 
   double _moveOfCards(double p) {
     if (p <= 0.5) {
-      return _cardSize / 2 * (p / 0.5);
+      return widget.cardSize / 2 * (p / 0.5);
     } else {
-      return _cardSize / 2 * ((1 - p) / 0.5);
+      return widget.cardSize / 2 * ((1 - p) / 0.5);
+    }
+  }
+
+  _startCompleteAnimation(double start, double end) {
+    _animController.reset();
+
+    _anim = Tween(begin: start, end: end).animate(
+      CurvedAnimation(
+        parent: _animController,
+        curve: Curves.easeInOutCirc,
+      ),
+    )..addListener(() {
+        setState(() {
+          _percentage = _anim.value;
+        });
+      });
+
+    _animController.forward();
+  }
+
+  _runCompleteAnimation() {
+    if (_percentage == 1 || _percentage == 0) return;
+
+    // switch to next card
+    if (_percentage >= 0.5) {
+      _startCompleteAnimation(_percentage, 1);
+    }
+    // reset current card
+    else {
+      _startCompleteAnimation(_percentage, 0);
+    }
+  }
+
+  _handleOnPanEnd() {
+    if (_percentage >= 0.5) {
+      if (switchedChild == 2) {
+        _runCompleteAnimation();
+      } else {
+        if (widget.onSwitching(2)) {
+          switchedChild = 2;
+          _runCompleteAnimation();
+        } else {
+          // discrabe switching
+          _startCompleteAnimation(_percentage, 0);
+        }
+      }
+
+      return;
+    }
+
+    if (switchedChild == 1) {
+      _runCompleteAnimation();
+      return;
+    } else {
+      if (widget.onSwitching(1)) {
+        switchedChild = 1;
+        _runCompleteAnimation();
+      } else {
+        // discrabe switching
+        _startCompleteAnimation(_percentage, 1);
+      }
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-    //final double _percentage = widget.p;
+  void initState() {
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
 
+    switchedChild = widget.initialSwitchedChild;
+
+    if (switchedChild == 2) {
+      _percentage = 1;
+    }
+
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final double _width = MediaQuery.of(context).size.width;
 
     final List<Widget> cards = [
       _Card(
-        size: _cardSize,
+        size: widget.cardSize,
         left: _width / 2 -
-            _cardSize / 2 +
+            widget.cardSize / 2 +
             _shiftedOfCard2(_percentage) +
             _moveOfCards(_percentage),
-        top: _height / 2 - _cardSize / 2,
+        //top: _height / 2 - _cardSize / 2,
+        top: 0,
         scale: _scaleOfCard2(_percentage),
         color: Colors.blue,
-        child: Text(
-          "MANUAL",
-          style: TextStyle(
-            fontSize: 20,
-          ),
-        ),
+        child: widget.child2,
       ),
       _Card(
-        size: _cardSize,
+        size: widget.cardSize,
         left: _width / 2 -
-            _cardSize / 2 -
+            widget.cardSize / 2 -
             _shiftedOfCard1(_percentage) -
             _moveOfCards(_percentage),
-        top: _height / 2 - _cardSize / 2,
+        //top: _height / 2 - _cardSize / 2,
+        top: 0,
         scale: _scaleOfCard1(_percentage),
         color: Colors.blue,
-        child: Text(
-          "ASTRO",
-          style: TextStyle(
-            fontSize: 20,
-          ),
-        ),
+        child: widget.child1,
       ),
     ];
 
@@ -115,15 +195,23 @@ class _SwipeCardSwitchState extends State<SwipeCardSwitch> {
 
         _preX = dx;
       },
-      onPanEnd: (details) {},
+      onPanEnd: (details) {
+        _handleOnPanEnd();
+      },
       child: Container(
         width: double.infinity,
-        height: _height,
+        height: widget.cardSize,
         child: Stack(
           children: _percentage <= 0.5 ? cards : cards.reversed.toList(),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
   }
 }
 
