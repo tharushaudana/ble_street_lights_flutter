@@ -3,6 +3,7 @@ import 'package:ble_street_lights/bledevice/bledevice.dart';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/components/bottomtabbarlayout/bottomtabbarlayout.dart';
 import 'package:ble_street_lights/screens/device/deviceconnectingdialog.dart';
+import 'package:ble_street_lights/screens/device/screens/astro/astro.dart';
 import 'package:ble_street_lights/screens/device/screens/home/home.dart';
 import 'package:ble_street_lights/screens/device/screens/profile/profile.dart';
 import 'package:ble_street_lights/time/time.dart';
@@ -151,23 +152,19 @@ class _DeviceScreenState extends State<DeviceScreen> {
             ),
           ],
         ),
-        elevation: 0,
+        //elevation: 0,
         titleSpacing: 0,
       ),
       body: BottomTabBarLayout(
         tabs: [
           ["Home", Icons.home, Color(0xFF5B36B7)],
-          ["Settings", Icons.settings, Color(0xFFC9379C)],
+          ["Astro", Icons.settings, Color(0xFFC9379C)],
           ["Meter", Icons.energy_savings_leaf, Color(0xFFE6A91A)],
           ["Logs", Icons.list_alt, Color(0xFF1193A9)],
         ],
         children: [
           DeviceHomeScreen(),
-          Center(
-              child: Text(
-            "Settings",
-            style: TextStyle(fontSize: 30),
-          )),
+          AstroScreen(),
           Center(
               child: Text(
             "Meter",
