@@ -165,7 +165,7 @@ class _BottomNavigatorState extends State<BottomNavigator> {
       alignment: Alignment.bottomCenter,
       margin: const EdgeInsets.symmetric(
         horizontal: 20,
-        vertical: 20,
+        vertical: 10,
       ),
       child: Row(
         children: renderTabs(),
