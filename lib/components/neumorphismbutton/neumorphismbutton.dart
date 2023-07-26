@@ -4,10 +4,12 @@ class NeumorphismButton extends StatefulWidget {
   const NeumorphismButton({
     super.key,
     this.initialSwitched = false,
+    this.glowEnabled = true,
     required this.onSwitching,
   });
 
   final bool initialSwitched;
+  final bool glowEnabled;
   final bool Function(bool will) onSwitching;
 
   @override
@@ -98,24 +100,26 @@ class _NeumorphismButtonState extends State<NeumorphismButton> {
                     _shadeColor(Colors.blue, 0.7),
                   ],
           ),
-          boxShadow: [
-            BoxShadow(
-              color: !isPressed
-                  ? Color(0xffffffff)
-                  : _shadeColor(Colors.blue, 0.7),
-              offset: -distance,
-              blurRadius: (bSize / 10) * 2,
-              spreadRadius: 0.0,
-            ),
-            BoxShadow(
-              color: !isPressed
-                  ? Color(0xffced2d5)
-                  : _shadeColor(Colors.blue, 0.6),
-              offset: distance,
-              blurRadius: (bSize / 10) * 2,
-              spreadRadius: 0.0,
-            ),
-          ],
+          boxShadow: widget.glowEnabled
+              ? [
+                  BoxShadow(
+                    color: !isPressed
+                        ? Color(0xffffffff)
+                        : _shadeColor(Colors.blue, 0.7),
+                    offset: -distance,
+                    blurRadius: (bSize / 10) * 2,
+                    spreadRadius: 0.0,
+                  ),
+                  BoxShadow(
+                    color: !isPressed
+                        ? Color(0xffced2d5)
+                        : _shadeColor(Colors.blue, 0.6),
+                    offset: distance,
+                    blurRadius: (bSize / 10) * 2,
+                    spreadRadius: 0.0,
+                  ),
+                ]
+              : [],
         ),
       ),
     );

@@ -253,7 +253,7 @@ class _AstroScreenState extends State<AstroScreen> {
                                       ),
                                       const SizedBox(width: 5),
                                       Text(
-                                        "Scroll down for settings",
+                                        "Scroll down for offset settings",
                                         style: TextStyle(
                                           color: Colors.white,
                                         ),
@@ -315,6 +315,7 @@ class _AstroScreenState extends State<AstroScreen> {
                                 Spacer(),
                                 NeumorphismButton(
                                   initialSwitched: false,
+                                  glowEnabled: false,
                                   onSwitching: (will) {
                                     setState(() {
                                       isOffsetStatusEnabled = will;

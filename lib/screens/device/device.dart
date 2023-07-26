@@ -158,7 +158,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
       body: BottomTabBarLayout(
         tabs: [
           ["Home", Icons.home, Color(0xFF5B36B7)],
-          ["Astro", Icons.settings, Color(0xFFC9379C)],
+          ["Astro", Icons.wb_sunny_rounded, Color(0xFFC9379C)],
           ["Meter", Icons.energy_savings_leaf, Color(0xFFE6A91A)],
           ["Logs", Icons.list_alt, Color(0xFF1193A9)],
         ],
