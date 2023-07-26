@@ -61,6 +61,7 @@ dev_dependencies:
   flutter_spinkit: ^5.2.0
   flutter_inset_box_shadow: ^1.0.8
   sleek_circular_slider: ^2.0.1
+  syncfusion_flutter_sliders: ^22.1.39
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
