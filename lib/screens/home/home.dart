@@ -108,12 +108,20 @@ class _HomeScreenState extends State<HomeScreen> {
       MaterialPageRoute(
         builder: (context) => DeviceScreen(
           deviceData: devices[index],
+          didPop: () {
+            scanForDevices();
+          },
         ),
       ),
     );
   }
 
   scanForDevices() async {
+    if (!await bluetooth.checkIsEnabled() || !await location.checkIsEnabled()) {
+      showUnableToScanAlert();
+      return;
+    }
+
     await bluetooth.startScan(
       started: () {
         availableDeviceIds.clear();
@@ -162,11 +170,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> onRefreshList() async {
-    if (!await bluetooth.checkIsEnabled() || !await location.checkIsEnabled()) {
-      showUnableToScanAlert();
-      return;
-    }
-
     setState(() {
       isPulledForRefresh = true;
     });

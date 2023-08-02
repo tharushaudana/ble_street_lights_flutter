@@ -7,10 +7,12 @@ class BottomTabBarLayout extends StatefulWidget {
     super.key,
     required this.tabs,
     required this.children,
+    this.onController,
   });
 
   final List<List> tabs;
   final List<Widget> children;
+  final Function(TabController controller)? onController;
 
   @override
   State<StatefulWidget> createState() => _BottomTabBarLayoutState();
@@ -24,9 +26,13 @@ class _BottomTabBarLayoutState extends State<BottomTabBarLayout>
   void initState() {
     tabController = TabController(length: widget.tabs.length, vsync: this,);
 
-    tabController.addListener(() {
+    /*tabController.addListener(() {
       log(tabController.index.toString());
-    });
+    });*/
+
+    if (widget.onController != null) {
+      widget.onController!(tabController);
+    }
 
     super.initState();
   }

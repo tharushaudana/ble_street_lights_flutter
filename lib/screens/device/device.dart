@@ -14,15 +14,18 @@ class DeviceScreen extends StatefulWidget {
   const DeviceScreen({
     super.key,
     required this.deviceData,
+    this.didPop,
   });
 
   final List deviceData;
+  final VoidCallback? didPop;
 
   @override
   State<StatefulWidget> createState() => _DeviceScreenState();
 }
 
 class _DeviceScreenState extends State<DeviceScreen> {
+  late TabController _tabController;
   late BLEDevice device;
 
   bool isConnected = false;
@@ -30,6 +33,8 @@ class _DeviceScreenState extends State<DeviceScreen> {
   DateTime lastSeenTime = Time.now();
   Timer? timerLastSeenUpdate;
   String lastSeenStr = "recently";
+
+  late AstroScreenController _astroScreenController;
 
   openProfileScreen() {
     Navigator.push(
@@ -94,88 +99,108 @@ class _DeviceScreenState extends State<DeviceScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) {
-        //openConnectingDialog();
+        openConnectingDialog();
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Expanded(
-              child: Row(
-                children: [
-                  const Hero(
-                    tag: 'img_profile',
-                    child: Image(
-                      image: AssetImage("assets/images/device_icon.png"),
-                      width: 40,
-                      height: 40,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: InkWell(
-                      onTap: () {
-                        openProfileScreen();
-                      },
-                      child: Container(
-                        height: 56,
-                        margin: EdgeInsets.only(left: 10),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(widget.deviceData[0]),
-                            const SizedBox(height: 3),
-                            Text(
-                              isConnected ? "online" : "active $lastSeenStr",
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.normal,
-                              ),
-                            ),
-                          ],
-                        ),
+    return WillPopScope(
+      onWillPop: () async {
+        if (_tabController.index == 0) return true;
+        
+        if (_tabController.index == 1 && _astroScreenController.isSettingsOpened) {
+          _astroScreenController.closeSettings();
+        } else {
+          _tabController.index = 0;
+        }
+        
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Row(
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    const Hero(
+                      tag: 'img_profile',
+                      child: Image(
+                        image: AssetImage("assets/images/device_icon.png"),
+                        width: 40,
+                        height: 40,
                       ),
                     ),
-                  )
-                ],
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: InkWell(
+                        onTap: () {
+                          openProfileScreen();
+                        },
+                        child: Container(
+                          height: 56,
+                          margin: EdgeInsets.only(left: 10),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(widget.deviceData[0]),
+                              const SizedBox(height: 3),
+                              Text(
+                                isConnected ? "online" : "active $lastSeenStr",
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
               ),
+              IconButton(
+                onPressed: () {},
+                icon: Icon(Icons.more_vert),
+              ),
+            ],
+          ),
+          //elevation: 0,
+          titleSpacing: 0,
+        ),
+        body: BottomTabBarLayout(
+          tabs: [
+            ["Home", Icons.home, Color(0xFF5B36B7)],
+            ["Astro", Icons.wb_sunny_rounded, Color(0xFFC9379C)],
+            ["Meter", Icons.energy_savings_leaf, Color(0xFFE6A91A)],
+            ["Logs", Icons.list_alt, Color(0xFF1193A9)],
+          ],
+          onController: (controller) {
+            _tabController = controller;
+          },
+          children: [
+            DeviceHomeScreen(),
+            AstroScreen(
+              onController: (controller) {
+                _astroScreenController = controller;
+              },
             ),
-            IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.more_vert),
-            ),
+            Center(
+                child: Text(
+              "Meter",
+              style: TextStyle(fontSize: 30),
+            )),
+            Center(
+                child: Text(
+              "Logs",
+              style: TextStyle(fontSize: 30),
+            )),
           ],
         ),
-        //elevation: 0,
-        titleSpacing: 0,
-      ),
-      body: BottomTabBarLayout(
-        tabs: [
-          ["Home", Icons.home, Color(0xFF5B36B7)],
-          ["Astro", Icons.wb_sunny_rounded, Color(0xFFC9379C)],
-          ["Meter", Icons.energy_savings_leaf, Color(0xFFE6A91A)],
-          ["Logs", Icons.list_alt, Color(0xFF1193A9)],
-        ],
-        children: [
-          DeviceHomeScreen(),
-          AstroScreen(),
-          Center(
-              child: Text(
-            "Meter",
-            style: TextStyle(fontSize: 30),
-          )),
-          Center(
-              child: Text(
-            "Logs",
-            style: TextStyle(fontSize: 30),
-          )),
-        ],
       ),
     );
   }
@@ -186,6 +211,10 @@ class _DeviceScreenState extends State<DeviceScreen> {
 
     if (timerLastSeenUpdate != null && timerLastSeenUpdate!.isActive) {
       timerLastSeenUpdate!.cancel();
+    }
+
+    if (widget.didPop != null) {
+      widget.didPop!();
     }
 
     super.dispose();
