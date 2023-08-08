@@ -6,6 +6,7 @@ import 'package:ble_street_lights/screens/device/deviceconnectingdialog.dart';
 import 'package:ble_street_lights/screens/device/screens/astro/astro.dart';
 import 'package:ble_street_lights/screens/device/screens/home/home.dart';
 import 'package:ble_street_lights/screens/device/screens/profile/profile.dart';
+import 'package:ble_street_lights/screens/device/screens/settings/settings.dart';
 import 'package:ble_street_lights/time/time.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -99,7 +100,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) {
-        openConnectingDialog();
+        //openConnectingDialog();
       },
     );
   }
@@ -177,7 +178,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
             ["Home", Icons.home, Color(0xFF5B36B7)],
             ["Astro", Icons.wb_sunny_rounded, Color(0xFFC9379C)],
             ["Meter", Icons.energy_savings_leaf, Color(0xFFE6A91A)],
-            ["Logs", Icons.list_alt, Color(0xFF1193A9)],
+            ["Settings", Icons.settings_rounded, Color(0xFF1193A9)],
           ],
           onController: (controller) {
             _tabController = controller;
@@ -194,11 +195,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
               "Meter",
               style: TextStyle(fontSize: 30),
             )),
-            Center(
-                child: Text(
-              "Logs",
-              style: TextStyle(fontSize: 30),
-            )),
+            SettingsScreen(),
           ],
         ),
       ),

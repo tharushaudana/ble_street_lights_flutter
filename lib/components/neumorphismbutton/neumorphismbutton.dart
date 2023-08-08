@@ -4,12 +4,16 @@ class NeumorphismButton extends StatefulWidget {
   const NeumorphismButton({
     super.key,
     this.initialSwitched = false,
+    this.switched,
     this.glowEnabled = true,
+    this.disabled = false,
     required this.onSwitching,
   });
 
   final bool initialSwitched;
+  final bool? switched;
   final bool glowEnabled;
+  final bool disabled;
   final bool Function(bool will) onSwitching;
 
   @override
@@ -32,6 +36,12 @@ class _NeumorphismButtonState extends State<NeumorphismButton> {
     return Color.fromARGB(color.alpha, red, green, blue);
   }
 
+  updateValue(bool value) {
+    setState(() {
+      isPressed = value;
+    });
+  }
+
   @override
   void initState() {
     isPressed = widget.initialSwitched;
@@ -44,38 +54,22 @@ class _NeumorphismButtonState extends State<NeumorphismButton> {
 
     final double bSize = 60;
 
-    Color bgColor = Color(0xFFE7ECEF);
+    //Color bgColor = Color(0xFFE7ECEF);
+
+    if (widget.switched != null) {
+      isPressed = widget.switched!;
+    }
 
     return GestureDetector(
-      onTap: () {
-        if (widget.onSwitching(!isPressed)) {
-          setState(() {
-            isPressed = !isPressed;
-          });
-        }
-      },
-      /*child: Container(
-        width: 80,
-        height: 80,
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              offset: -distance,
-              blurRadius: blur,
-              color: Colors.white,
-              inset: isPressed,
-            ),
-            BoxShadow(
-              offset: distance,
-              blurRadius: blur,
-              color: Color(0xFFA7A9AF),
-              inset: isPressed,
-            ),
-          ],
-        ),
-      ),*/
+      onTap: !widget.disabled
+          ? () {
+              if (widget.onSwitching(!isPressed)) {
+                setState(() {
+                  isPressed = !isPressed;
+                });
+              }
+            }
+          : null,
       child: AnimatedContainer(
         duration: Duration(milliseconds: 100),
         width: bSize,

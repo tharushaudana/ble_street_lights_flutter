@@ -1,10 +1,8 @@
-import 'dart:developer';
 import 'dart:ui';
 import 'package:ble_street_lights/components/sliverpersistentheaderbuilder/sliverpersistentheaderbuilder.dart';
 import 'package:ble_street_lights/components/neumorphismbutton/neumorphismbutton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/src/rendering/sliver_persistent_header.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
@@ -27,9 +25,10 @@ class _AstroScreenState extends State<AstroScreen> {
   double _scrollPercentage = 0;
   double _shrinkPercentage = 0;
 
-  bool isOffsetStatusEnabled = false;
+  //bool isOffsetStatusEnabled = false;
 
   Map settingsData = {
+    "offsetStatusEnabled": false, 
     "offsetSunrise": 100,
     "offsetSunset": 50,
   };
@@ -227,7 +226,7 @@ class _AstroScreenState extends State<AstroScreen> {
                           ),
                         ),
                         child: SingleChildScrollView(
-                          physics: NeverScrollableScrollPhysics(),
+                          physics: const NeverScrollableScrollPhysics(),
                           child: Opacity(
                             opacity: shrinkPercentage,
                             child: Column(
@@ -292,18 +291,18 @@ class _AstroScreenState extends State<AstroScreen> {
                   ),
                 ),
                 child: SingleChildScrollView(
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   child: Column(
                     children: [
                       Opacity(
                         opacity: _shrinkPercentage,
                         child: Container(
                           height: iconImgSize * _shrinkPercentage,
-                          margin: EdgeInsets.symmetric(
+                          margin: const EdgeInsets.symmetric(
                             horizontal: iconImgMargin,
                             vertical: iconImgMargin,
                           ),
-                          child: SingleChildScrollView(
+                          child: const SingleChildScrollView(
                             physics: NeverScrollableScrollPhysics(),
                             child: Row(
                               children: [
@@ -351,6 +350,7 @@ class _AstroScreenState extends State<AstroScreen> {
                           ),
                         ),
                       ),
+                      //########################################################
                       Opacity(
                         opacity: 1 - _shrinkPercentage,
                         child: Column(
@@ -380,7 +380,7 @@ class _AstroScreenState extends State<AstroScreen> {
                                             size: 20,
                                           ),
                                           Text(
-                                            isOffsetStatusEnabled
+                                            settingsData["offsetStatusEnabled"]
                                                 ? "ON"
                                                 : "OFF",
                                             style: TextStyle(
@@ -398,7 +398,7 @@ class _AstroScreenState extends State<AstroScreen> {
                                     glowEnabled: false,
                                     onSwitching: (will) {
                                       setState(() {
-                                        isOffsetStatusEnabled = will;
+                                        settingsData["offsetStatusEnabled"] = will;
                                       });
                                       return true;
                                     },
@@ -408,7 +408,7 @@ class _AstroScreenState extends State<AstroScreen> {
                               shadow: false,
                               border: true,
                             ),
-                            isOffsetStatusEnabled
+                            settingsData["offsetStatusEnabled"]
                                 ? Column(
                                     children: [
                                       _settingCard(
@@ -562,7 +562,7 @@ class _AstroScreenState extends State<AstroScreen> {
                                       ),
                                     ],
                                   ).animate().fade(duration: 100.ms)
-                                : Container(
+                                : const SizedBox(
                                     height: 100,
                                     child: Center(
                                       child: Text(
@@ -574,17 +574,6 @@ class _AstroScreenState extends State<AstroScreen> {
                           ],
                         ),
                       ),
-                      /*Text("data"),
-                      Text("data"),
-                      Text("data"),
-                      Text("data"),
-                      Text("data"),
-                      Text("data"),
-                      Text("data"),
-                      Text("data"),
-                      Text("data"),
-                      Text("data"),
-                      Text("data"),*/
                     ],
                   ),
                 ),
