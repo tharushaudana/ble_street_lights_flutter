@@ -332,7 +332,7 @@ class _MotionSensorSettingsScreenState
                       ),
                     ),
                   ],
-                )
+                ).animate().fade(duration: 100.ms)
               : Container(
                   height: 100,
                   child: Center(

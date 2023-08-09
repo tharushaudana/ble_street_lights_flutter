@@ -28,9 +28,15 @@ class _SettingsScreenState extends SafeState<SettingsScreen> {
     },
     "dimmingStages": {
       "enabled": true,
+      "mode": "manual",
       "stages": [
         {
           "pwm": 70,
+          "start": "",
+          "end": "",
+        },
+        {
+          "pwm": 50,
           "start": "",
           "end": "",
         }
@@ -165,7 +171,7 @@ class _SettingsScreenState extends SafeState<SettingsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Motion Sensor Settings",
+                      "Motion Sensor",
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -348,6 +354,10 @@ class _SettingsScreenState extends SafeState<SettingsScreen> {
                               Icons.subdirectory_arrow_right_rounded,
                               size: 20,
                             ),
+                            Icon(
+                              Icons.subdirectory_arrow_right_rounded,
+                              size: 20,
+                            ),                            
                           ],
                         ),
                         Column(
@@ -377,6 +387,35 @@ class _SettingsScreenState extends SafeState<SettingsScreen> {
                                         style: const TextStyle(
                                           color: Colors.blue,
                                           fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                TableRow(
+                                  children: [
+                                    TableCell(
+                                      child: Container(
+                                        margin: EdgeInsets.only(top: 4),
+                                        child: const Text(
+                                          "MODE: ",
+                                          style: TextStyle(
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    TableCell(
+                                      child: Container(
+                                        margin: EdgeInsets.only(top: 4),
+                                        child: Text(
+                                          settingsData["dimmingStages"]
+                                                  ["mode"]
+                                              .toString().toUpperCase(),
+                                          style: const TextStyle(
+                                            color: Colors.blue,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
                                     ),
