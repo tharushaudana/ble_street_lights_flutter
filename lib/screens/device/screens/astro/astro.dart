@@ -34,9 +34,9 @@ class _AstroScreenState extends State<AstroScreen>
   double _shrinkPercentage = 0;
 
   Map settingsData = {
-    "offsetStatusEnabled": false,
-    "offsetSunrise": 100,
-    "offsetSunset": 50,
+    "enabled": false,
+    "sunrise": 100,
+    "sunset": 50,
   };
 
   Future<bool> syncSettings(
@@ -417,7 +417,7 @@ class _AstroScreenState extends State<AstroScreen>
                                             ),
                                             Text(
                                               settingsData[
-                                                      "offsetStatusEnabled"]
+                                                      "enabled"]
                                                   ? "ON"
                                                   : "OFF",
                                               style: const TextStyle(
@@ -434,7 +434,13 @@ class _AstroScreenState extends State<AstroScreen>
                                       initialSwitched: false,
                                       glowEnabled: false,
                                       onSwitching: (will) async {
-                                        if (will) return true;
+                                        if (will) {
+                                          setState(() {
+                                            settingsData[
+                                                "enabled"] = will;
+                                          });
+                                          return true;
+                                        }
 
                                         bool result = await syncSettings(
                                           provider,
@@ -449,7 +455,7 @@ class _AstroScreenState extends State<AstroScreen>
                                           ) {
                                             setState(() {
                                               settingsData[
-                                                  "offsetStatusEnabled"] = will;
+                                                  "enabled"] = will;
                                             });
                                           });
                                         }
@@ -462,7 +468,7 @@ class _AstroScreenState extends State<AstroScreen>
                                 shadow: false,
                                 border: true,
                               ),
-                              settingsData["offsetStatusEnabled"]
+                              settingsData["enabled"]
                                   ? Column(
                                       children: [
                                         _settingCard(
@@ -501,12 +507,12 @@ class _AstroScreenState extends State<AstroScreen>
                                                         minorTicksPerInterval:
                                                             1,
                                                         value: settingsData[
-                                                            'offsetSunrise'],
+                                                            'sunrise'],
                                                         onChanged: (value) {
                                                           if (value < 1) return;
                                                           setState(() {
                                                             settingsData[
-                                                                    'offsetSunrise'] =
+                                                                    'sunrise'] =
                                                                 value.toInt();
                                                           });
                                                         },
@@ -518,7 +524,7 @@ class _AstroScreenState extends State<AstroScreen>
                                               Column(
                                                 children: [
                                                   Text(
-                                                    "${settingsData['offsetSunrise']}",
+                                                    "${settingsData['sunrise']}",
                                                     style: const TextStyle(
                                                       fontSize: 35,
                                                       color: Colors.blue,
@@ -571,12 +577,12 @@ class _AstroScreenState extends State<AstroScreen>
                                                         minorTicksPerInterval:
                                                             1,
                                                         value: settingsData[
-                                                            'offsetSunset'],
+                                                            'sunset'],
                                                         onChanged: (value) {
                                                           if (value < 1) return;
                                                           setState(() {
                                                             settingsData[
-                                                                    'offsetSunset'] =
+                                                                    'sunset'] =
                                                                 value.toInt();
                                                           });
                                                         },
@@ -588,7 +594,7 @@ class _AstroScreenState extends State<AstroScreen>
                                               Column(
                                                 children: [
                                                   Text(
-                                                    "${settingsData['offsetSunset']}",
+                                                    "${settingsData['sunset']}",
                                                     style: const TextStyle(
                                                       fontSize: 35,
                                                       color: Colors.blue,
@@ -619,9 +625,9 @@ class _AstroScreenState extends State<AstroScreen>
                                                 {
                                                   'e': 1,
                                                   'sr': settingsData[
-                                                      "offsetSunrise"],
+                                                      "sunrise"],
                                                   'ss': settingsData[
-                                                      "offsetSunset"],
+                                                      "sunset"],
                                                 },
                                               );
                                             },

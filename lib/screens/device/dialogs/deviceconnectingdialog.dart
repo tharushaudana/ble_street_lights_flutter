@@ -60,7 +60,7 @@ class _DeviceConnectingDialogState extends SafeState<DeviceConnectingDialog> {
         ),
       ),
       content: Container(
-        height: 160,
+        height: 170,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,

@@ -143,8 +143,13 @@ class _DimmingStagesSettingsScreenState
                   initialSwitched: widget.settingsData["enabled"],
                   glowEnabled: false,
                   onSwitching: (will) async {
-                    if (will) return true;
-                    
+                    if (will) {
+                      setState(() {
+                        widget.settingsData["enabled"] = will;
+                      });
+                      return true;
+                    }
+
                     bool result = await syncSettings(
                       widget.provider,
                       {"e": will ? 1 : 0},
