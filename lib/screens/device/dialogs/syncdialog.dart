@@ -19,6 +19,8 @@ class DeviceSyncDialog extends StatefulWidget {
 }
 
 class _DeviceSyncDialogState extends SafeState<DeviceSyncDialog> {
+  late SyncDialogController controller;
+
   bool _isFailed = false;
   bool _isCompleted = false;
 
@@ -68,6 +70,10 @@ class _DeviceSyncDialogState extends SafeState<DeviceSyncDialog> {
     title = widget.title;
 
     super.initState();
+
+    controller = SyncDialogController(onChangeTitle: (String title) {
+      changeTitle(title);
+    });
 
     Future.delayed(const Duration(milliseconds: 2000), () {
       _startSync();
@@ -126,5 +132,15 @@ class _DeviceSyncDialogState extends SafeState<DeviceSyncDialog> {
         ),
       ),
     );
+  }
+}
+
+class SyncDialogController {
+  SyncDialogController({required this.onChangeTitle});
+
+  final Function(String title) onChangeTitle;
+
+  changeTitle(String title) {
+    onChangeTitle(title);
   }
 }

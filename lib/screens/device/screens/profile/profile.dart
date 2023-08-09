@@ -4,7 +4,7 @@ import 'package:ble_street_lights/bledevice/request.dart';
 import 'package:ble_street_lights/components/celluarbar/celluarbar.dart';
 import 'package:ble_street_lights/components/wastyleappbar/wastyleappbar.dart';
 import 'package:ble_street_lights/screens/device/screens/profile/locationviewer.dart';
-import 'package:ble_street_lights/screens/device/screens/dialogs/syncdialog.dart';
+import 'package:ble_street_lights/screens/device/dialogs/syncdialog.dart';
 import 'package:ble_street_lights/time/time.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';

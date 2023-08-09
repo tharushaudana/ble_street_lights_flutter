@@ -1,6 +1,7 @@
 import 'dart:ui';
-import 'package:ble_street_lights/components/sliverpersistentheaderbuilder/sliverpersistentheaderbuilder.dart';
+import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/components/neumorphismbutton/neumorphismbutton.dart';
+import 'package:ble_street_lights/screens/device/devicesyncer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -9,10 +10,12 @@ import 'package:syncfusion_flutter_sliders/sliders.dart';
 class MotionSensorSettingsScreen extends StatefulWidget {
   const MotionSensorSettingsScreen({
     super.key,
+    required this.provider,
     required this.settingsData,
     this.onClose,
   });
 
+  final BLEDeviceConnectionProvider provider;
   final Map settingsData;
   final VoidCallback? onClose;
 
@@ -22,33 +25,25 @@ class MotionSensorSettingsScreen extends StatefulWidget {
 
 class _MotionSensorSettingsScreenState
     extends State<MotionSensorSettingsScreen> {
-  Widget _valueBox(String title, String value) {
-    return Row(
-      children: [
-        Icon(
-          Icons.calendar_month_rounded,
-          color: Colors.grey.shade400,
-          size: 30,
-        ),
-        const SizedBox(width: 20),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: const TextStyle(),
-            ),
-          ],
-        ),
-      ],
+
+  Future<bool> syncSettings(
+    BLEDeviceConnectionProvider provider,
+    Map data, {
+    bool closeOnSuccess = false,
+  }) {
+    return showDeviceSyncDialog(
+      context: context,
+      provider: provider,
+      action: "set",
+      subject: "msr",
+      data: data,
+      closeOnSuccess: closeOnSuccess,
+      doSync: (
+        dialogController,
+        sendNow,
+      ) {
+        sendNow();
+      },
     );
   }
 
@@ -105,7 +100,7 @@ class _MotionSensorSettingsScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Motion Sensor Settings"),
+        title: const Text("Motion Sensor Settings"),
       ),
       body: Column(
         children: [
@@ -116,7 +111,7 @@ class _MotionSensorSettingsScreenState
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       "Status",
                       style: TextStyle(
                         fontSize: 20,
@@ -127,13 +122,13 @@ class _MotionSensorSettingsScreenState
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.subdirectory_arrow_right_rounded,
                           size: 20,
                         ),
                         Text(
                           widget.settingsData["enabled"] ? "ON" : "OFF",
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.grey,
                             fontWeight: FontWeight.bold,
                           ),
@@ -142,15 +137,30 @@ class _MotionSensorSettingsScreenState
                     ),
                   ],
                 ),
-                Spacer(),
+                const Spacer(),
                 NeumorphismButton(
                   initialSwitched: widget.settingsData["enabled"],
                   glowEnabled: false,
                   onSwitching: (will) async {
-                    setState(() {
-                      widget.settingsData["enabled"] = will;
-                    });
-                    return true;
+                    if (will) return true;
+                    
+                    bool result = await syncSettings(
+                      widget.provider,
+                      {"e": will ? 1 : 0},
+                      closeOnSuccess: true,
+                    );
+
+                    if (result) {
+                      WidgetsBinding.instance.addPostFrameCallback((
+                        timeStamp,
+                      ) {
+                        setState(() {
+                          widget.settingsData["enabled"] = will;
+                        });
+                      });
+                    }
+
+                    return result;
                   },
                 ),
               ],
@@ -168,10 +178,10 @@ class _MotionSensorSettingsScreenState
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
+                                const Row(
                                   children: [
                                     Icon(Icons.auto_awesome_motion_rounded),
-                                    const SizedBox(width: 10),
+                                    SizedBox(width: 10),
                                     Text(
                                       "Sensor Count",
                                       style: TextStyle(
@@ -201,7 +211,7 @@ class _MotionSensorSettingsScreenState
                                           borderRadius:
                                               BorderRadius.circular(20),
                                         ),
-                                        child: Icon(
+                                        child: const Icon(
                                           Icons.keyboard_arrow_down_rounded,
                                           color: Colors.white,
                                         ),
@@ -225,7 +235,7 @@ class _MotionSensorSettingsScreenState
                                           borderRadius:
                                               BorderRadius.circular(20),
                                         ),
-                                        child: Icon(
+                                        child: const Icon(
                                           Icons.keyboard_arrow_up_rounded,
                                           color: Colors.white,
                                         ),
@@ -240,7 +250,7 @@ class _MotionSensorSettingsScreenState
                             children: [
                               Text(
                                 "${widget.settingsData['sensorCount']}",
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 35,
                                   color: Colors.blue,
                                 ),
@@ -263,10 +273,10 @@ class _MotionSensorSettingsScreenState
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
+                                const Row(
                                   children: [
                                     Icon(Icons.timelapse_rounded),
-                                    const SizedBox(width: 10),
+                                    SizedBox(width: 10),
                                     Text(
                                       "Hold Time",
                                       style: TextStyle(
@@ -304,7 +314,7 @@ class _MotionSensorSettingsScreenState
                             children: [
                               Text(
                                 "${widget.settingsData['holdTime']}",
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 35,
                                   color: Colors.blue,
                                 ),
@@ -327,13 +337,22 @@ class _MotionSensorSettingsScreenState
                       ),
                       width: double.infinity,
                       child: FilledButton(
-                        onPressed: () {},
-                        child: Text("UPDATE"),
+                        onPressed: () {
+                          syncSettings(
+                            widget.provider,
+                            {
+                              'e': 1,
+                              'sc': widget.settingsData["sensorCount"],
+                              'ht': widget.settingsData["holdTime"],
+                            },
+                          );
+                        },
+                        child: const Text("UPDATE"),
                       ),
                     ),
                   ],
                 ).animate().fade(duration: 100.ms)
-              : Container(
+              : const SizedBox(
                   height: 100,
                   child: Center(
                     child: Text(

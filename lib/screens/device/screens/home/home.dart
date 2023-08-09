@@ -14,6 +14,8 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen> with AutomaticKeepA
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [

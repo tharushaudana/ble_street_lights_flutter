@@ -5,7 +5,8 @@ import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/bledevice/request.dart';
 import 'package:ble_street_lights/components/sliverpersistentheaderbuilder/sliverpersistentheaderbuilder.dart';
 import 'package:ble_street_lights/components/neumorphismbutton/neumorphismbutton.dart';
-import 'package:ble_street_lights/screens/device/screens/dialogs/syncdialog.dart';
+import 'package:ble_street_lights/screens/device/devicesyncer.dart';
+import 'package:ble_street_lights/screens/device/dialogs/syncdialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -38,38 +39,25 @@ class _AstroScreenState extends State<AstroScreen>
     "offsetSunset": 50,
   };
 
-  Future<bool> syncSettings(BLEDeviceConnectionProvider provider, Map data,
-      {bool closeOnSuccess = false}) {
-    final c = Completer<bool>();
-
-    BLEDeviceRequest request = BLEDeviceRequest('set')
-      ..subject('ast')
-      ..data(data);
-
-    showDialog(
+  Future<bool> syncSettings(
+    BLEDeviceConnectionProvider provider,
+    Map data, {
+    bool closeOnSuccess = false,
+  }) {
+    return showDeviceSyncDialog(
       context: context,
-      barrierDismissible: false,
-      builder: (context) => DeviceSyncDialog(
-        title: "Syncing Settings...",
-        doSync: (dialog) {
-          request.listen(
-            onSuccess: (_) {
-              c.complete(true);
-              dialog.completed(close: closeOnSuccess);
-              if (!closeOnSuccess) dialog.changeTitle("Sync Completed.");
-            },
-            onTimeOut: () {
-              c.complete(false);
-              dialog.failed();
-              dialog.changeTitle("Sync Failed!");
-            },
-          );
-          provider.makeRequest(request);
-        },
-      ),
+      provider: provider,
+      action: "set",
+      subject: "ast",
+      data: data,
+      closeOnSuccess: closeOnSuccess,
+      doSync: (
+        dialogController,
+        sendNow,
+      ) {
+        sendNow();
+      },
     );
-
-    return c.future;
   }
 
   Widget _valueBox(String title, String value) {
@@ -214,6 +202,8 @@ class _AstroScreenState extends State<AstroScreen>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     final Size size = MediaQuery.of(context).size;
 
     const double iconImgSize = 85;
@@ -444,6 +434,8 @@ class _AstroScreenState extends State<AstroScreen>
                                       initialSwitched: false,
                                       glowEnabled: false,
                                       onSwitching: (will) async {
+                                        if (will) return true;
+
                                         bool result = await syncSettings(
                                           provider,
                                           {"e": will ? 1 : 0},
@@ -485,8 +477,7 @@ class _AstroScreenState extends State<AstroScreen>
                                                       children: [
                                                         Icon(Icons
                                                             .sunny_snowing),
-                                                        SizedBox(
-                                                            width: 10),
+                                                        SizedBox(width: 10),
                                                         Text(
                                                           "Offset Sunrise",
                                                           style: TextStyle(
@@ -556,8 +547,7 @@ class _AstroScreenState extends State<AstroScreen>
                                                     const Row(
                                                       children: [
                                                         Icon(Icons.nights_stay),
-                                                        SizedBox(
-                                                            width: 10),
+                                                        SizedBox(width: 10),
                                                         Text(
                                                           "Offset Sunset",
                                                           style: TextStyle(
@@ -627,6 +617,7 @@ class _AstroScreenState extends State<AstroScreen>
                                               syncSettings(
                                                 provider,
                                                 {
+                                                  'e': 1,
                                                   'sr': settingsData[
                                                       "offsetSunrise"],
                                                   'ss': settingsData[

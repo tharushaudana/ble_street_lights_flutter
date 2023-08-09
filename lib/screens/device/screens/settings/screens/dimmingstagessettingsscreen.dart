@@ -1,7 +1,7 @@
-import 'dart:developer';
 import 'dart:ui';
-import 'package:ble_street_lights/components/sliverpersistentheaderbuilder/sliverpersistentheaderbuilder.dart';
+import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/components/neumorphismbutton/neumorphismbutton.dart';
+import 'package:ble_street_lights/screens/device/devicesyncer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -12,10 +12,12 @@ import 'dart:math' as math;
 class DimmingStagesSettingsScreen extends StatefulWidget {
   const DimmingStagesSettingsScreen({
     super.key,
+    required this.provider,
     required this.settingsData,
     this.onClose,
   });
 
+  final BLEDeviceConnectionProvider provider;
   final Map settingsData;
   final VoidCallback? onClose;
 
@@ -25,33 +27,24 @@ class DimmingStagesSettingsScreen extends StatefulWidget {
 
 class _DimmingStagesSettingsScreenState
     extends State<DimmingStagesSettingsScreen> {
-  Widget _valueBox(String title, String value) {
-    return Row(
-      children: [
-        Icon(
-          Icons.calendar_month_rounded,
-          color: Colors.grey.shade400,
-          size: 30,
-        ),
-        const SizedBox(width: 20),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: const TextStyle(),
-            ),
-          ],
-        ),
-      ],
+  Future<bool> syncSettings(
+    BLEDeviceConnectionProvider provider,
+    Map data, {
+    bool closeOnSuccess = false,
+  }) {
+    return showDeviceSyncDialog(
+      context: context,
+      provider: provider,
+      action: "set",
+      subject: "dim",
+      data: data,
+      closeOnSuccess: closeOnSuccess,
+      doSync: (
+        dialogController,
+        sendNow,
+      ) {
+        sendNow();
+      },
     );
   }
 
@@ -62,11 +55,11 @@ class _DimmingStagesSettingsScreenState
   }) {
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.symmetric(
+      margin: const EdgeInsets.symmetric(
         horizontal: 20,
         vertical: 10,
       ),
-      padding: EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: 20,
         vertical: 20,
       ),
@@ -108,7 +101,7 @@ class _DimmingStagesSettingsScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Dimming Stages"),
+        title: const Text("Dimming Stages"),
       ),
       body: Column(
         children: [
@@ -119,7 +112,7 @@ class _DimmingStagesSettingsScreenState
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       "Status",
                       style: TextStyle(
                         fontSize: 20,
@@ -130,13 +123,13 @@ class _DimmingStagesSettingsScreenState
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.subdirectory_arrow_right_rounded,
                           size: 20,
                         ),
                         Text(
                           widget.settingsData["enabled"] ? "ON" : "OFF",
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.grey,
                             fontWeight: FontWeight.bold,
                           ),
@@ -145,15 +138,30 @@ class _DimmingStagesSettingsScreenState
                     ),
                   ],
                 ),
-                Spacer(),
+                const Spacer(),
                 NeumorphismButton(
                   initialSwitched: widget.settingsData["enabled"],
                   glowEnabled: false,
                   onSwitching: (will) async {
-                    setState(() {
-                      widget.settingsData["enabled"] = will;
-                    });
-                    return true;
+                    if (will) return true;
+                    
+                    bool result = await syncSettings(
+                      widget.provider,
+                      {"e": will ? 1 : 0},
+                      closeOnSuccess: true,
+                    );
+
+                    if (result) {
+                      WidgetsBinding.instance.addPostFrameCallback((
+                        timeStamp,
+                      ) {
+                        setState(() {
+                          widget.settingsData["enabled"] = will;
+                        });
+                      });
+                    }
+
+                    return result;
                   },
                 ),
               ],
@@ -170,7 +178,7 @@ class _DimmingStagesSettingsScreenState
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              const Text(
                                 "Mode",
                                 style: TextStyle(
                                   fontSize: 20,
@@ -181,7 +189,7 @@ class _DimmingStagesSettingsScreenState
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.subdirectory_arrow_right_rounded,
                                     size: 20,
                                   ),
@@ -189,7 +197,7 @@ class _DimmingStagesSettingsScreenState
                                     widget.settingsData["mode"]
                                         .toString()
                                         .toUpperCase(),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.grey,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -255,7 +263,7 @@ class _DimmingStagesSettingsScreenState
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
+                                    const Text(
                                       "Stages",
                                       style: TextStyle(
                                         fontSize: 20,
@@ -267,14 +275,14 @@ class _DimmingStagesSettingsScreenState
                                       crossAxisAlignment:
                                           CrossAxisAlignment.end,
                                       children: [
-                                        Icon(
+                                        const Icon(
                                           Icons
                                               .subdirectory_arrow_right_rounded,
                                           size: 20,
                                         ),
                                         Text(
                                           "${widget.settingsData["stages"].length} STAGE(S)",
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             color: Colors.grey,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -291,7 +299,9 @@ class _DimmingStagesSettingsScreenState
                                       builder: (context) => ManualStagesDialog(
                                         stages: widget.settingsData["stages"],
                                         onClose: () {
-                                          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                                          WidgetsBinding.instance
+                                              .addPostFrameCallback(
+                                                  (timeStamp) {
                                             setState(() {});
                                           });
                                         },
@@ -317,8 +327,34 @@ class _DimmingStagesSettingsScreenState
                       ),
                       width: double.infinity,
                       child: FilledButton(
-                        onPressed: () {},
-                        child: Text("UPDATE"),
+                        onPressed: () {
+                          Map data = {
+                            'e': 1,
+                            'm': widget.settingsData["mode"] == "manual"
+                                ? 'm'
+                                : 'g',
+                          };
+
+                          if (widget.settingsData["mode"] == "manual") {
+                            data['sc'] = widget.settingsData['stages'].length;
+                            data['sl'] = [];
+
+                            for (var stage in widget.settingsData['stages']) {
+                              data['sl'].add({
+                                'p': stage['pwm'],
+                                's': stage['from'].hour +
+                                    stage['from'].minute / 100,
+                                'e': stage['to'].hour + stage['to'].minute / 100
+                              });
+                            }
+                          }
+
+                          syncSettings(
+                            widget.provider,
+                            data,
+                          );
+                        },
+                        child: const Text("UPDATE"),
                       ),
                     ),
                   ],

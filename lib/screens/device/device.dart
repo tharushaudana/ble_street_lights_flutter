@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:ble_street_lights/bledevice/bledevice.dart';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/components/bottomtabbarlayout/bottomtabbarlayout.dart';
-import 'package:ble_street_lights/screens/device/deviceconnectingdialog.dart';
+import 'package:ble_street_lights/screens/device/dialogs/deviceconnectingdialog.dart';
 import 'package:ble_street_lights/screens/device/screens/astro/astro.dart';
 import 'package:ble_street_lights/screens/device/screens/home/home.dart';
 import 'package:ble_street_lights/screens/device/screens/profile/profile.dart';
