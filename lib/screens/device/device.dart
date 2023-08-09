@@ -100,7 +100,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) {
-        //openConnectingDialog();
+        openConnectingDialog();
       },
     );
   }
@@ -110,13 +110,14 @@ class _DeviceScreenState extends State<DeviceScreen> {
     return WillPopScope(
       onWillPop: () async {
         if (_tabController.index == 0) return true;
-        
-        if (_tabController.index == 1 && _astroScreenController.isSettingsOpened) {
+
+        if (_tabController.index == 1 &&
+            _astroScreenController.isSettingsOpened) {
           _astroScreenController.closeSettings();
         } else {
           _tabController.index = 0;
         }
-        
+
         return false;
       },
       child: Scaffold(
@@ -184,18 +185,27 @@ class _DeviceScreenState extends State<DeviceScreen> {
             _tabController = controller;
           },
           children: [
-            DeviceHomeScreen(),
-            AstroScreen(
-              onController: (controller) {
-                _astroScreenController = controller;
-              },
+            ChangeNotifierProvider(
+              create: (_) => BLEDeviceConnectionProvider(device),
+              child: DeviceHomeScreen(),
+            ),
+            ChangeNotifierProvider(
+              create: (_) => BLEDeviceConnectionProvider(device),
+              child: AstroScreen(
+                onController: (controller) {
+                  _astroScreenController = controller;
+                },
+              ),
             ),
             Center(
                 child: Text(
               "Meter",
               style: TextStyle(fontSize: 30),
             )),
-            SettingsScreen(),
+            ChangeNotifierProvider(
+              create: (_) => BLEDeviceConnectionProvider(device),
+              child: SettingsScreen(),
+            ),
           ],
         ),
       ),

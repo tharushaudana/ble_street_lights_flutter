@@ -79,7 +79,7 @@ class _DeviceSyncDialogState extends SafeState<DeviceSyncDialog> {
         ),
       ),
       content: Container(
-        height: 160,
+        height: 170,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,

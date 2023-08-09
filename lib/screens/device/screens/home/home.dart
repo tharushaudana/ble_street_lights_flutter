@@ -9,7 +9,7 @@ class DeviceHomeScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _DeviceHomeScreenState();
 }
 
-class _DeviceHomeScreenState extends State<DeviceHomeScreen> {
+class _DeviceHomeScreenState extends State<DeviceHomeScreen> with AutomaticKeepAliveClientMixin<DeviceHomeScreen> {
   double v = 0;
 
   @override
@@ -131,6 +131,9 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen> {
       ],
     );
   }
+  
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class _ContentCard extends StatelessWidget {

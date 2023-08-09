@@ -19,7 +19,7 @@ class SettingsScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends SafeState<SettingsScreen> {
+class _SettingsScreenState extends SafeState<SettingsScreen> with AutomaticKeepAliveClientMixin<SettingsScreen> {
   Map settingsData = {
     "motionSensor": {
       "enabled": true,
@@ -480,4 +480,7 @@ class _SettingsScreenState extends SafeState<SettingsScreen> {
       ],
     );
   }
+  
+  @override
+  bool get wantKeepAlive => true;
 }

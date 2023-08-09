@@ -204,7 +204,7 @@ class _DimmingStagesSettingsScreenState
                               if (index == 0) {
                                 widget.settingsData["mode"] = "manual";
                               } else if (index == 1) {
-                                widget.settingsData["mode"] = "auto";
+                                widget.settingsData["mode"] = "gradual";
                               } else {
                                 return;
                               }
@@ -214,7 +214,7 @@ class _DimmingStagesSettingsScreenState
                             borderRadius: BorderRadius.circular(10),
                             isSelected: [
                               widget.settingsData["mode"] == "manual",
-                              widget.settingsData["mode"] == "auto",
+                              widget.settingsData["mode"] == "gradual",
                             ],
                             children: [
                               Container(
@@ -234,10 +234,10 @@ class _DimmingStagesSettingsScreenState
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 10),
                                 child: Text(
-                                  "Auto",
+                                  "Gradual",
                                   style: TextStyle(
                                     fontWeight:
-                                        widget.settingsData["mode"] == "auto"
+                                        widget.settingsData["mode"] == "gradual"
                                             ? FontWeight.bold
                                             : FontWeight.normal,
                                   ),
