@@ -564,7 +564,7 @@ class _ManualStagesDialogState extends State<ManualStagesDialog>
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Icon(
                       Icons.delete,
