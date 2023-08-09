@@ -146,7 +146,7 @@ class _MotionSensorSettingsScreenState
                 NeumorphismButton(
                   initialSwitched: widget.settingsData["enabled"],
                   glowEnabled: false,
-                  onSwitching: (will) {
+                  onSwitching: (will) async {
                     setState(() {
                       widget.settingsData["enabled"] = will;
                     });

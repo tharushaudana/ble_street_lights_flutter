@@ -149,7 +149,7 @@ class _DimmingStagesSettingsScreenState
                 NeumorphismButton(
                   initialSwitched: widget.settingsData["enabled"],
                   glowEnabled: false,
-                  onSwitching: (will) {
+                  onSwitching: (will) async {
                     setState(() {
                       widget.settingsData["enabled"] = will;
                     });

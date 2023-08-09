@@ -14,7 +14,7 @@ class NeumorphismButton extends StatefulWidget {
   final bool? switched;
   final bool glowEnabled;
   final bool disabled;
-  final bool Function(bool will) onSwitching;
+  final Future<bool> Function(bool will) onSwitching;
 
   @override
   State<StatefulWidget> createState() => _NeumorphismButtonState();
@@ -62,8 +62,8 @@ class _NeumorphismButtonState extends State<NeumorphismButton> {
 
     return GestureDetector(
       onTap: !widget.disabled
-          ? () {
-              if (widget.onSwitching(!isPressed)) {
+          ? () async {
+              if (await widget.onSwitching(!isPressed)) {
                 setState(() {
                   isPressed = !isPressed;
                 });

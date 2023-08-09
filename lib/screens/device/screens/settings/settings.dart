@@ -3,8 +3,8 @@ import 'dart:ui';
 import 'package:ble_street_lights/components/sliverpersistentheaderbuilder/sliverpersistentheaderbuilder.dart';
 import 'package:ble_street_lights/components/neumorphismbutton/neumorphismbutton.dart';
 import 'package:ble_street_lights/safestate/safestate.dart';
-import 'package:ble_street_lights/screens/device/screens/settings/dimmingstagessettingsscreen.dart';
-import 'package:ble_street_lights/screens/device/screens/settings/motionsensorsettings.dart';
+import 'package:ble_street_lights/screens/device/screens/settings/screens/dimmingstagessettingsscreen.dart';
+import 'package:ble_street_lights/screens/device/screens/settings/screens/motionsensorsettings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -137,7 +137,7 @@ class _SettingsScreenState extends SafeState<SettingsScreen> with AutomaticKeepA
     final neoBtnMotionSensor = NeumorphismButton(
       initialSwitched: settingsData["motionSensor"]["enabled"],
       glowEnabled: false,
-      onSwitching: (will) {
+      onSwitching: (will) async {
         setState(() {
           //isOffsetStatusEnabled = will;
         });
@@ -298,7 +298,7 @@ class _SettingsScreenState extends SafeState<SettingsScreen> with AutomaticKeepA
                   switched: settingsData["motionSensor"]["enabled"],
                   disabled: true,
                   glowEnabled: false,
-                  onSwitching: (will) {
+                  onSwitching: (will) async {
                     setState(() {
                       //isOffsetStatusEnabled = will;
                     });
@@ -464,7 +464,7 @@ class _SettingsScreenState extends SafeState<SettingsScreen> with AutomaticKeepA
                   switched: settingsData["dimmingStages"]["enabled"],
                   disabled: true,
                   glowEnabled: false,
-                  onSwitching: (will) {
+                  onSwitching: (will) async {
                     setState(() {
                       //isOffsetStatusEnabled = will;
                     });

@@ -30,10 +30,14 @@ class _DeviceSyncDialogState extends SafeState<DeviceSyncDialog> {
     });
   }
 
-  completed() {
-    setState(() {
-      _isCompleted = true;
-    });
+  completed({bool close = false}) {
+    if (!close) {
+      setState(() {
+        _isCompleted = true;
+      });
+    } else {
+      Navigator.pop(context);
+    }
   }
 
   failed() {

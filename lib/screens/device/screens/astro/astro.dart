@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:developer';
 import 'dart:ui';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/bledevice/request.dart';
@@ -22,20 +24,53 @@ class AstroScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _AstroScreenState();
 }
 
-class _AstroScreenState extends State<AstroScreen> with AutomaticKeepAliveClientMixin<AstroScreen> {
+class _AstroScreenState extends State<AstroScreen>
+    with AutomaticKeepAliveClientMixin<AstroScreen> {
   late ScrollController _scrollController;
   late AstroScreenController _screenController;
 
   double _scrollPercentage = 0;
   double _shrinkPercentage = 0;
 
-  //bool isOffsetStatusEnabled = false;
-
   Map settingsData = {
     "offsetStatusEnabled": false,
     "offsetSunrise": 100,
     "offsetSunset": 50,
   };
+
+  Future<bool> syncSettings(BLEDeviceConnectionProvider provider, Map data,
+      {bool closeOnSuccess = false}) {
+    final c = Completer<bool>();
+
+    BLEDeviceRequest request = BLEDeviceRequest('set')
+      ..subject('ast')
+      ..data(data);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => DeviceSyncDialog(
+        title: "Syncing Settings...",
+        doSync: (dialog) {
+          request.listen(
+            onSuccess: (_) {
+              c.complete(true);
+              dialog.completed(close: closeOnSuccess);
+              if (!closeOnSuccess) dialog.changeTitle("Sync Completed.");
+            },
+            onTimeOut: () {
+              c.complete(false);
+              dialog.failed();
+              dialog.changeTitle("Sync Failed!");
+            },
+          );
+          provider.makeRequest(request);
+        },
+      ),
+    );
+
+    return c.future;
+  }
 
   Widget _valueBox(String title, String value) {
     return Container(
@@ -373,7 +408,7 @@ class _AstroScreenState extends State<AstroScreen> with AutomaticKeepAliveClient
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(
+                                        const Text(
                                           "Offset Status",
                                           style: TextStyle(
                                             fontSize: 20,
@@ -385,7 +420,7 @@ class _AstroScreenState extends State<AstroScreen> with AutomaticKeepAliveClient
                                           crossAxisAlignment:
                                               CrossAxisAlignment.end,
                                           children: [
-                                            Icon(
+                                            const Icon(
                                               Icons
                                                   .subdirectory_arrow_right_rounded,
                                               size: 20,
@@ -395,7 +430,7 @@ class _AstroScreenState extends State<AstroScreen> with AutomaticKeepAliveClient
                                                       "offsetStatusEnabled"]
                                                   ? "ON"
                                                   : "OFF",
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                 color: Colors.grey,
                                                 fontWeight: FontWeight.bold,
                                               ),
@@ -404,16 +439,30 @@ class _AstroScreenState extends State<AstroScreen> with AutomaticKeepAliveClient
                                         ),
                                       ],
                                     ),
-                                    Spacer(),
+                                    const Spacer(),
                                     NeumorphismButton(
                                       initialSwitched: false,
                                       glowEnabled: false,
-                                      onSwitching: (will) {
-                                        setState(() {
-                                          settingsData["offsetStatusEnabled"] =
-                                              will;
-                                        });
-                                        return true;
+                                      onSwitching: (will) async {
+                                        bool result = await syncSettings(
+                                          provider,
+                                          {"e": will ? 1 : 0},
+                                          closeOnSuccess: true,
+                                        );
+
+                                        if (result) {
+                                          WidgetsBinding.instance
+                                              .addPostFrameCallback((
+                                            timeStamp,
+                                          ) {
+                                            setState(() {
+                                              settingsData[
+                                                  "offsetStatusEnabled"] = will;
+                                            });
+                                          });
+                                        }
+
+                                        return result;
                                       },
                                     ),
                                   ],
@@ -432,11 +481,11 @@ class _AstroScreenState extends State<AstroScreen> with AutomaticKeepAliveClient
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
                                                   children: [
-                                                    Row(
+                                                    const Row(
                                                       children: [
                                                         Icon(Icons
                                                             .sunny_snowing),
-                                                        const SizedBox(
+                                                        SizedBox(
                                                             width: 10),
                                                         Text(
                                                           "Offset Sunrise",
@@ -479,7 +528,7 @@ class _AstroScreenState extends State<AstroScreen> with AutomaticKeepAliveClient
                                                 children: [
                                                   Text(
                                                     "${settingsData['offsetSunrise']}",
-                                                    style: TextStyle(
+                                                    style: const TextStyle(
                                                       fontSize: 35,
                                                       color: Colors.blue,
                                                     ),
@@ -504,10 +553,10 @@ class _AstroScreenState extends State<AstroScreen> with AutomaticKeepAliveClient
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
                                                   children: [
-                                                    Row(
+                                                    const Row(
                                                       children: [
                                                         Icon(Icons.nights_stay),
-                                                        const SizedBox(
+                                                        SizedBox(
                                                             width: 10),
                                                         Text(
                                                           "Offset Sunset",
@@ -550,7 +599,7 @@ class _AstroScreenState extends State<AstroScreen> with AutomaticKeepAliveClient
                                                 children: [
                                                   Text(
                                                     "${settingsData['offsetSunset']}",
-                                                    style: TextStyle(
+                                                    style: const TextStyle(
                                                       fontSize: 35,
                                                       color: Colors.blue,
                                                     ),
@@ -575,46 +624,14 @@ class _AstroScreenState extends State<AstroScreen> with AutomaticKeepAliveClient
                                           width: double.infinity,
                                           child: FilledButton(
                                             onPressed: () {
-                                              BLEDeviceRequest request =
-                                                  BLEDeviceRequest('set')
-                                                    ..subject('ast')
-                                                    ..data(
-                                                      {
-                                                        'e': settingsData[
-                                                                "offsetStatusEnabled"]
-                                                            ? 1
-                                                            : 0,
-                                                        'sr': settingsData[
-                                                            "offsetSunrise"],
-                                                        'ss': settingsData[
-                                                            "offsetSunset"],
-                                                      },
-                                                    );
-
-                                              showDialog(
-                                                context: context,
-                                                barrierDismissible: false,
-                                                builder: (context) =>
-                                                    DeviceSyncDialog(
-                                                  title:
-                                                      "Syncing Astro Settings...",
-                                                  doSync: (dialog) {
-                                                    request.listen(
-                                                      onSuccess: (_) {
-                                                        dialog.completed();
-                                                        dialog.changeTitle(
-                                                            "Sync Completed.");
-                                                      },
-                                                      onTimeOut: () {
-                                                        dialog.failed();
-                                                        dialog.changeTitle(
-                                                            "Sync Failed!");
-                                                      },
-                                                    );
-                                                    provider
-                                                        .makeRequest(request);
-                                                  },
-                                                ),
+                                              syncSettings(
+                                                provider,
+                                                {
+                                                  'sr': settingsData[
+                                                      "offsetSunrise"],
+                                                  'ss': settingsData[
+                                                      "offsetSunset"],
+                                                },
                                               );
                                             },
                                             child: const Text("UPDATE"),
@@ -645,7 +662,7 @@ class _AstroScreenState extends State<AstroScreen> with AutomaticKeepAliveClient
       );
     });
   }
-  
+
   @override
   bool get wantKeepAlive => true;
 }
