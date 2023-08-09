@@ -1,10 +1,13 @@
+import 'dart:developer';
 import 'dart:ui';
 import 'package:ble_street_lights/components/sliverpersistentheaderbuilder/sliverpersistentheaderbuilder.dart';
 import 'package:ble_street_lights/components/neumorphismbutton/neumorphismbutton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:syncfusion_flutter_sliders/sliders.dart';
+import 'package:sleek_circular_slider/sleek_circular_slider.dart';
+import 'package:time_range_picker/time_range_picker.dart';
+import 'dart:math' as math;
 
 class DimmingStagesSettingsScreen extends StatefulWidget {
   const DimmingStagesSettingsScreen({
@@ -287,6 +290,11 @@ class _DimmingStagesSettingsScreenState
                                       context: context,
                                       builder: (context) => ManualStagesDialog(
                                         stages: widget.settingsData["stages"],
+                                        onClose: () {
+                                          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                                            setState(() {});
+                                          });
+                                        },
                                       ),
                                     );
                                   },
@@ -334,9 +342,11 @@ class ManualStagesDialog extends StatefulWidget {
   const ManualStagesDialog({
     super.key,
     required this.stages,
+    this.onClose,
   });
 
   final List stages;
+  final VoidCallback? onClose;
 
   @override
   State<StatefulWidget> createState() => _ManualStagesDialogState();
@@ -346,15 +356,26 @@ class _ManualStagesDialogState extends State<ManualStagesDialog>
     with TickerProviderStateMixin {
   late TabController _tabController;
 
-  addStage() {
+  List unfinishedStages = [];
+
+  addStage() async {
+    TimeRange? range = await openTimeRangePicker();
+
+    if (range == null) return;
+
     widget.stages.add({
-      "pwm": 50,
-      "start": "",
-      "end": "",
+      "pwm": 100,
+      "from": range.startTime,
+      "to": range.endTime,
     });
 
     reInitTabController();
+    setState(() {});
+  }
 
+  deleteStage(int index) {
+    widget.stages.removeAt(index);
+    reInitTabController();
     setState(() {});
   }
 
@@ -362,7 +383,11 @@ class _ManualStagesDialogState extends State<ManualStagesDialog>
     _tabController.dispose();
     _tabController =
         TabController(length: widget.stages.length + 1, vsync: this);
-    _tabController.index = widget.stages.length - 1;
+
+    if (widget.stages.isNotEmpty) {
+      _tabController.index = widget.stages.length - 1;
+    }
+
     addTabControllerListener();
   }
 
@@ -372,10 +397,194 @@ class _ManualStagesDialogState extends State<ManualStagesDialog>
     });
   }
 
-  Widget stageItem(Map stageData) {
+  Future<TimeRange?> openTimeRangePicker({
+    TimeOfDay? from,
+    TimeOfDay? to,
+  }) async {
+    return await showTimeRangePicker(
+        context: context,
+        start: from,
+        end: to,
+        ticks: 12,
+        padding: 50,
+        ticksOffset: 0,
+        ticksColor: Colors.blue,
+        paintingStyle: PaintingStyle.fill,
+        strokeColor: Colors.blue.withOpacity(0.5),
+        labels: [
+          for (int i = 0; i < 12; i++)
+            ClockLabel(
+              angle: (math.pi * 2) / 12 * (-3 + i),
+              text:
+                  "${((12 + 2 * i) - (i > 5 ? 24 : 0)).toString().padLeft(2, '0')}h",
+            )
+        ]);
+  }
+
+  Widget stageItem(int index) {
+    Map stage = widget.stages[index];
+
     return Container(
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
       child: Column(
-        children: [Text("this is item")],
+        children: [
+          Text(
+            "STAGE ${index + 1}",
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+              fontSize: 17,
+            ),
+          ),
+          const SizedBox(height: 40),
+          SleekCircularSlider(
+            initialValue: (stage["pwm"] as int).toDouble(),
+            appearance: CircularSliderAppearance(
+              customColors: CustomSliderColors(
+                trackColor: Colors.blue.shade100,
+                progressBarColors: [
+                  Colors.blue,
+                  Colors.blue.shade100,
+                ],
+                hideShadow: true,
+              ),
+            ),
+            onChange: (double value) {
+              stage["pwm"] = value.round();
+            },
+          ),
+          const Spacer(),
+          Column(
+            children: [
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.shade300,
+                        offset: const Offset(0, 1),
+                        blurRadius: 5,
+                        spreadRadius: 1,
+                      ),
+                    ]),
+                child: InkWell(
+                  onTap: () async {
+                    TimeRange? range = await openTimeRangePicker(
+                      from: stage["from"],
+                      to: stage["to"],
+                    );
+
+                    if (range == null) return;
+
+                    stage["from"] = range.startTime;
+                    stage["to"] = range.endTime;
+
+                    setState(() {});
+                  },
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 15),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            width: 1,
+                            color: Colors.blue,
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          stage["from"] != null
+                              ? "${stage["from"].hour.toString().padLeft(2, '0')} : ${stage["from"].minute.toString().padLeft(2, '0')}"
+                              : "...",
+                          style: const TextStyle(
+                            fontSize: 17,
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      const Text("to"),
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 15),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            width: 1,
+                            color: Colors.blue,
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          stage["to"] != null
+                              ? "${stage["to"].hour.toString().padLeft(2, '0')} : ${stage["to"].minute.toString().padLeft(2, '0')}"
+                              : "...",
+                          style: const TextStyle(
+                            fontSize: 17,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text("Are you sure ?"),
+                      content: const Text(
+                          "After delete this stage, it can't be undo."),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            deleteStage(index);
+                            Navigator.pop(context);
+                          },
+                          child: const Text(
+                            "DELETE",
+                            style: TextStyle(
+                              color: Colors.red,
+                            ),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text("CANCEL"),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Icon(
+                      Icons.delete,
+                      color: Colors.red.withOpacity(0.7),
+                      size: 20,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      "DELETE",
+                      style: TextStyle(
+                        color: Colors.red.withOpacity(0.7),
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -389,11 +598,17 @@ class _ManualStagesDialogState extends State<ManualStagesDialog>
   }
 
   @override
+  void dispose() {
+    if (widget.onClose != null) widget.onClose!();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     List<Widget> stageItems = [];
 
-    for (var stage in widget.stages) {
-      stageItems.add(stageItem(stage));
+    for (int i = 0; i < widget.stages.length; i++) {
+      stageItems.add(stageItem(i));
     }
 
     stageItems.add(
@@ -413,7 +628,7 @@ class _ManualStagesDialogState extends State<ManualStagesDialog>
               onPressed: () {
                 addStage();
               },
-              child: Row(
+              child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.add),
@@ -428,46 +643,66 @@ class _ManualStagesDialogState extends State<ManualStagesDialog>
     );
 
     return Dialog(
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(20),
-          ),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(
+          Radius.circular(20),
         ),
-        child: Container(
-          height: 400,
-          child: Column(
-            children: [
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: stageItems,
-                ),
+      ),
+      child: Container(
+        height: 430,
+        child: Column(
+          children: [
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: stageItems,
               ),
-              Container(
-                margin: EdgeInsets.all(15),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    for (int i = 0; i < widget.stages.length; i++)
-                      AnimatedContainer(
+            ),
+            Container(
+              margin: const EdgeInsets.all(15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  for (int i = 0; i < widget.stages.length + 1; i++)
+                    GestureDetector(
+                      onTap: () {
+                        _tabController.index = i;
+                      },
+                      child: AnimatedContainer(
                         duration: const Duration(milliseconds: 100),
                         width: 10,
                         height: 10,
                         margin: const EdgeInsets.symmetric(horizontal: 2.5),
                         decoration: BoxDecoration(
-                            color: _tabController.index == i ? Colors.blue : Colors.transparent,
-                            border: Border.all(
-                              width: 0.5,
-                              color: Colors.blue,
-                            ),
-                            borderRadius: BorderRadius.circular(
-                                _tabController.index == i ? 7.5 : 5)),
-                      )
-                  ],
-                ),
+                          color: _tabController.index == i
+                              ? Colors.blue
+                              : Colors.transparent,
+                          border: i <= widget.stages.length - 1
+                              ? Border.all(
+                                  width: 0.5,
+                                  color: Colors.blue,
+                                )
+                              : null,
+                          borderRadius: BorderRadius.circular(
+                              _tabController.index == i ? 7.5 : 5),
+                        ),
+                        child: i == widget.stages.length
+                            ? Icon(
+                                Icons.add,
+                                size: 10,
+                                color: _tabController.index == i
+                                    ? Colors.white
+                                    : Colors.blue,
+                              )
+                            : null,
+                      ),
+                    ),
+                ],
               ),
-            ],
-          ),
-        ));
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

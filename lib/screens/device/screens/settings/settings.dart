@@ -32,13 +32,13 @@ class _SettingsScreenState extends SafeState<SettingsScreen> {
       "stages": [
         {
           "pwm": 70,
-          "start": "",
-          "end": "",
+          "from": const TimeOfDay(hour: 17, minute: 15),
+          "to": const TimeOfDay(hour: 18, minute: 00),
         },
         {
           "pwm": 50,
-          "start": "",
-          "end": "",
+          "from": const TimeOfDay(hour: 1, minute: 00),
+          "to": const TimeOfDay(hour: 2, minute: 15),
         }
       ]
     },
@@ -203,7 +203,7 @@ class _SettingsScreenState extends SafeState<SettingsScreen> {
                             Table(
                               columnWidths: {
                                 0: FixedColumnWidth(120),
-                                1: FixedColumnWidth(60),
+                                1: FixedColumnWidth(70),
                               },
                               children: [
                                 TableRow(
@@ -366,7 +366,7 @@ class _SettingsScreenState extends SafeState<SettingsScreen> {
                             Table(
                               columnWidths: {
                                 0: FixedColumnWidth(120),
-                                1: FixedColumnWidth(60),
+                                1: FixedColumnWidth(70),
                               },
                               children: [
                                 TableRow(
