@@ -71,7 +71,7 @@ class _DeviceSyncDialogState extends SafeState<DeviceSyncDialog> {
   void initState() {
     title = widget.title;
 
-    _doneGif = AssetImage("assets/images/done.gif");
+    _doneGif = const AssetImage("assets/images/done-loop-10.gif");
 
     super.initState();
 

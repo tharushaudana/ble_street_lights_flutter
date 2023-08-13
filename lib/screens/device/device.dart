@@ -100,7 +100,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) {
-        //openConnectingDialog();
+        openConnectingDialog();
       },
     );
   }
