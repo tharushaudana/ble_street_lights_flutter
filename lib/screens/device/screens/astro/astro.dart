@@ -35,8 +35,8 @@ class _AstroScreenState extends State<AstroScreen>
 
   Map settingsData = {
     "enabled": false,
-    "sunrise": 100,
-    "sunset": 50,
+    "sunrise": 1,
+    "sunset": 1,
   };
 
   Future<bool> syncSettings(

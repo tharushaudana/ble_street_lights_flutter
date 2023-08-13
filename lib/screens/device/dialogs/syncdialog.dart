@@ -24,6 +24,8 @@ class _DeviceSyncDialogState extends SafeState<DeviceSyncDialog> {
   bool _isFailed = false;
   bool _isCompleted = false;
 
+  late AssetImage _doneGif;
+
   String title = "";
 
   changeTitle(String newTitle) {
@@ -69,6 +71,8 @@ class _DeviceSyncDialogState extends SafeState<DeviceSyncDialog> {
   void initState() {
     title = widget.title;
 
+    _doneGif = AssetImage("assets/images/done.gif");
+
     super.initState();
 
     controller = SyncDialogController(onChangeTitle: (String title) {
@@ -78,6 +82,12 @@ class _DeviceSyncDialogState extends SafeState<DeviceSyncDialog> {
     Future.delayed(const Duration(milliseconds: 2000), () {
       _startSync();
     });
+  }
+
+  @override
+  void dispose() {
+    _doneGif.evict();
+    super.dispose();
   }
 
   @override
@@ -105,11 +115,16 @@ class _DeviceSyncDialogState extends SafeState<DeviceSyncDialog> {
                         size: 80,
                         color: Colors.red.shade600,
                       )
-                    : Icon(
+                    : /*Icon(
                         Icons.done_outline_rounded,
                         size: 80,
                         color: Colors.green.shade600,
-                      ).animate().fade(duration: 500.ms),
+                      ).animate().fade(duration: 500.ms),*/
+                      Image(
+                        image: _doneGif,
+                        width: 85,
+                        height: 85,
+                      ),
             const SizedBox(height: 10),
             Center(
               child: Text(

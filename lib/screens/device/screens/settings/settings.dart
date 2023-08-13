@@ -25,8 +25,8 @@ class _SettingsScreenState extends SafeState<SettingsScreen> with AutomaticKeepA
   Map settingsData = {
     "motionSensor": {
       "enabled": false,
-      "sensorCount": 3,
-      "holdTime": 50,
+      "sensorCount": 1,
+      "holdTime": 1,
     },
     "dimmingStages": {
       "enabled": false,

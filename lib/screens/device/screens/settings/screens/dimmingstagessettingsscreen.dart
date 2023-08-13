@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/components/neumorphismbutton/neumorphismbutton.dart';
+import 'package:ble_street_lights/mapbackup/mapbackup.dart';
 import 'package:ble_street_lights/screens/device/devicesyncer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +9,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 import 'package:time_range_picker/time_range_picker.dart';
 import 'dart:math' as math;
+import 'dart:developer';
 
 class DimmingStagesSettingsScreen extends StatefulWidget {
   const DimmingStagesSettingsScreen({
@@ -27,12 +29,15 @@ class DimmingStagesSettingsScreen extends StatefulWidget {
 
 class _DimmingStagesSettingsScreenState
     extends State<DimmingStagesSettingsScreen> {
+
+  Map _previousSettingsData = {};   
+
   Future<bool> syncSettings(
     BLEDeviceConnectionProvider provider,
     Map data, {
     bool closeOnSuccess = false,
-  }) {
-    return showDeviceSyncDialog(
+  }) async {
+    bool b = await showDeviceSyncDialog(
       context: context,
       provider: provider,
       action: "set",
@@ -46,6 +51,13 @@ class _DimmingStagesSettingsScreenState
         sendNow();
       },
     );
+
+    if (b) {
+      _previousSettingsData.clear();
+      _previousSettingsData.addAll(widget.settingsData);
+    }
+
+    return b;
   }
 
   Widget _settingCard(
@@ -88,11 +100,26 @@ class _DimmingStagesSettingsScreenState
 
   @override
   void initState() {
+    //_previousSettingsData.clear();
+    //_previousSettingsData.addAll(widget.settingsData);
+
+    _previousSettingsData = Map.from(widget.settingsData);
+
     super.initState();
   }
 
   @override
   void dispose() {
+    //### for reset changed data when sync not completed.
+    //widget.settingsData.clear();
+    //widget.settingsData.addAll(_previousSettingsData);
+
+    /*for (MapEntry<dynamic, dynamic> entry in _previousSettingsData.entries) {
+      widget.settingsData[entry.key] = entry.value;
+    }*/
+
+    print(_previousSettingsData);
+  
     if (widget.onClose != null) widget.onClose!();
     super.dispose();
   }
@@ -152,7 +179,7 @@ class _DimmingStagesSettingsScreenState
 
                     bool result = await syncSettings(
                       widget.provider,
-                      {"e": will ? 1 : 0},
+                      will ? {"e": 1} : {"e": 0, "m": 0},
                       closeOnSuccess: true,
                     );
 
@@ -335,9 +362,8 @@ class _DimmingStagesSettingsScreenState
                         onPressed: () {
                           Map data = {
                             'e': 1,
-                            'm': widget.settingsData["mode"] == "manual"
-                                ? 'm'
-                                : 'g',
+                            'm':
+                                widget.settingsData["mode"] == "manual" ? 1 : 2,
                           };
 
                           if (widget.settingsData["mode"] == "manual") {
