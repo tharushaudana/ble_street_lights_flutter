@@ -27,14 +27,14 @@ class _DeviceLocationViewerState extends State<DeviceLocationViewer> {
   @override
   Widget build(BuildContext context) {
     final map = GoogleMap(
-      mapType: MapType.hybrid,
+      mapType: MapType.normal,
       trafficEnabled: true,
       buildingsEnabled: true,
       myLocationEnabled: true,
       myLocationButtonEnabled: !widget.isPreview,
       initialCameraPosition: CameraPosition(
         target: widget.position,
-        zoom: 14.5,
+        zoom: 15.5,
       ),
       zoomControlsEnabled: false,
       gestureRecognizers: {

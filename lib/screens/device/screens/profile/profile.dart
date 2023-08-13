@@ -107,7 +107,7 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
               position = LatLng(lat, lng);
               moveCameraToCurrentPosition();
             }
-          // ignore: empty_catches
+            // ignore: empty_catches
           } catch (e) {}
         }
 
@@ -127,7 +127,14 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
               ),
               SliverToBoxAdapter(
                 child: Container(
-                  color: Colors.blue,
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    //### for remove unwanted space
+                    border: Border.all(
+                      width: 0,
+                      color: Colors.blue,
+                    ),
+                  ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

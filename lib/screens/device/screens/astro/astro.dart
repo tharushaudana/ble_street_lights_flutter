@@ -12,6 +12,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:provider/provider.dart';
+import 'package:ble_street_lights/extensions/withopacitynotrans/colorwithopacitynotrans.dart';
 
 class AstroScreen extends StatefulWidget {
   const AstroScreen({
@@ -244,7 +245,7 @@ class _AstroScreenState extends State<AstroScreen>
 
                 return Container(
                   height: double.infinity,
-                  color: Colors.blue.withOpacity(_shrinkPercentage),
+                  color: Colors.blue.withOpacityNoTrans(_shrinkPercentage, Colors.white),
                   child: Row(
                     children: [
                       SizedBox(width: maxMargin * shrinkPercentage),
@@ -254,6 +255,11 @@ class _AstroScreenState extends State<AstroScreen>
                           padding: EdgeInsets.all(15),
                           decoration: BoxDecoration(
                             color: Colors.white,
+                            //### for remove unwanted space
+                            border: Border.all(
+                              width: 0,
+                              color: Colors.white,
+                            ),
                             borderRadius: BorderRadius.only(
                               bottomLeft: Radius.circular(
                                   maxCurveRadius * shrinkPercentage),
@@ -318,6 +324,12 @@ class _AstroScreenState extends State<AstroScreen>
                   //height: size.height,
                   decoration: BoxDecoration(
                     color: Colors.blue.withOpacity(_shrinkPercentage),
+                    //### for remove unwanted space
+                    border: Border.all(
+                      width: 0,
+                      strokeAlign: BorderSide.strokeAlignCenter,
+                      color: Colors.blue.withOpacityNoTrans(_shrinkPercentage, Colors.white),
+                    ),
                     borderRadius: BorderRadius.only(
                       topRight: Radius.circular(
                           (iconImgSize + iconImgMargin * 2) /
@@ -416,8 +428,7 @@ class _AstroScreenState extends State<AstroScreen>
                                               size: 20,
                                             ),
                                             Text(
-                                              settingsData[
-                                                      "enabled"]
+                                              settingsData["enabled"]
                                                   ? "ON"
                                                   : "OFF",
                                               style: const TextStyle(
@@ -436,8 +447,7 @@ class _AstroScreenState extends State<AstroScreen>
                                       onSwitching: (will) async {
                                         if (will) {
                                           setState(() {
-                                            settingsData[
-                                                "enabled"] = will;
+                                            settingsData["enabled"] = will;
                                           });
                                           return true;
                                         }
@@ -454,8 +464,7 @@ class _AstroScreenState extends State<AstroScreen>
                                             timeStamp,
                                           ) {
                                             setState(() {
-                                              settingsData[
-                                                  "enabled"] = will;
+                                              settingsData["enabled"] = will;
                                             });
                                           });
                                         }
@@ -624,10 +633,8 @@ class _AstroScreenState extends State<AstroScreen>
                                                 provider,
                                                 {
                                                   'e': 1,
-                                                  'sr': settingsData[
-                                                      "sunrise"],
-                                                  'ss': settingsData[
-                                                      "sunset"],
+                                                  'sr': settingsData["sunrise"],
+                                                  'ss': settingsData["sunset"],
                                                 },
                                               );
                                             },
