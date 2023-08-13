@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/bledevice/request.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class SyncButton extends StatefulWidget {
@@ -11,6 +12,7 @@ class SyncButton extends StatefulWidget {
     required this.provider,
     required this.action,
     required this.subject,
+    required this.onAnimStarted,
     required this.onStartSync,
     required this.onResult,
   });
@@ -18,6 +20,7 @@ class SyncButton extends StatefulWidget {
   final BLEDeviceConnectionProvider provider;
   final String action;
   final String subject;
+  final VoidCallback onAnimStarted;
   final Map Function() onStartSync;
   final Function(bool completed) onResult;
 
@@ -55,7 +58,7 @@ class _SyncButtonState extends State<SyncButton> {
 
   showSyncing(bool b) {
     setState(() {
-      canSync = !b;
+      if (b && canSync) canSync = false;
       isSyncing = b;
     });
   }
@@ -68,33 +71,53 @@ class _SyncButtonState extends State<SyncButton> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: canSync
-          ? InkWell(
-              onTap: () {
-                showSyncing(true);
-                Future.delayed(const Duration(milliseconds: 2000), () {
-                  syncNow(widget.onStartSync());
-                });
-              },
-              child: const Icon(
-                Icons.sync_outlined,
-                color: Colors.blue,
-              ),
-            )
-          : isSyncing
-              ? const SpinKitThreeBounce(
+        child: canSync
+            ? InkWell(
+                onTap: () {
+                  showSyncing(true);
+                  widget.onAnimStarted();
+                  Future.delayed(const Duration(milliseconds: 2000), () {
+                    syncNow(widget.onStartSync());
+                  });
+                },
+                child: const Icon(
+                  Icons.sync_outlined,
                   color: Colors.blue,
-                  size: 15,
-                )
-              : syncCompleted
-                  ? const Icon(
-                      Icons.done_rounded,
-                      color: Colors.green,
-                    )
-                  : const Icon(
-                      Icons.info_outline_rounded,
-                      color: Colors.red,
-                    ),
-    );
+                ).animate().fadeIn(duration: 300.ms),
+              )
+            : isSyncing
+                ? const SpinKitThreeBounce(
+                    color: Colors.blue,
+                    size: 15,
+                  )
+                : syncCompleted
+                    ? const Icon(
+                        Icons.done_rounded,
+                        color: Colors.green,
+                      )
+                        .animate(
+                          onComplete: (controller) => setState(() {
+                            canSync = true;
+                          }),
+                        )
+                        .fadeIn(duration: 300.ms)
+                        .fadeOut(
+                          delay: 3000.ms,
+                          duration: 300.ms,
+                        )
+                    : const Icon(
+                        Icons.info_outline_rounded,
+                        color: Colors.red,
+                      )
+                        .animate(
+                          onComplete: (controller) => setState(() {
+                            canSync = true;
+                          }),
+                        )
+                        .fadeIn(duration: 300.ms)
+                        .fadeOut(
+                          delay: 3000.ms,
+                          duration: 300.ms,
+                        ));
   }
 }

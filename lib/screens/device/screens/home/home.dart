@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
+import 'package:ble_street_lights/components/badgeswitch/badgeswitch.dart';
 import 'package:ble_street_lights/components/swipecardswitch/swipecardswitch.dart';
 import 'package:ble_street_lights/screens/device/screens/home/syncbtn.dart';
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
@@ -19,6 +20,8 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
     "mode": "manual",
   };
 
+  bool isSyncing = false;
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -36,7 +39,7 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
               SingleChildScrollView(
                 scrollDirection: Axis.vertical,
                 child: Container(
-                  padding: EdgeInsets.all(15),
+                  padding: const EdgeInsets.all(15),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -57,15 +60,57 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
                               color: Colors.blue.shade300,
                             ),
                             const SizedBox(width: 10),
-                            Text(
+                            const Text(
                               "Device Mode",
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Spacer(),
-                            Text("Manual"),
+                            const Spacer(),
+                            BadgeSwitch(
+                              onSwitched: (childNo) {
+                                setState(() {
+                                  settingsData["mode"] =
+                                      childNo == 1 ? "manual" : "astro";
+                                });
+                              },
+                              initialSwitchedChild:
+                                  settingsData["mode"] == "manual" ? 1 : 2,
+                              disabled: isSyncing,
+                              child1: Container(
+                                width: 80,
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue,
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                child: const Text(
+                                  "Manual",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              child2: Container(
+                                width: 80,
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue,
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                child: const Text(
+                                  "Astro",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -104,11 +149,22 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
                       child: SyncButton(
                         provider: provider,
                         action: "set",
-                        subject: "hm",
-                        onStartSync: () {
-                          return {"m": 1};
+                        subject: "hme",
+                        onAnimStarted: () {
+                          setState(() {
+                            isSyncing = true;
+                          });
                         },
-                        onResult: (completed) {},
+                        onStartSync: () {
+                          return {
+                            "m": settingsData["mode"] == "manual" ? 1 : 2,
+                          };
+                        },
+                        onResult: (completed) {
+                          setState(() {
+                            isSyncing = false;
+                          });
+                        },
                       ),
                       /*SpinKitThreeBounce(
                       color: Colors.blue,

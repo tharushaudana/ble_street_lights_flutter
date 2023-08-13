@@ -21,7 +21,8 @@ class SettingsScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends SafeState<SettingsScreen> with AutomaticKeepAliveClientMixin<SettingsScreen> {
+class _SettingsScreenState extends SafeState<SettingsScreen>
+    with AutomaticKeepAliveClientMixin<SettingsScreen> {
   Map settingsData = {
     "motionSensor": {
       "enabled": false,
@@ -84,6 +85,20 @@ class _SettingsScreenState extends SafeState<SettingsScreen> with AutomaticKeepA
     );
   }
 
+  List<T> _hidable<T>(int showUntil, List<T> list) {
+    if (showUntil > list.length - 1) return [];
+
+    if (showUntil == -1) showUntil = list.length - 1;
+
+    List<T> show = [];
+
+    for (int i = 0; i <= showUntil; i++) {
+      show.add(list[i]);
+    }
+
+    return show;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -103,45 +118,48 @@ class _SettingsScreenState extends SafeState<SettingsScreen> with AutomaticKeepA
       provider,
       _,
     ) {
-        return Column(
-          children: [
-            const SizedBox(height: 15),
-            _settingCard(
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MotionSensorSettingsScreen(
-                        provider: provider,
-                        settingsData: settingsData["motionSensor"],
-                        onClose: () {
-                          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-                            setState(() {});
-                          });
-                        },
-                      ),
+      return Column(
+        children: [
+          const SizedBox(height: 15),
+          _settingCard(
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MotionSensorSettingsScreen(
+                      provider: provider,
+                      settingsData: settingsData["motionSensor"],
+                      onClose: () {
+                        WidgetsBinding.instance
+                            .addPostFrameCallback((timeStamp) {
+                          setState(() {});
+                        });
+                      },
                     ),
-                  );
-                },
-                child: Row(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Motion Sensor",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
+                  ),
+                );
+              },
+              child: Row(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Motion Sensor",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(height: 5),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Column(
-                              children: [
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Column(
+                            children: _hidable(
+                              settingsData["motionSensor"]["enabled"] ? -1 : 0,
+                              [
                                 Icon(
                                   Icons.subdirectory_arrow_right_rounded,
                                   size: 20,
@@ -156,15 +174,20 @@ class _SettingsScreenState extends SafeState<SettingsScreen> with AutomaticKeepA
                                 ),
                               ],
                             ),
-                            Column(
-                              children: [
-                                const SizedBox(height: 5),
-                                Table(
-                                  columnWidths: {
-                                    0: FixedColumnWidth(120),
-                                    1: FixedColumnWidth(70),
-                                  },
-                                  children: [
+                          ),
+                          Column(
+                            children: [
+                              const SizedBox(height: 5),
+                              Table(
+                                columnWidths: {
+                                  0: FixedColumnWidth(120),
+                                  1: FixedColumnWidth(70),
+                                },
+                                children: _hidable(
+                                  settingsData["motionSensor"]["enabled"]
+                                      ? -1
+                                      : 0,
+                                  [
                                     TableRow(
                                       children: [
                                         TableCell(
@@ -177,7 +200,8 @@ class _SettingsScreenState extends SafeState<SettingsScreen> with AutomaticKeepA
                                         ),
                                         TableCell(
                                           child: Text(
-                                            settingsData["motionSensor"]["enabled"]
+                                            settingsData["motionSensor"]
+                                                    ["enabled"]
                                                 ? "ON"
                                                 : "OFF",
                                             style: const TextStyle(
@@ -246,66 +270,70 @@ class _SettingsScreenState extends SafeState<SettingsScreen> with AutomaticKeepA
                                     ),
                                   ],
                                 ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                    NeumorphismButton(
-                      switched: settingsData["motionSensor"]["enabled"],
-                      disabled: true,
-                      glowEnabled: false,
-                      onSwitching: (will) async {
-                        setState(() {
-                          //isOffsetStatusEnabled = will;
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  NeumorphismButton(
+                    switched: settingsData["motionSensor"]["enabled"],
+                    disabled: true,
+                    glowEnabled: false,
+                    onSwitching: (will) async {
+                      setState(() {
+                        //isOffsetStatusEnabled = will;
+                      });
+                      return true;
+                    },
+                  ),
+                ],
+              ),
+            ),
+            shadow: true,
+            border: true,
+          ),
+          _settingCard(
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DimmingStagesSettingsScreen(
+                      provider: provider,
+                      settingsData: settingsData["dimmingStages"],
+                      onClose: () {
+                        WidgetsBinding.instance
+                            .addPostFrameCallback((timeStamp) {
+                          setState(() {});
                         });
-                        return true;
                       },
                     ),
-                  ],
-                ),
-              ),
-              shadow: true,
-              border: true,
-            ),
-            _settingCard(
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => DimmingStagesSettingsScreen(
-                        provider: provider,
-                        settingsData: settingsData["dimmingStages"],
-                        onClose: () {
-                          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-                            setState(() {});
-                          });
-                        },
-                      ),
-                    ),
-                  );
-                },
-                child: Row(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Dimming Stages",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
+                  ),
+                );
+              },
+              child: Row(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Dimming Stages",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(height: 5),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Column(
-                              children: [
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Column(
+                            children: _hidable(
+                              settingsData["dimmingStages"]["enabled"] ? -1 : 0,
+                              const [
                                 Icon(
                                   Icons.subdirectory_arrow_right_rounded,
                                   size: 20,
@@ -317,18 +345,23 @@ class _SettingsScreenState extends SafeState<SettingsScreen> with AutomaticKeepA
                                 Icon(
                                   Icons.subdirectory_arrow_right_rounded,
                                   size: 20,
-                                ),                            
+                                ),
                               ],
                             ),
-                            Column(
-                              children: [
-                                const SizedBox(height: 5),
-                                Table(
-                                  columnWidths: {
-                                    0: FixedColumnWidth(120),
-                                    1: FixedColumnWidth(70),
-                                  },
-                                  children: [
+                          ),
+                          Column(
+                            children: [
+                              const SizedBox(height: 5),
+                              Table(
+                                columnWidths: {
+                                  0: FixedColumnWidth(120),
+                                  1: FixedColumnWidth(70),
+                                },
+                                children: _hidable(
+                                  settingsData["dimmingStages"]["enabled"]
+                                      ? -1
+                                      : 0,
+                                  [
                                     TableRow(
                                       children: [
                                         TableCell(
@@ -341,7 +374,8 @@ class _SettingsScreenState extends SafeState<SettingsScreen> with AutomaticKeepA
                                         ),
                                         TableCell(
                                           child: Text(
-                                            settingsData["dimmingStages"]["enabled"]
+                                            settingsData["dimmingStages"]
+                                                    ["enabled"]
                                                 ? "ON"
                                                 : "OFF",
                                             style: const TextStyle(
@@ -371,7 +405,8 @@ class _SettingsScreenState extends SafeState<SettingsScreen> with AutomaticKeepA
                                             child: Text(
                                               settingsData["dimmingStages"]
                                                       ["mode"]
-                                                  .toString().toUpperCase(),
+                                                  .toString()
+                                                  .toUpperCase(),
                                               style: const TextStyle(
                                                 color: Colors.blue,
                                                 fontWeight: FontWeight.bold,
@@ -413,36 +448,36 @@ class _SettingsScreenState extends SafeState<SettingsScreen> with AutomaticKeepA
                                     ),
                                   ],
                                 ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                    NeumorphismButton(
-                      switched: settingsData["dimmingStages"]["enabled"],
-                      disabled: true,
-                      glowEnabled: false,
-                      onSwitching: (will) async {
-                        setState(() {
-                          //isOffsetStatusEnabled = will;
-                        });
-                        return true;
-                      },
-                    ),
-                  ],
-                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  NeumorphismButton(
+                    switched: settingsData["dimmingStages"]["enabled"],
+                    disabled: true,
+                    glowEnabled: false,
+                    onSwitching: (will) async {
+                      setState(() {
+                        //isOffsetStatusEnabled = will;
+                      });
+                      return true;
+                    },
+                  ),
+                ],
               ),
-              shadow: true,
-              border: true,
             ),
-          ],
-        );
-      }
-    );
+            shadow: true,
+            border: true,
+          ),
+        ],
+      );
+    });
   }
-  
+
   @override
   bool get wantKeepAlive => true;
 }
