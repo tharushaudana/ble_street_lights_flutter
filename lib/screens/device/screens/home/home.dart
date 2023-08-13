@@ -1,139 +1,130 @@
 import 'dart:developer';
+import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/components/swipecardswitch/swipecardswitch.dart';
+import 'package:ble_street_lights/screens/device/screens/home/syncbtn.dart';
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:provider/provider.dart';
 
 class DeviceHomeScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _DeviceHomeScreenState();
 }
 
-class _DeviceHomeScreenState extends State<DeviceHomeScreen> with AutomaticKeepAliveClientMixin<DeviceHomeScreen> {
-  double v = 0;
+class _DeviceHomeScreenState extends State<DeviceHomeScreen>
+    with AutomaticKeepAliveClientMixin<DeviceHomeScreen> {
+  Map settingsData = {
+    "mode": "manual",
+  };
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const SizedBox(height: 15),
-        SwipeCardSwitch(
-          color: Colors.blue,
-          initialSwitchedChild: 2,
-          onSwitching: (willSwitchingChild) {
-            log("message: " + willSwitchingChild.toString());
-            return true;
-          },
-          child1: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+
+    return Consumer<BLEDeviceConnectionProvider>(
+      builder: (
+        context,
+        provider,
+        _,
+      ) {
+        return SizedBox(
+          height: double.infinity,
+          child: Stack(
             children: [
-              Text(
-                "ASTRO",
-                style: TextStyle(
-                  fontSize: 22,
-                  color: Colors.blue,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Nunito',
-                ),
-              ),
-              Text(
-                "MODE",
-                style: TextStyle(
-                  fontSize: 10,
-                ),
-              ),
-            ],
-          ),
-          child2: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "MANUAL",
-                style: TextStyle(
-                  fontSize: 22,
-                  color: Colors.blue,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Nunito',
-                ),
-              ),
-              Text(
-                "MODE",
-                style: TextStyle(
-                  fontSize: 10,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 10),
-        Expanded(
-            child: _ContentCard(
-          padding: EdgeInsets.symmetric(horizontal: 40),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              NeumorphismButton(),
-              Spacer(),
-              NeumorphismButton(),
-            ],
-          ),
-        )),
-        Expanded(
-            child: _ContentCard(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SleekCircularSlider(
-                appearance: CircularSliderAppearance(
-                  customColors: CustomSliderColors(
-                    trackColor: Colors.blue.shade100,
-                    progressBarColors: [
-                      Colors.blue,
-                      Colors.blue.shade100,
+              SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Container(
+                  padding: EdgeInsets.all(15),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.blue.shade300,
+                            width: 0.5,
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.model_training_rounded,
+                              size: 30,
+                              color: Colors.blue.shade300,
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              "Device Mode",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Spacer(),
+                            Text("Manual"),
+                          ],
+                        ),
+                      ),
                     ],
-                    hideShadow: true,
                   ),
                 ),
-                onChange: (double value) {},
               ),
-              Spacer(),
-              SleekCircularSlider(
-                appearance: CircularSliderAppearance(
-                  customColors: CustomSliderColors(
-                    trackColor: Colors.blue.shade100,
-                    progressBarColors: [
-                      Colors.blue,
-                      Colors.blue.shade100,
-                    ],
-                    hideShadow: true,
-                  ),
+              Container(
+                height: double.infinity,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Spacer(),
+                    Container(
+                      height: 45,
+                      width: 55,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 15,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          bottomLeft: Radius.circular(10),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.shade300,
+                            offset: const Offset(0, 1),
+                            blurRadius: 8,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                      child: SyncButton(
+                        provider: provider,
+                        action: "set",
+                        subject: "hm",
+                        onStartSync: () {
+                          return {"m": 1};
+                        },
+                        onResult: (completed) {},
+                      ),
+                      /*SpinKitThreeBounce(
+                      color: Colors.blue,
+                      size: 15,
+                    ),*/
+                    ),
+                  ],
                 ),
-                onChange: (double value) {},
               ),
             ],
           ),
-        )),
-        /*SleekCircularSlider(
-          appearance: CircularSliderAppearance(
-            customColors: CustomSliderColors(
-              trackColor: Colors.blue.shade100,
-              progressBarColors: [
-                Colors.blue,
-                Colors.blue.shade100,
-              ],
-              hideShadow: true,
-            ),
-          ),
-          onChange: (double value) {},
-        ),*/
-      ],
+        );
+      },
     );
   }
-  
+
   @override
   bool get wantKeepAlive => true;
 }
@@ -173,111 +164,6 @@ class _ContentCard extends StatelessWidget {
         ],
       ),
       child: child,
-    );
-  }
-}
-
-class NeumorphismButton extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => _NeumorphismButtonState();
-}
-
-class _NeumorphismButtonState extends State<NeumorphismButton> {
-  bool isPressed = true;
-
-  //Color bgColor = Color(0xFFE7ECEF);
-
-  Color _shadeColor(Color color, double shadingFactor) {
-    assert(shadingFactor >= 0 && shadingFactor <= 1,
-        'The shadingFactor must be between 0 and 1 (inclusive).');
-
-    int red = (color.red + (255 - color.red) * shadingFactor).round();
-    int green = (color.green + (255 - color.green) * shadingFactor).round();
-    int blue = (color.blue + (255 - color.blue) * shadingFactor).round();
-
-    return Color.fromARGB(color.alpha, red, green, blue);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final Offset distance = !isPressed ? Offset(20, 20) : Offset(8, 8);
-
-    final double bSize = 100;
-
-    Color bgColor = Color(0xFFE7ECEF);
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          isPressed = !isPressed;
-        });
-      },
-      /*child: Container(
-        width: 80,
-        height: 80,
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              offset: -distance,
-              blurRadius: blur,
-              color: Colors.white,
-              inset: isPressed,
-            ),
-            BoxShadow(
-              offset: distance,
-              blurRadius: blur,
-              color: Color(0xFFA7A9AF),
-              inset: isPressed,
-            ),
-          ],
-        ),
-      ),*/
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: 100),
-        width: bSize,
-        height: bSize,
-        child: Icon(
-          Icons.power_settings_new_rounded,
-          size: bSize * 0.3,
-          color: _shadeColor(Colors.blue, 0.7),
-        ),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(150),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: !isPressed
-                ? [
-                    Color(0xffffffff),
-                    Color(0xffced2d5),
-                  ]
-                : [
-                    _shadeColor(Colors.blue, 0),
-                    _shadeColor(Colors.blue, 0.7),
-                  ],
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: !isPressed
-                  ? Color(0xffffffff)
-                  : _shadeColor(Colors.blue, 0.7),
-              offset: -distance,
-              blurRadius: (bSize / 10) * 2,
-              spreadRadius: 0.0,
-            ),
-            BoxShadow(
-              color: !isPressed
-                  ? Color(0xffced2d5)
-                  : _shadeColor(Colors.blue, 0.6),
-              offset: distance,
-              blurRadius: (bSize / 10) * 2,
-              spreadRadius: 0.0,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
