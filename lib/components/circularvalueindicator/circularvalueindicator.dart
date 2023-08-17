@@ -23,13 +23,56 @@ class CircularValueIndicator extends StatefulWidget {
   State<StatefulWidget> createState() => _CircularValueIndicatorState();
 }
 
-class _CircularValueIndicatorState extends State<CircularValueIndicator> {
+class _CircularValueIndicatorState extends State<CircularValueIndicator>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animController;
+  late Animation<double> _animation;
+
+  bool _isAnimRunning = false;
+
+  double _currentSettedValue = 0;
+  double _value = 0;
+
+  _runValueFillAnim() {
+    _isAnimRunning = true;
+
+    _animation = Tween(begin: _value, end: widget.value).animate(
+      CurvedAnimation(
+        parent: _animController,
+        curve: Curves.easeOutCirc,
+      ),
+    )..addListener(() {
+        _value = _animation.value;
+        setState(() {});
+      });
+
+    _animController.reset();
+    _animController.forward();
+  }
+
+  @override
+  void initState() {
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_currentSettedValue != widget.value || (!_isAnimRunning && _value != widget.value)) {
+      _currentSettedValue = widget.value;
+      _runValueFillAnim();
+    } else if (_value == widget.value) {
+      _isAnimRunning = false;
+    }
+
     return CustomPaint(
       size: Size(widget.size, widget.size),
       painter: CircularValueIndicatorPainter(
-        value: widget.value,
+        value: _value,
         bgColor: widget.bgColor,
         highColor: widget.highColor,
         lowColor: widget.lowColor,
@@ -68,7 +111,7 @@ class CircularValueIndicatorPainter extends CustomPainter {
 
     final gradient = SweepGradient(
       startAngle: 0,
-      endAngle: math.pi * 2 ,
+      endAngle: math.pi * 2,
       transform: GradientRotation(math.pi / 2),
       tileMode: TileMode.decal,
       colors: [lowColor, highColor, highColor, lowColor],
@@ -90,12 +133,13 @@ class CircularValueIndicatorPainter extends CustomPainter {
 
     final Paint paintHiderRect = Paint()
       ..color = bgColor
-      ..strokeWidth = trackWidth
+      ..strokeWidth = trackWidth + 1
       ..style = PaintingStyle.stroke;
 
     canvas.drawArc(rectGradient, 0, math.pi * 2, true, paintGradientRect);
     canvas.drawArc(rectInner, 0, math.pi * 2, true, paintInnerRect);
-    canvas.drawArc(rectHider, 0, -((100 - value) / 100 * math.pi * 2), true, paintHiderRect);
+    canvas.drawArc(rectHider, 0, -((100 - value) / 100 * math.pi * 2), true,
+        paintHiderRect);
   }
 
   @override

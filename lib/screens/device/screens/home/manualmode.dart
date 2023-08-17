@@ -2,6 +2,18 @@ import 'package:ble_street_lights/components/circularvalueindicator/circularvalu
 import 'package:flutter/material.dart';
 
 class ManualMode extends StatelessWidget {
+  ManualMode({
+    super.key,
+    required this.settingsData,
+    required this.selectedLampIndex,
+    required this.onChangeSelectIndex,
+  });
+
+  final Map settingsData;
+  final int selectedLampIndex;
+
+  final Function(int index) onChangeSelectIndex;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -17,7 +29,8 @@ class ManualMode extends StatelessWidget {
                 highColor: Color(0xffffd4cb),
                 lowColor: Color(0xff413be7),
                 trackWidth: 5,
-                value: 75,
+                value:
+                    settingsData["lamps"][selectedLampIndex]["pwm"].toDouble(),
               ),
               Container(
                 width: 120,
@@ -42,6 +55,63 @@ class ManualMode extends StatelessWidget {
                   ),
                 ),
               ),
+            ],
+          ),
+        ),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (int i = 0; i < settingsData["lamps"].length; i++)
+                Column(
+                  children: [
+                    Container(
+                      width: 65,
+                      height: 65,
+                      margin: EdgeInsets.symmetric(vertical: 20, horizontal: 10,),
+                      padding: EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        border: selectedLampIndex == i
+                            ? Border.all(
+                                width: 0.5,
+                                color: Colors.blue,
+                              )
+                            : null,
+                        shape: BoxShape.circle,
+                      ),
+                      child: GestureDetector(
+                        onTap: () {
+                          if (i == selectedLampIndex) return;
+                          onChangeSelectIndex(i);
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: selectedLampIndex == i
+                                ? Colors.blue
+                                : Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.shade300,
+                                offset: const Offset(0, 1),
+                                blurRadius: 10,
+                                //spreadRadius: 2,
+                              ),
+                            ],
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.lightbulb_outline_rounded,
+                            size: 35,
+                            color: selectedLampIndex == i
+                                ? Colors.white
+                                : Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
             ],
           ),
         )

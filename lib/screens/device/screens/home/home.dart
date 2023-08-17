@@ -19,7 +19,15 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
     with AutomaticKeepAliveClientMixin<DeviceHomeScreen> {
   Map settingsData = {
     "mode": "manual",
+    "lamps": [
+      { "pwm": 20 },
+      { "pwm": 40 },
+      { "pwm": 50 },
+      { "pwm": 75 }
+    ]
   };
+
+  int selectedLampIndex = 0;
 
   bool isSyncing = false;
 
@@ -184,7 +192,16 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
                               ],
                             ),
                             const SizedBox(height: 20),
-                            ManualMode(),
+                            ManualMode(
+                              settingsData: settingsData,
+                              selectedLampIndex: selectedLampIndex,
+                              onChangeSelectIndex: (index) {
+                                setState(() {
+                                  selectedLampIndex = index;
+                                });
+                              },
+                            ),
+                            Text(selectedLampIndex.toString()),
                           ],
                         ),
                       ),
@@ -192,7 +209,7 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
                   ),
                 ),
               ),
-              Container(
+              SizedBox(
                 height: double.infinity,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
