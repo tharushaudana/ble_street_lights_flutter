@@ -8,6 +8,8 @@ class GradientSlider extends StatefulWidget {
     super.key,
     required this.min,
     required this.max,
+    required this.value,
+    this.intLabel = false,
     this.trackHeight = 30,
     this.tricksCount = 20,
     this.tricksHeight = 25,
@@ -21,10 +23,13 @@ class GradientSlider extends StatefulWidget {
       color: Color(0xff413be7),
       fontWeight: FontWeight.bold,
     ),
+    required this.onChange,
   });
 
   final double min;
   final double max;
+  final double value;
+  final bool intLabel;
   final double trackHeight;
   final int tricksCount;
   final double tricksHeight;
@@ -35,35 +40,75 @@ class GradientSlider extends StatefulWidget {
   final Color thumbBgColor;
   final Color thumbBorderColor;
   final TextStyle thumbLabelTextStyle;
+  final Function(double value) onChange;
 
   @override
   State<StatefulWidget> createState() => _GradientSliderState();
 }
 
 class _GradientSliderState extends State<GradientSlider> {
+  late GradientSliderPainerListener sliderPainerListener;
+
+  bool isThumbDetected = false;
+
+  onPanStart(DragStartDetails details) {
+    final renderBox = context.findRenderObject() as RenderBox;
+    final localPos = renderBox.globalToLocal(details.globalPosition);
+    sliderPainerListener.notifyPanStart(localPos);
+  }
+
+  onPanUpdate(DragUpdateDetails details) {
+    final renderBox = context.findRenderObject() as RenderBox;
+    final localPos = renderBox.globalToLocal(details.globalPosition);
+    sliderPainerListener.notifyPanUpdate(localPos);
+  }
+
+  @override
+  void initState() {
+    sliderPainerListener = GradientSliderPainerListener(
+      onThumbDetected: () {
+        isThumbDetected = true;
+      },
+      onChangePercent: (percent) {
+        if (!isThumbDetected) return;
+        double v = (widget.max - widget.min) * percent;
+        v = double.parse(v.toStringAsFixed(2));
+        widget.onChange(v);
+      },
+    );
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
 
-    double _value = 50;
+    final double thumbPercent = widget.value / (widget.max - widget.min);
 
-    final double thumbPercent = _value / (widget.max - widget.min);
-
-    return CustomPaint(
-      size: Size(width, 200),
-      painter: GradientSliderPainer(
-        trackHeight: widget.trackHeight,
-        tricksCount: widget.tricksCount,
-        tricksHeight: widget.tricksHeight,
-        thumbSize: widget.thumbSize,
-        thumbBorderWidth: widget.thumbBorderWidth,
-        colors: widget.colors,
-        tricksColor: widget.tricksColor,
-        thumbBgColor: widget.thumbBgColor,
-        thumbBorderColor: widget.thumbBorderColor,
-        thumbPercent: thumbPercent,
-        thumbLabelTextStyle: widget.thumbLabelTextStyle,
-        thumbLabel: "$_value%",
+    return GestureDetector(
+      onPanStart: onPanStart,
+      onPanUpdate: onPanUpdate,
+      onPanEnd: (details) {
+        isThumbDetected = false;
+      },
+      child: CustomPaint(
+        size: Size(width, 100),
+        painter: GradientSliderPainer(
+          trackHeight: widget.trackHeight,
+          tricksCount: widget.tricksCount,
+          tricksHeight: widget.tricksHeight,
+          thumbSize: widget.thumbSize,
+          thumbBorderWidth: widget.thumbBorderWidth,
+          colors: widget.colors,
+          tricksColor: widget.tricksColor,
+          thumbBgColor: widget.thumbBgColor,
+          thumbBorderColor: widget.thumbBorderColor,
+          thumbPercent: thumbPercent,
+          thumbLabelTextStyle: widget.thumbLabelTextStyle,
+          thumbLabel: widget.intLabel ? "${widget.value.toInt()}%" : "${widget.value}%",
+          listener: sliderPainerListener,
+        ),
       ),
     );
   }
@@ -83,7 +128,10 @@ class GradientSliderPainer extends CustomPainter {
     required this.thumbPercent,
     required this.thumbLabel,
     required this.thumbLabelTextStyle,
-  });
+    required this.listener,
+  }) {
+    _initListener();
+  }
 
   final double trackHeight;
   final double tricksHeight;
@@ -95,15 +143,38 @@ class GradientSliderPainer extends CustomPainter {
   final Color thumbBgColor;
   final Color thumbBorderColor;
   final TextStyle thumbLabelTextStyle;
-
+  //---
   final double thumbPercent;
   final String thumbLabel;
+  final GradientSliderPainerListener listener;
 
   late Canvas canvas;
   late Size size;
 
   double thumbMargin = 0;
   double thumbDx = 0;
+
+  _initListener() {
+    listener.init(
+      onPanStart: (p) {
+        if (_isPointOnCircle(p, _thumbCenter(), thumbSize / 2)) {
+          listener.onThumbDetected();
+        }
+      },
+      onPanUpdate: (p) {
+        double percent = (p.dx - thumbMargin) / (size.width - thumbMargin * 2);
+
+        if (percent < 0) percent = 0;
+        if (percent > 1) percent = 1;
+
+        listener.onChangePercent(percent);
+      },
+    );
+  }
+
+  bool _isPointOnCircle(Offset point, Offset c, double r) {
+    return (math.pow((point.dx - c.dx), 2) + math.pow((point.dy - c.dy), 2) - math.pow(r, 2)) < 0;
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -121,7 +192,7 @@ class GradientSliderPainer extends CustomPainter {
   }
 
   _painThumb() {
-    Offset c = Offset(thumbDx, size.height - trackHeight / 2);
+    Offset c = _thumbCenter();
 
     Rect rect = Rect.fromCenter(
       center: c,
@@ -150,6 +221,10 @@ class GradientSliderPainer extends CustomPainter {
     //### draw Circles
     canvas.drawArc(rect, 0, math.pi * 2, true, paint1);
     canvas.drawCircle(c, thumbSize / 2, paint2);
+  }
+
+  Offset _thumbCenter() {
+    return Offset(thumbDx, size.height - trackHeight / 2);
   }
 
   _paintMainTrickLabel() {
@@ -215,5 +290,36 @@ class GradientSliderPainer extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return true;
+  }
+}
+
+class GradientSliderPainerListener {
+  GradientSliderPainerListener({
+    required this.onThumbDetected,
+    required this.onChangePercent,
+  });
+
+  final VoidCallback onThumbDetected;
+  final Function(double percent) onChangePercent;
+
+  Function(Offset p)? onPanStart;
+  Function(Offset p)? onPanUpdate;
+
+  notifyPanStart(Offset p) {
+    if (onPanStart == null) return;
+    onPanStart!(p);
+  }
+
+  notifyPanUpdate(Offset p) {
+    if (onPanUpdate == null) return;
+    onPanUpdate!(p);
+  }
+
+  init({
+    Function(Offset p)? onPanStart,
+    Function(Offset p)? onPanUpdate,
+  }) {
+    this.onPanStart = onPanStart;
+    this.onPanUpdate = onPanUpdate;
   }
 }

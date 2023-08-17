@@ -8,12 +8,14 @@ class ManualMode extends StatelessWidget {
     required this.settingsData,
     required this.selectedLampIndex,
     required this.onChangeSelectIndex,
+    required this.onChangeLampValue,
   });
 
   final Map settingsData;
   final int selectedLampIndex;
 
   final Function(int index) onChangeSelectIndex;
+  final Function(int value) onChangeLampValue;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +53,7 @@ class ManualMode extends StatelessWidget {
                 child: Center(
                   child: Icon(
                     Icons.lightbulb_outline_rounded,
-                    size: 60,
+                    size: 50,
                     color: Colors.grey[700],
                   ),
                 ),
@@ -59,18 +61,20 @@ class ManualMode extends StatelessWidget {
             ],
           ),
         ),
+        const SizedBox(height: 20),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
             children: [
               for (int i = 0; i < settingsData["lamps"].length; i++)
                 Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
                       width: 65,
                       height: 65,
                       margin: EdgeInsets.symmetric(
-                        vertical: 20,
+                        vertical: 0,
                         horizontal: 10,
                       ),
                       padding: EdgeInsets.all(5),
@@ -79,7 +83,7 @@ class ManualMode extends StatelessWidget {
                         border: selectedLampIndex == i
                             ? Border.all(
                                 width: 0.5,
-                                color: Colors.blue,
+                                color: const Color(0xff413be7),
                               )
                             : null,
                         shape: BoxShape.circle,
@@ -92,7 +96,7 @@ class ManualMode extends StatelessWidget {
                         child: Container(
                           decoration: BoxDecoration(
                             color: selectedLampIndex == i
-                                ? Colors.blue
+                                ? const Color(0xff413be7)
                                 : Colors.white,
                             boxShadow: [
                               BoxShadow(
@@ -106,12 +110,21 @@ class ManualMode extends StatelessWidget {
                           ),
                           child: Icon(
                             Icons.lightbulb_outline_rounded,
-                            size: 35,
+                            size: 25,
                             color: selectedLampIndex == i
                                 ? Colors.white
                                 : Colors.grey,
                           ),
                         ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      "LAMP ${(i + 1)}",
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 10,
                       ),
                     ),
                   ],
@@ -120,8 +133,14 @@ class ManualMode extends StatelessWidget {
           ),
         ),
         GradientSlider(
+          onChange: (value) {
+            onChangeLampValue(value.toInt());
+          },
           min: 0,
           max: 100,
+          value: settingsData["lamps"][selectedLampIndex]["pwm"].toDouble(),
+          intLabel: true,
+          tricksCount: 20,
         ),
       ],
     );

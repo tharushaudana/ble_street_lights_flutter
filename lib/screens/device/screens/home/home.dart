@@ -200,6 +200,11 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
                                   selectedLampIndex = index;
                                 });
                               },
+                              onChangeLampValue: (value) {
+                                setState(() {
+                                  settingsData["lamps"][selectedLampIndex]["pwm"] = value;
+                                });
+                              },
                             ),
                             
                           ],
