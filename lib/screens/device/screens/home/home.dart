@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/components/badgeswitch/badgeswitch.dart';
 import 'package:ble_street_lights/components/swipecardswitch/swipecardswitch.dart';
+import 'package:ble_street_lights/screens/device/screens/home/manualmode.dart';
 import 'package:ble_street_lights/screens/device/screens/home/syncbtn.dart';
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
@@ -48,7 +49,7 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
                         decoration: BoxDecoration(
                           border: Border.all(
                             color: Colors.blue.shade300,
-                            width: 0.5,
+                            width: 1,
                           ),
                           borderRadius: BorderRadius.circular(20),
                         ),
@@ -111,6 +112,79 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
                                 ),
                               ),
                             ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(top: 20),
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.shade300,
+                              offset: const Offset(0, 1),
+                              blurRadius: 20,
+                              //spreadRadius: 2,
+                            ),
+                          ],
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  "Lamp Control",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                const Spacer(),
+                                Container(
+                                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 13,),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.shade300,
+                                        offset: const Offset(0, 1),
+                                        blurRadius: 5,
+                                        //spreadRadius: 2,
+                                      ),
+                                    ],
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "230",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xff413be7),
+                                        ),
+                                      ),
+                                      Text(
+                                        "w",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xff413be7),
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                            ManualMode(),
                           ],
                         ),
                       ),

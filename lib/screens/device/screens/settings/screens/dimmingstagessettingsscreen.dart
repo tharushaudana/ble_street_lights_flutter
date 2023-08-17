@@ -367,16 +367,15 @@ class _DimmingStagesSettingsScreenState
                           };
 
                           if (widget.settingsData["mode"] == "manual") {
-                            data['sc'] = widget.settingsData['stages'].length;
-                            data['sl'] = [];
+                            data['c'] = widget.settingsData['stages'].length;
+                            data['b'] = []; // pwms
+                            data['f'] = []; // from times
+                            data['o'] = []; // to times
 
                             for (var stage in widget.settingsData['stages']) {
-                              data['sl'].add({
-                                'p': stage['pwm'],
-                                's': stage['from'].hour +
-                                    stage['from'].minute / 100,
-                                'e': stage['to'].hour + stage['to'].minute / 100
-                              });
+                              data['b'].add(stage['pwm']);
+                              data['f'].add(stage['from'].hour + stage['from'].minute / 100);
+                              data['o'].add(stage['to'].hour + stage['to'].minute / 100);
                             }
                           }
 
