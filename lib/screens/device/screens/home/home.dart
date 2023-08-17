@@ -20,10 +20,10 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
   Map settingsData = {
     "mode": "manual",
     "lamps": [
-      { "pwm": 20 },
-      { "pwm": 40 },
-      { "pwm": 50 },
-      { "pwm": 75 }
+      {"pwm": 20, "rvalue": 1},
+      {"pwm": 40, "rvalue": 0},
+      {"pwm": 50, "rvalue": 1},
+      {"pwm": 75, "rvalue": 0}
     ]
   };
 
@@ -148,14 +148,17 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
                                 const Text(
                                   "Lamp Control",
                                   style: TextStyle(
-                                    fontSize: 20,
+                                    fontSize: 15,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.grey,
                                   ),
                                 ),
                                 const Spacer(),
                                 Container(
-                                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 13,),
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: 10,
+                                    horizontal: 13,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     boxShadow: [
@@ -169,20 +172,21 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         "230",
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          color: Color(0xff413be7),
+                                          color: Colors.blue,
                                         ),
                                       ),
                                       Text(
                                         "w",
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          color: Color(0xff413be7),
+                                          color: Colors.blue,
                                           fontSize: 11,
                                         ),
                                       ),
@@ -191,7 +195,7 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 5),
                             ManualMode(
                               settingsData: settingsData,
                               selectedLampIndex: selectedLampIndex,
@@ -202,11 +206,47 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
                               },
                               onChangeLampValue: (value) {
                                 setState(() {
-                                  settingsData["lamps"][selectedLampIndex]["pwm"] = value;
+                                  settingsData["lamps"][selectedLampIndex]
+                                      ["pwm"] = value;
+                                });
+                              },
+                              onChangeRelayValue: (rvalue) {
+                                setState(() {
+                                  settingsData["lamps"][selectedLampIndex]
+                                      ["rvalue"] = rvalue;
                                 });
                               },
                             ),
-                            
+                          ],
+                        ),
+                      ),
+                      Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(top: 20),
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.shade300,
+                              offset: const Offset(0, 1),
+                              blurRadius: 20,
+                              //spreadRadius: 2,
+                            ),
+                          ],
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Motion Sensors",
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey,
+                              ),
+                            ),
                           ],
                         ),
                       ),

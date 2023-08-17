@@ -10,6 +10,7 @@ class GradientSlider extends StatefulWidget {
     required this.max,
     required this.value,
     this.intLabel = false,
+    this.height = 100,
     this.trackHeight = 30,
     this.tricksCount = 20,
     this.tricksHeight = 25,
@@ -30,6 +31,7 @@ class GradientSlider extends StatefulWidget {
   final double max;
   final double value;
   final bool intLabel;
+  final double height;
   final double trackHeight;
   final int tricksCount;
   final double tricksHeight;
@@ -93,7 +95,7 @@ class _GradientSliderState extends State<GradientSlider> {
         isThumbDetected = false;
       },
       child: CustomPaint(
-        size: Size(width, 100),
+        size: Size(width, widget.height),
         painter: GradientSliderPainer(
           trackHeight: widget.trackHeight,
           tricksCount: widget.tricksCount,

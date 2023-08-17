@@ -9,6 +9,7 @@ class ManualMode extends StatelessWidget {
     required this.selectedLampIndex,
     required this.onChangeSelectIndex,
     required this.onChangeLampValue,
+    required this.onChangeRelayValue,
   });
 
   final Map settingsData;
@@ -16,6 +17,7 @@ class ManualMode extends StatelessWidget {
 
   final Function(int index) onChangeSelectIndex;
   final Function(int value) onChangeLampValue;
+  final Function(int rvalue) onChangeRelayValue;
 
   @override
   Widget build(BuildContext context) {
@@ -28,18 +30,20 @@ class ManualMode extends StatelessWidget {
             alignment: Alignment.center,
             children: [
               CircularValueIndicator(
-                size: 150,
+                size: 100,
                 highColor: Color(0xffffd4cb),
-                lowColor: Color(0xff413be7),
-                trackWidth: 5,
+                //highColor: Color(0xff55d0ff),
+                lowColor: Colors.blue,
+                //lowColor: Color(0xff413be7),
+                trackWidth: 4,
                 value:
                     settingsData["lamps"][selectedLampIndex]["pwm"].toDouble(),
               ),
               Container(
-                width: 120,
-                height: 120,
+                width: 80,
+                height: 80,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: settingsData["lamps"][selectedLampIndex]["rvalue"] == 1 ? Colors.blue.shade100 : Colors.white,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
@@ -51,17 +55,26 @@ class ManualMode extends StatelessWidget {
                   ],
                 ),
                 child: Center(
-                  child: Icon(
-                    Icons.lightbulb_outline_rounded,
-                    size: 50,
-                    color: Colors.grey[700],
+                  child: InkWell(
+                    onTap: () {
+                      if (settingsData["lamps"][selectedLampIndex]["rvalue"] == 1) {
+                        onChangeRelayValue(0);
+                      } else {
+                        onChangeRelayValue(1);
+                      }
+                    },
+                    child: Icon(
+                      Icons.lightbulb_outline_rounded,
+                      size: 30,
+                      color: settingsData["lamps"][selectedLampIndex]["rvalue"] == 1 ? Colors.blue : Colors.grey[700],
+                    ),
                   ),
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 10),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -71,8 +84,8 @@ class ManualMode extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
-                      width: 65,
-                      height: 65,
+                      width: 55,
+                      height: 55,
                       margin: EdgeInsets.symmetric(
                         vertical: 0,
                         horizontal: 10,
@@ -83,7 +96,7 @@ class ManualMode extends StatelessWidget {
                         border: selectedLampIndex == i
                             ? Border.all(
                                 width: 0.5,
-                                color: const Color(0xff413be7),
+                                color: Colors.blue,
                               )
                             : null,
                         shape: BoxShape.circle,
@@ -96,7 +109,7 @@ class ManualMode extends StatelessWidget {
                         child: Container(
                           decoration: BoxDecoration(
                             color: selectedLampIndex == i
-                                ? const Color(0xff413be7)
+                                ? Colors.blue
                                 : Colors.white,
                             boxShadow: [
                               BoxShadow(
@@ -110,7 +123,7 @@ class ManualMode extends StatelessWidget {
                           ),
                           child: Icon(
                             Icons.lightbulb_outline_rounded,
-                            size: 25,
+                            size: 20,
                             color: selectedLampIndex == i
                                 ? Colors.white
                                 : Colors.grey,
@@ -118,7 +131,7 @@ class ManualMode extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 6),
                     Text(
                       "LAMP ${(i + 1)}",
                       style: TextStyle(
@@ -140,7 +153,21 @@ class ManualMode extends StatelessWidget {
           max: 100,
           value: settingsData["lamps"][selectedLampIndex]["pwm"].toDouble(),
           intLabel: true,
-          tricksCount: 20,
+          height: 60,
+          trackHeight: 10,
+          thumbSize: 30,
+          tricksCount: 50,
+          tricksHeight: 15,
+          colors: const [
+            Colors.blue,
+            Color(0xffffd4cb)
+          ],
+          thumbBorderColor: Colors.blue,
+          thumbLabelTextStyle: const TextStyle(
+            color: Colors.blue,
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ],
     );
