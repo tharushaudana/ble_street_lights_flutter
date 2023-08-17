@@ -218,6 +218,9 @@ class _AstroScreenState extends State<AstroScreen>
       provider,
       _,
     ) {
+
+      provider.deviceData.loadSettingsDataForAstroTab(settingsData);
+
       return NotificationListener<ScrollNotification>(
         onNotification: (notification) {
           if (notification is ScrollEndNotification) {
@@ -298,13 +301,13 @@ class _AstroScreenState extends State<AstroScreen>
                                     ),
                                   ),
                                   const SizedBox(height: 15),
-                                  _valueBox("Sunrise", "6:00 AM"),
+                                  _valueBox("Sunrise", provider.deviceData.currentValue("s.f", "..:..")),
                                   const SizedBox(height: 15),
-                                  _valueBox("Sunset", "6:30 PM"),
+                                  _valueBox("Sunset", provider.deviceData.currentValue("s.n", "..:..")),
                                   const SizedBox(height: 15),
-                                  _valueBox("Offset Sunrise", "6:00 AM"),
+                                  _valueBox("Offset Sunrise", provider.deviceData.currentValue("o.f", "..:..")),
                                   const SizedBox(height: 15),
-                                  _valueBox("Offset Sunset", "6:30 PM"),
+                                  _valueBox("Offset Sunset", provider.deviceData.currentValue("o.n", "..:..")),
                                 ],
                               ),
                             ),
@@ -442,7 +445,8 @@ class _AstroScreenState extends State<AstroScreen>
                                     ),
                                     const Spacer(),
                                     NeumorphismButton(
-                                      initialSwitched: false,
+                                      initialSwitched: settingsData["enabled"],
+                                      switched: settingsData["enabled"],
                                       glowEnabled: false,
                                       onSwitching: (will) async {
                                         if (will) {

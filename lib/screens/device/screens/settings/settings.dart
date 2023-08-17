@@ -118,6 +118,9 @@ class _SettingsScreenState extends SafeState<SettingsScreen>
       provider,
       _,
     ) {
+
+      provider.deviceData.loadSettingsDataForSettingsTab(settingsData);
+
       return Column(
         children: [
           const SizedBox(height: 15),
@@ -283,10 +286,7 @@ class _SettingsScreenState extends SafeState<SettingsScreen>
                     disabled: true,
                     glowEnabled: false,
                     onSwitching: (will) async {
-                      setState(() {
-                        //isOffsetStatusEnabled = will;
-                      });
-                      return true;
+                      return false;
                     },
                   ),
                 ],
@@ -461,10 +461,7 @@ class _SettingsScreenState extends SafeState<SettingsScreen>
                     disabled: true,
                     glowEnabled: false,
                     onSwitching: (will) async {
-                      setState(() {
-                        //isOffsetStatusEnabled = will;
-                      });
-                      return true;
+                      return false;
                     },
                   ),
                 ],

@@ -41,6 +41,17 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
         provider,
         _,
       ) {
+
+        provider.deviceData.loadSettingsDataForHomeTab(settingsData);
+
+        int motionSensorCount = provider.deviceData.settingValue("m.c", 0);
+
+        List<int> motionSensorStates = provider.deviceData.currentValue<Map>("s", {});
+
+        print("===============");
+        print(motionSensorCount);
+        print(motionSensorStates);
+
         return SizedBox(
           height: double.infinity,
           child: Stack(
@@ -196,27 +207,33 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
                               ],
                             ),
                             const SizedBox(height: 5),
-                            ManualMode(
-                              settingsData: settingsData,
-                              selectedLampIndex: selectedLampIndex,
-                              onChangeSelectIndex: (index) {
-                                setState(() {
-                                  selectedLampIndex = index;
-                                });
-                              },
-                              onChangeLampValue: (value) {
-                                setState(() {
-                                  settingsData["lamps"][selectedLampIndex]
-                                      ["pwm"] = value;
-                                });
-                              },
-                              onChangeRelayValue: (rvalue) {
-                                setState(() {
-                                  settingsData["lamps"][selectedLampIndex]
-                                      ["rvalue"] = rvalue;
-                                });
-                              },
-                            ),
+                            settingsData["mode"] == "manual"
+                                ? ManualMode(
+                                    settingsData: settingsData,
+                                    selectedLampIndex: selectedLampIndex,
+                                    onChangeSelectIndex: (index) {
+                                      setState(() {
+                                        selectedLampIndex = index;
+                                      });
+                                    },
+                                    onChangeLampValue: (value) {
+                                      setState(() {
+                                        settingsData["lamps"][selectedLampIndex]
+                                            ["pwm"] = value;
+                                      });
+                                    },
+                                    onChangeRelayValue: (rvalue) {
+                                      setState(() {
+                                        settingsData["lamps"][selectedLampIndex]
+                                            ["rvalue"] = rvalue;
+                                      });
+                                    },
+                                  )
+                                : Container(
+                                    child: Center(
+                                      child: Text("Not yet :("),
+                                    ),
+                                  )
                           ],
                         ),
                       ),

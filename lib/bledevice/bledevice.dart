@@ -77,6 +77,10 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
         deviceData.currentValues = message.data;
         notifyDeviceDataChange(deviceData);
         break;
+      case BLEDeviceMessage.MSGTYPE_SETTINGS_DATA:
+        deviceData.settingValues = message.data;
+        notifyDeviceDataChange(deviceData);
+        break;
     }
   }
 
