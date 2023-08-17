@@ -31,6 +31,8 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
 
   bool isSyncing = false;
 
+  bool isSettingsLoaded = false;
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -41,15 +43,12 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
         provider,
         _,
       ) {
-        provider.deviceData.loadSettingsDataForHomeTab(settingsData);
+        if (!isSettingsLoaded && provider.deviceData.loadSettingsDataForHomeTab(settingsData)) {
+          isSettingsLoaded = true;
+        }
 
         int motionSensorCount = provider.deviceData.settingValue("m.c", 0);
-
         Map motionSensorStates = provider.deviceData.currentValue<Map>("p", {});
-
-        print("===============");
-        print(motionSensorCount);
-        print(motionSensorStates);
 
         return SizedBox(
           height: double.infinity,
@@ -108,6 +107,8 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
                                 });
                               },
                               initialSwitchedChild:
+                                  settingsData["mode"] == "manual" ? 1 : 2,
+                              switchedChild:
                                   settingsData["mode"] == "manual" ? 1 : 2,
                               disabled: isSyncing,
                               child1: Container(
@@ -403,7 +404,7 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
   }
 
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => false;
 }
 
 class _ContentCard extends StatelessWidget {

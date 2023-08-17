@@ -7,9 +7,8 @@ class BLEDeviceData {
   bool isLoadedSettingsDataForAstroTab = false;
   bool isLoadedSettingsDataForSettingsTab = false;
 
-  loadSettingsDataForHomeTab(Map data) {
-    if (isLoadedSettingsDataForHomeTab || currentValues == null) return; 
-    isLoadedSettingsDataForHomeTab = true;
+  bool loadSettingsDataForHomeTab(Map data) {
+    if (currentValues == null) return false; 
 
     data["mode"] = currentValue("m", 1) == 2 ? "astro" : "manual";
 
@@ -21,20 +20,22 @@ class BLEDeviceData {
         "rvalue": currentValue("r.$k", 0),
       }); 
     }
+
+    return true;
   }
 
-  loadSettingsDataForAstroTab(Map data) {
-    if (isLoadedSettingsDataForAstroTab || settingValues == null) return; 
-    isLoadedSettingsDataForAstroTab = true;
+  bool loadSettingsDataForAstroTab(Map data) {
+    if (settingValues == null) return false; 
 
     data["enabled"] = settingValue("o.s", 0) == 1;
     data["sunrise"] = settingValue("o.r", 0);
     data["sunset"] = settingValue("o.t", 0);
+
+    return true;
   }
 
-  loadSettingsDataForSettingsTab(Map data) {
-    if (isLoadedSettingsDataForSettingsTab || settingValues == null) return; 
-    isLoadedSettingsDataForSettingsTab = true;
+  bool loadSettingsDataForSettingsTab(Map data) {
+    if (settingValues == null) return false; 
 
     //#### Motion Sensor
 
@@ -50,6 +51,8 @@ class BLEDeviceData {
     data["motionSensor"]["holdTime"] = holdTime;
 
     //#### Dimming Stages
+
+    return true;
   }
 
   settingValue<T>(String path, T noneValue) {

@@ -109,6 +109,8 @@ class _SettingsScreenState extends SafeState<SettingsScreen>
     super.dispose();
   }
 
+  bool isSettingsLoaded = false;
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -119,7 +121,9 @@ class _SettingsScreenState extends SafeState<SettingsScreen>
       _,
     ) {
 
-      provider.deviceData.loadSettingsDataForSettingsTab(settingsData);
+      if (!isSettingsLoaded && provider.deviceData.loadSettingsDataForSettingsTab(settingsData)) {
+        isSettingsLoaded = true;
+      }
 
       return Column(
         children: [

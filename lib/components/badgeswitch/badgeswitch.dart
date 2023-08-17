@@ -8,6 +8,7 @@ class BadgeSwitch extends StatefulWidget {
     required this.child2,
     this.disabled = false,
     this.initialSwitchedChild = 1,
+    this.switchedChild = 1,
     required this.onSwitched,
   });
 
@@ -15,6 +16,7 @@ class BadgeSwitch extends StatefulWidget {
   final Widget child2;
   final bool disabled;
   final int initialSwitchedChild;
+  final int switchedChild;
   final Function(int childNo) onSwitched;
 
   @override
@@ -22,8 +24,6 @@ class BadgeSwitch extends StatefulWidget {
 }
 
 class _BadgeSwitchState extends State<BadgeSwitch> with SingleTickerProviderStateMixin {
-  late int switchedChild;
-
   late List _childOrder;
   bool _changeOrder = false;
 
@@ -33,14 +33,12 @@ class _BadgeSwitchState extends State<BadgeSwitch> with SingleTickerProviderStat
   late AnimationController _animController;
   late Animation<double> _animation;
 
-  switchNow(int to) {
-    if (switchedChild == to) return;
+  late int _previousSwitchedChild;
 
+  switchNow(int to) {
     _animRunning = true;
 
-    switchedChild = to;
-
-    widget.onSwitched(to);
+    _previousSwitchedChild = to;
 
     _animController.reset();
     _animController.forward();
@@ -48,14 +46,14 @@ class _BadgeSwitchState extends State<BadgeSwitch> with SingleTickerProviderStat
 
   @override
   void initState() {
-    switchedChild = widget.initialSwitchedChild;
+    _previousSwitchedChild = widget.initialSwitchedChild;
     
     _childOrder = [
       widget.child1,
       widget.child2,
     ];
 
-    if (switchedChild != 1) _childOrder = _childOrder.reversed.toList();
+    if (widget.switchedChild != 1) _childOrder = _childOrder.reversed.toList();
 
     _animController = AnimationController(
       vsync: this,
@@ -84,6 +82,10 @@ class _BadgeSwitchState extends State<BadgeSwitch> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
+    if (_previousSwitchedChild != widget.switchedChild) {
+      switchNow(widget.switchedChild);
+    } 
+
     if (_changeOrder) {
       _childOrder = _childOrder.reversed.toList();
       _changeOrder = false;
@@ -92,7 +94,7 @@ class _BadgeSwitchState extends State<BadgeSwitch> with SingleTickerProviderStat
     return GestureDetector(
       onTap: () {
         if (widget.disabled || _animRunning) return;
-        switchNow(switchedChild == 1 ? 2 : 1);
+        widget.onSwitched(widget.switchedChild == 1 ? 2 : 1);
       },
       child: Stack(
         children: [
@@ -111,10 +113,6 @@ class _BadgeSwitchState extends State<BadgeSwitch> with SingleTickerProviderStat
               //child: widget.child1,
             ),
           ),
-          /*Transform.scale(
-            scale: 0.5,
-            child: widget.child2,
-          ),*/
         ],
       ),
     );

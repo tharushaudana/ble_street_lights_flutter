@@ -201,6 +201,8 @@ class _AstroScreenState extends State<AstroScreen>
     super.dispose();
   }
 
+  bool isSettingsLoaded = false;
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -219,7 +221,9 @@ class _AstroScreenState extends State<AstroScreen>
       _,
     ) {
 
-      provider.deviceData.loadSettingsDataForAstroTab(settingsData);
+      if (!isSettingsLoaded && provider.deviceData.loadSettingsDataForAstroTab(settingsData)) {
+        isSettingsLoaded = true;
+      }
 
       return NotificationListener<ScrollNotification>(
         onNotification: (notification) {
