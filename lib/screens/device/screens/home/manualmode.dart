@@ -1,4 +1,5 @@
 import 'package:ble_street_lights/components/circularvalueindicator/circularvalueindicator.dart';
+import 'package:ble_street_lights/components/gradientslider/gradientslider.dart';
 import 'package:flutter/material.dart';
 
 class ManualMode extends StatelessWidget {
@@ -68,7 +69,10 @@ class ManualMode extends StatelessWidget {
                     Container(
                       width: 65,
                       height: 65,
-                      margin: EdgeInsets.symmetric(vertical: 20, horizontal: 10,),
+                      margin: EdgeInsets.symmetric(
+                        vertical: 20,
+                        horizontal: 10,
+                      ),
                       padding: EdgeInsets.all(5),
                       decoration: BoxDecoration(
                         color: Colors.transparent,
@@ -114,7 +118,11 @@ class ManualMode extends StatelessWidget {
                 ),
             ],
           ),
-        )
+        ),
+        GradientSlider(
+          min: 0,
+          max: 100,
+        ),
       ],
     );
   }

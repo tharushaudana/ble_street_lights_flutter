@@ -201,7 +201,7 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
                                 });
                               },
                             ),
-                            Text(selectedLampIndex.toString()),
+                            
                           ],
                         ),
                       ),
