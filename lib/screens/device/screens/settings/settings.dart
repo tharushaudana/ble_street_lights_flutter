@@ -35,13 +35,13 @@ class _SettingsScreenState extends SafeState<SettingsScreen>
       "stages": [
         {
           "pwm": 70,
-          "from": const TimeOfDay(hour: 17, minute: 15),
-          "to": const TimeOfDay(hour: 18, minute: 00),
+          "from": const TimeOfDay(hour: 19, minute: 30),
+          "to": const TimeOfDay(hour: 20, minute: 30),
         },
         {
           "pwm": 50,
-          "from": const TimeOfDay(hour: 1, minute: 00),
-          "to": const TimeOfDay(hour: 2, minute: 15),
+          "from": const TimeOfDay(hour: 20, minute: 30),
+          "to": const TimeOfDay(hour: 21, minute: 30),
         }
       ]
     },
