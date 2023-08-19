@@ -176,6 +176,32 @@ class _AstroScreenState extends State<AstroScreen> {
     _autoScrollTo(0);
   }
 
+  bool _isDayTimeNow(String sunriseAt, String sunsetAt) {
+    if (sunriseAt == "N/A" || sunsetAt == "N/A") return true;
+
+    TimeOfDay now = TimeOfDay.now();
+    TimeOfDay start = _strToTimeOfDay(sunriseAt);
+    TimeOfDay end = _strToTimeOfDay(sunsetAt);
+
+    int nowMinutes = now.hour * 60 + now.minute;
+    int startMinutes = start.hour * 60 + start.minute;
+    int endMinutes = start.hour * 60 + end.minute;
+
+    return nowMinutes >= startMinutes && nowMinutes <= endMinutes;
+  }
+
+  TimeOfDay _strToTimeOfDay(String s) {
+    // 6:05 AM
+    List a1 = s.split(" ");
+    List a2 = a1[0].split(":");
+    int hplus = a1[1] == "PM" ? 12 : 0;
+
+    return TimeOfDay(
+      hour: int.parse(a2[0]) + hplus,
+      minute: int.parse(a2[1]),
+    );
+  }
+
   @override
   void initState() {
     _scrollController = ScrollController();
@@ -237,6 +263,13 @@ class _AstroScreenState extends State<AstroScreen> {
         });
       }
 
+      String sunriseAt = provider.deviceData.currentValue("s.f", "N/A");
+      String sunsetAt = provider.deviceData.currentValue("s.n", "N/A");
+      String ofsunriseAt = provider.deviceData.currentValue("o.f", "N/A");
+      String ofsunsetAt = provider.deviceData.currentValue("o.n", "N/A");
+
+      bool isDayTime = _isDayTimeNow(sunriseAt, sunsetAt);
+
       return NotificationListener<ScrollNotification>(
         onNotification: (notification) {
           if (notification is ScrollEndNotification) {
@@ -297,46 +330,37 @@ class _AstroScreenState extends State<AstroScreen> {
                                       vertical: 10,
                                     ),
                                     decoration: BoxDecoration(
-                                        color: Colors.grey.shade300,
+                                        color: Colors.grey.shade200,
                                         borderRadius:
                                             BorderRadius.circular(50)),
                                     child: Row(
                                       children: [
-                                        Text(
+                                        const Text(
                                           "Current State",
                                           style: TextStyle(
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                        Spacer(),
+                                        const Spacer(),
                                         Icon(
-                                          Icons.wb_sunny_rounded,
+                                          isDayTime
+                                              ? Icons.wb_sunny_rounded
+                                              : Icons.nightlight_round,
                                           size: 30,
+                                          color: Colors.orange,
                                         ),
                                       ],
                                     ),
                                   ),
                                   const SizedBox(height: 15),
-                                  _valueBox(
-                                      "Sunrise",
-                                      provider.deviceData
-                                          .currentValue("s.f", "..:..")),
+                                  _valueBox("Sunrise", sunriseAt),
                                   const SizedBox(height: 15),
-                                  _valueBox(
-                                      "Sunset",
-                                      provider.deviceData
-                                          .currentValue("s.n", "..:..")),
+                                  _valueBox("Sunset", sunsetAt),
                                   const SizedBox(height: 15),
-                                  _valueBox(
-                                      "Offset Sunrise",
-                                      provider.deviceData
-                                          .currentValue("o.f", "..:..")),
+                                  _valueBox("Offset Sunrise", ofsunriseAt),
                                   const SizedBox(height: 15),
-                                  _valueBox(
-                                      "Offset Sunset",
-                                      provider.deviceData
-                                          .currentValue("o.n", "..:..")),
+                                  _valueBox("Offset Sunset", ofsunsetAt),
                                 ],
                               ),
                             ),
