@@ -143,7 +143,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
                         },
                         child: Container(
                           height: 56,
-                          margin: EdgeInsets.only(left: 10),
+                          margin: const EdgeInsets.only(left: 10),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,7 +175,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
           titleSpacing: 0,
         ),
         body: BottomTabBarLayout(
-          tabs: [
+          tabs: const [
             ["Home", Icons.home, Color(0xFF5B36B7)],
             ["Astro", Icons.wb_sunny_rounded, Color(0xFFC9379C)],
             ["Meter", Icons.energy_savings_leaf, Color(0xFFE6A91A)],
@@ -197,11 +197,12 @@ class _DeviceScreenState extends State<DeviceScreen> {
                 },
               ),
             ),
-            Center(
-                child: Text(
-              "Meter",
-              style: TextStyle(fontSize: 30),
-            )),
+            const Center(
+              child: Text(
+                "Meter",
+                style: TextStyle(fontSize: 30),
+              ),
+            ),
             ChangeNotifierProvider(
               create: (_) => BLEDeviceConnectionProvider(device),
               child: SettingsScreen(),

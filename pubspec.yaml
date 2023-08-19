@@ -82,6 +82,7 @@ flutter:
     - assets/images/astroclock.png
     - assets/images/done.gif
     - assets/images/done-loop-10.gif
+    - assets/images/blue-wave.gif
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

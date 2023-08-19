@@ -37,7 +37,7 @@ class _SyncButtonState extends State<SyncButton> {
   bool syncCompleted = false;
 
   syncNow(Map data) {
-    _timeout = 5;
+    _timeout = 15;
     syncCompleted = false;
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
