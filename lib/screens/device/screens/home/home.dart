@@ -3,41 +3,20 @@ import 'package:ble_street_lights/backupableitrs/blist/blist.dart';
 import 'package:ble_street_lights/backupableitrs/bmap/bmap.dart';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/components/badgeswitch/badgeswitch.dart';
-import 'package:ble_street_lights/components/swipecardswitch/swipecardswitch.dart';
 import 'package:ble_street_lights/screens/device/screens/home/manualmode.dart';
 import 'package:ble_street_lights/screens/device/screens/home/syncbtn.dart';
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
-import 'package:sleek_circular_slider/sleek_circular_slider.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
+import 'package:ble_street_lights/safestate/safestate.dart';
 
 class DeviceHomeScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _DeviceHomeScreenState();
 }
 
-class _DeviceHomeScreenState extends State<DeviceHomeScreen>
-    with AutomaticKeepAliveClientMixin<DeviceHomeScreen> {
-  /*Map settingsData = {
-    "mode": "manual",
-    "lamps": [
-      {"pwm": 20, "rvalue": 1},
-      {"pwm": 40, "rvalue": 0},
-      {"pwm": 50, "rvalue": 1},
-      {"pwm": 75, "rvalue": 0}
-    ]
-  };*/
-
-  BMap settingsData = BMap({
-    "mode": "manual",
-    "lamps": BList([
-      {"pwm": 20, "rvalue": 1},
-      {"pwm": 40, "rvalue": 0},
-      {"pwm": 50, "rvalue": 1},
-      {"pwm": 75, "rvalue": 0}
-    ])
-  });
+class _DeviceHomeScreenState extends SafeState<DeviceHomeScreen> {
+  late BMap settingsData;
 
   int selectedLampIndex = 0;
 
@@ -46,20 +25,27 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
   bool isSettingsLoaded = false;
 
   @override
-  Widget build(BuildContext context) {
-    super.build(context);
+  void dispose() {
+    settingsData.restoreBackup();
+    super.dispose();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Consumer<BLEDeviceConnectionProvider>(
       builder: (
         context,
         provider,
         _,
       ) {
-        if (!isSettingsLoaded && provider.deviceData.loadSettingsDataForHomeTab(settingsData)) {
-          isSettingsLoaded = true;
+        if (!isSettingsLoaded) {
+          provider.deviceData.loadSettingsData('hometab', (data, success) {
+            settingsData = data;
+            isSettingsLoaded = success;
+          });
         }
 
-        int motionSensorCount = provider.deviceData.settingValue("m.c", 0);
+        int motionSensorCount = provider.deviceData.settingsData['settingstab']['motionSensor']['sensorCount'];
         Map motionSensorStates = provider.deviceData.currentValue<Map>("p", {});
 
         return SizedBox(
@@ -395,6 +381,8 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
                           };
                         },
                         onResult: (completed) {
+                          if (completed) settingsData.clearBackup();
+
                           setState(() {
                             isSyncing = false;
                           });
@@ -414,9 +402,6 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
       },
     );
   }
-
-  @override
-  bool get wantKeepAlive => false;
 }
 
 class _ContentCard extends StatelessWidget {

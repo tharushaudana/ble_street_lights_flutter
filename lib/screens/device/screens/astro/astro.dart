@@ -27,25 +27,14 @@ class AstroScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _AstroScreenState();
 }
 
-class _AstroScreenState extends State<AstroScreen>
-    with AutomaticKeepAliveClientMixin<AstroScreen> {
+class _AstroScreenState extends State<AstroScreen> {
   late ScrollController _scrollController;
   late AstroScreenController _screenController;
 
   double _scrollPercentage = 0;
   double _shrinkPercentage = 0;
 
-  /*Map settingsData = {
-    "enabled": false,
-    "sunrise": 1,
-    "sunset": 1,
-  };*/
-
-  BMap settingsData = BMap({
-    "enabled": false,
-    "sunrise": 1,
-    "sunset": 1,
-  });
+  late BMap settingsData;
 
   Future<bool> syncSettings(
     BLEDeviceConnectionProvider provider,
@@ -220,6 +209,7 @@ class _AstroScreenState extends State<AstroScreen>
   @override
   void dispose() {
     _scrollController.dispose();
+    settingsData.restoreBackup();
     super.dispose();
   }
 
@@ -227,8 +217,6 @@ class _AstroScreenState extends State<AstroScreen>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-
     final Size size = MediaQuery.of(context).size;
 
     const double iconImgSize = 85;
@@ -242,9 +230,11 @@ class _AstroScreenState extends State<AstroScreen>
       provider,
       _,
     ) {
-
-      if (!isSettingsLoaded && provider.deviceData.loadSettingsDataForAstroTab(settingsData)) {
-        isSettingsLoaded = true;
+      if (!isSettingsLoaded) {
+        provider.deviceData.loadSettingsData('astrotab', (data, success) {
+          settingsData = data;
+          isSettingsLoaded = success;
+        });
       }
 
       return NotificationListener<ScrollNotification>(
@@ -274,7 +264,8 @@ class _AstroScreenState extends State<AstroScreen>
 
                 return Container(
                   height: double.infinity,
-                  color: Colors.blue.withOpacityNoTrans(_shrinkPercentage, Colors.white),
+                  color: Colors.blue
+                      .withOpacityNoTrans(_shrinkPercentage, Colors.white),
                   child: Row(
                     children: [
                       SizedBox(width: maxMargin * shrinkPercentage),
@@ -327,13 +318,25 @@ class _AstroScreenState extends State<AstroScreen>
                                     ),
                                   ),
                                   const SizedBox(height: 15),
-                                  _valueBox("Sunrise", provider.deviceData.currentValue("s.f", "..:..")),
+                                  _valueBox(
+                                      "Sunrise",
+                                      provider.deviceData
+                                          .currentValue("s.f", "..:..")),
                                   const SizedBox(height: 15),
-                                  _valueBox("Sunset", provider.deviceData.currentValue("s.n", "..:..")),
+                                  _valueBox(
+                                      "Sunset",
+                                      provider.deviceData
+                                          .currentValue("s.n", "..:..")),
                                   const SizedBox(height: 15),
-                                  _valueBox("Offset Sunrise", provider.deviceData.currentValue("o.f", "..:..")),
+                                  _valueBox(
+                                      "Offset Sunrise",
+                                      provider.deviceData
+                                          .currentValue("o.f", "..:..")),
                                   const SizedBox(height: 15),
-                                  _valueBox("Offset Sunset", provider.deviceData.currentValue("o.n", "..:..")),
+                                  _valueBox(
+                                      "Offset Sunset",
+                                      provider.deviceData
+                                          .currentValue("o.n", "..:..")),
                                 ],
                               ),
                             ),
@@ -357,7 +360,8 @@ class _AstroScreenState extends State<AstroScreen>
                     border: Border.all(
                       width: 0,
                       strokeAlign: BorderSide.strokeAlignCenter,
-                      color: Colors.blue.withOpacityNoTrans(_shrinkPercentage, Colors.white),
+                      color: Colors.blue
+                          .withOpacityNoTrans(_shrinkPercentage, Colors.white),
                     ),
                     borderRadius: BorderRadius.only(
                       topRight: Radius.circular(
@@ -697,9 +701,6 @@ class _AstroScreenState extends State<AstroScreen>
       );
     });
   }
-
-  @override
-  bool get wantKeepAlive => true;
 }
 
 class AstroScreenController {

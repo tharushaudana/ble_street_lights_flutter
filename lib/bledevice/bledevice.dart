@@ -74,11 +74,11 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
   _saveAndNotifyRequiredData(BLEDeviceMessage message) {
     switch (message.type) {
       case BLEDeviceMessage.MSGTYPE_CURRENT_VALUES:
-        deviceData.currentValues = message.data;
+        deviceData.setCurrentValues(message.data);
         notifyDeviceDataChange(deviceData);
         break;
       case BLEDeviceMessage.MSGTYPE_SETTINGS_DATA:
-        deviceData.settingValues = message.data;
+        deviceData.setSettingValues(message.data);
         notifyDeviceDataChange(deviceData);
         break;
     }

@@ -6,18 +6,9 @@ class BMap extends MapBase<dynamic, dynamic> {
   late Map<dynamic, dynamic> _innerMap = {};
 
   final Map _previousMap = {};
-
-  List backupableChilds = [];
   
   BMap (Map<dynamic, dynamic> map) {
     _innerMap = map;
-
-    for (dynamic v in map.values) {
-      if (v.runtimeType == BMap || v.runtimeType == BList) {
-        backupableChilds.add(v);
-      }
-    }
-
     _previousMap.addAll(_innerMap);
   }
 
@@ -25,19 +16,23 @@ class BMap extends MapBase<dynamic, dynamic> {
     _innerMap.clear();
     _innerMap.addAll(_previousMap);
 
-    for (dynamic child in backupableChilds) {
-      child.restoreBackup();
-    }
+    notifyChilds((child) => child.restoreBackup());
   }
 
   clearBackup() {
     _previousMap.clear();
     _previousMap.addAll(_innerMap);
 
-    for (dynamic child in backupableChilds) {
-      child.clearBackup();
-    }
+    notifyChilds((child) => child.clearBackup());
   }  
+
+  notifyChilds(Function (dynamic child) cb) {
+    for (dynamic v in _innerMap.values) {
+      if (v.runtimeType == BMap || v.runtimeType == BList) {
+        cb(v);
+      }
+    }
+  }
 
   @override
   dynamic operator [](Object? key) {

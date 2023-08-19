@@ -6,18 +6,9 @@ class BList extends ListBase<dynamic> {
   List _innerList = [];
 
   final List _previousList = [];
-
-  List backupableChilds = [];
   
   BList(List list) {
     _innerList = list;
-
-    for (dynamic v in list) {
-      if (v.runtimeType == BMap || v.runtimeType == BList) {
-        backupableChilds.add(v);
-      }
-    }
-
     _previousList.addAll(_innerList);
   }
 
@@ -25,17 +16,21 @@ class BList extends ListBase<dynamic> {
     _innerList.clear();
     _innerList.addAll(_previousList);
 
-    for (dynamic child in backupableChilds) {
-      child.restoreBackup();
-    }
+    notifyChilds((child) => child.restoreBackup());
   }
 
   clearBackup() {
     _previousList.clear();
     _previousList.addAll(_innerList);
 
-    for (dynamic child in backupableChilds) {
-      child.clearBackup();
+    notifyChilds((child) => child.clearBackup());
+  }
+
+  notifyChilds(Function (dynamic child) cb) {
+    for (dynamic v in _innerList) {
+      if (v.runtimeType == BMap || v.runtimeType == BList) {
+        cb(v);
+      }
     }
   }
   
@@ -55,6 +50,11 @@ class BList extends ListBase<dynamic> {
   @override
   void add(element) {
     _innerList.add(element);
+  }
+
+  @override
+  void clear() {
+    _innerList.clear();
   }
 
   @override

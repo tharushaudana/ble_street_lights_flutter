@@ -23,55 +23,8 @@ class SettingsScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends SafeState<SettingsScreen>
-    with AutomaticKeepAliveClientMixin<SettingsScreen> {
-  /*Map settingsData = {
-    "motionSensor": {
-      "enabled": false,
-      "sensorCount": 1,
-      "holdTime": 1,
-    },
-    "dimmingStages": {
-      "enabled": false,
-      "mode": "manual",
-      "stages": [
-        {
-          "pwm": 70,
-          "from": const TimeOfDay(hour: 19, minute: 30),
-          "to": const TimeOfDay(hour: 20, minute: 30),
-        },
-        {
-          "pwm": 50,
-          "from": const TimeOfDay(hour: 20, minute: 30),
-          "to": const TimeOfDay(hour: 21, minute: 30),
-        }
-      ]
-    },
-  };*/
-
-  BMap settingsData = BMap({
-    "motionSensor": BMap({
-      "enabled": false,
-      "sensorCount": 1,
-      "holdTime": 1,
-    }),
-    "dimmingStages": BMap({
-      "enabled": false,
-      "mode": "manual",
-      "stages": BList([
-        BMap({
-          "pwm": 70,
-          "from": const TimeOfDay(hour: 19, minute: 30),
-          "to": const TimeOfDay(hour: 20, minute: 30),
-        }),
-        BMap({
-          "pwm": 50,
-          "from": const TimeOfDay(hour: 20, minute: 30),
-          "to": const TimeOfDay(hour: 21, minute: 30),
-        })
-      ]),
-    }),
-  });
+class _SettingsScreenState extends SafeState<SettingsScreen> {
+  late BMap settingsData;
 
   Widget _settingCard(
     Widget child, {
@@ -132,6 +85,7 @@ class _SettingsScreenState extends SafeState<SettingsScreen>
 
   @override
   void dispose() {
+    //settingsData.restoreBackup();
     super.dispose();
   }
 
@@ -139,16 +93,17 @@ class _SettingsScreenState extends SafeState<SettingsScreen>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-
     return Consumer<BLEDeviceConnectionProvider>(builder: (
       context,
       provider,
       _,
     ) {
 
-      if (!isSettingsLoaded && provider.deviceData.loadSettingsDataForSettingsTab(settingsData)) {
-        isSettingsLoaded = true;
+      if (!isSettingsLoaded) {
+        provider.deviceData.loadSettingsData('settingstab', (data, success) {
+          settingsData = data;
+          isSettingsLoaded = success;
+        });
       }
 
       return Column(

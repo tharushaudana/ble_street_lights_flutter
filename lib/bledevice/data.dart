@@ -1,5 +1,6 @@
 import 'package:ble_street_lights/backupableitrs/blist/blist.dart';
 import 'package:ble_street_lights/backupableitrs/bmap/bmap.dart';
+import 'package:ble_street_lights/bledevice/defaultsettings.dart';
 import 'package:flutter/material.dart';
 
 class BLEDeviceData {
@@ -7,9 +8,44 @@ class BLEDeviceData {
   Map? currentValues;
   Map? settingValues;
 
+  final Map settingsData = getDefaultSettings();
+
   bool isLoadedSettingsDataForHomeTab = false;
   bool isLoadedSettingsDataForAstroTab = false;
   bool isLoadedSettingsDataForSettingsTab = false;
+
+  bool isSettingsInitializedWithFromCurrentValues = false;
+  bool isSettingsInitializedWithFromSettingValues = false;
+
+  setCurrentValues(Map values) {
+    currentValues = values;
+    
+    if (isSettingsInitializedWithFromCurrentValues) {
+      return;
+    } else {
+      isSettingsInitializedWithFromCurrentValues = true;
+    }
+
+    loadSettingsDataForHomeTab(settingsData['hometab']);
+  }
+
+  setSettingValues(Map values) {
+    settingValues = values;
+
+    if (isSettingsInitializedWithFromSettingValues) {
+      return;
+    } else {
+      isSettingsInitializedWithFromSettingValues = true;
+    }
+
+    loadSettingsDataForAstroTab(settingsData['astrotab']);
+    loadSettingsDataForSettingsTab(settingsData['settingstab']);
+  } 
+
+  loadSettingsData(String tabName, Function(BMap data, bool success) cb) {
+    bool success = !(currentValues == null || settingValues == null || !settingsData.containsKey(tabName));
+    cb(settingsData[tabName], success);
+  }
 
   bool loadSettingsDataForHomeTab(BMap data) {
     if (currentValues == null) return false;
@@ -19,13 +55,11 @@ class BLEDeviceData {
     data["lamps"] = BList([]);
 
     for (String k in ['a', 'b', 'c', 'd']) {
-      data["lamps"].add({
+      data["lamps"].add(BMap({
         "pwm": currentValue("w.$k", 0),
         "rvalue": currentValue("r.$k", 0),
-      });
+      }));
     }
-
-    print(currentValues);
 
     data.clearBackup();
 
@@ -81,7 +115,7 @@ class BLEDeviceData {
       String from = settingValue<List>("d.f", [])[i];
       String to = settingValue<List>("d.o", [])[i];
 
-      data["dimmingStages"]["stages"].add({
+      data["dimmingStages"]["stages"].add(BMap({
         "pwm": pwm,
         "from": TimeOfDay(
           hour: int.parse(from.split(".")[0]),
@@ -91,7 +125,7 @@ class BLEDeviceData {
           hour: int.parse(to.split(".")[0]),
           minute: int.parse(to.split(".")[1]),
         ),
-      });
+      }));
     }
 
     data.clearBackup();
