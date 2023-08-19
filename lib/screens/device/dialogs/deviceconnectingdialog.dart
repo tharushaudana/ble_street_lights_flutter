@@ -50,7 +50,7 @@ class _DeviceConnectingDialogState extends SafeState<DeviceConnectingDialog> {
 
     _blueWaveGif = const AssetImage("assets/images/blue-wave.gif");
 
-    Future.delayed(const Duration(milliseconds: 2000), () {
+    Future.delayed(const Duration(milliseconds: 4000), () {
       connectDevice();
     });
   }

@@ -265,8 +265,8 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Row(
           children: [
-            Text("Home"),
-            Spacer(),
+            const Text("Smart Street Light Controller"),
+            const Spacer(),
             selectedDeviceIds.isNotEmpty
                 ? Row(
                     children: [

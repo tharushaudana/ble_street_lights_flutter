@@ -351,7 +351,7 @@ class _AstroScreenState extends State<AstroScreen> {
                                         Icon(
                                           isDayTime
                                               ? Icons.wb_sunny_rounded
-                                              : Icons.nightlight_round,
+                                              : Icons.nights_stay,
                                           size: 30,
                                           color: Colors.orange,
                                         ),

@@ -19,6 +19,8 @@ class ManualMode extends StatelessWidget {
   final Function(int value) onChangeLampValue;
   final Function(int rvalue) onChangeRelayValue;
 
+  List disabled = [2, 3];
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -106,67 +108,70 @@ class ManualMode extends StatelessWidget {
             child: Row(
               children: [
                 for (int i = 0; i < settingsData["lamps"].length; i++)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 55,
-                        height: 55,
-                        margin: EdgeInsets.symmetric(
-                          vertical: 0,
-                          horizontal: 10,
-                        ),
-                        padding: EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          border: selectedLampIndex == i
-                              ? Border.all(
-                                  width: 0.5,
-                                  color: Colors.blue,
-                                )
-                              : null,
-                          shape: BoxShape.circle,
-                        ),
-                        child: GestureDetector(
-                          onTap: () {
-                            if (i == selectedLampIndex) return;
-                            onChangeSelectIndex(i);
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: selectedLampIndex == i
-                                  ? Colors.blue
-                                  : Colors.white,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.shade300,
-                                  offset: const Offset(0, 1),
-                                  blurRadius: 10,
-                                  //spreadRadius: 2,
-                                ),
-                              ],
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.lightbulb_outline_rounded,
-                              size: 20,
-                              color: selectedLampIndex == i
-                                  ? Colors.white
-                                  : Colors.grey,
+                  Opacity(
+                    opacity: disabled.contains(i) ? 0.4 : 1,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 55,
+                          height: 55,
+                          margin: EdgeInsets.symmetric(
+                            vertical: 0,
+                            horizontal: 10,
+                          ),
+                          padding: EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            color: Colors.transparent,
+                            border: selectedLampIndex == i
+                                ? Border.all(
+                                    width: 0.5,
+                                    color: Colors.blue,
+                                  )
+                                : null,
+                            shape: BoxShape.circle,
+                          ),
+                          child: GestureDetector(
+                            onTap: () {
+                              if (i == selectedLampIndex || disabled.contains(i)) return;
+                              onChangeSelectIndex(i);
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: selectedLampIndex == i
+                                    ? Colors.blue
+                                    : Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.shade300,
+                                    offset: const Offset(0, 1),
+                                    blurRadius: 10,
+                                    //spreadRadius: 2,
+                                  ),
+                                ],
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.lightbulb_outline_rounded,
+                                size: 20,
+                                color: selectedLampIndex == i
+                                    ? Colors.white
+                                    : Colors.grey,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        "LAMP ${(i + 1)}",
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
+                        const SizedBox(height: 6),
+                        Text(
+                          "LAMP ${(i + 1)}",
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 10,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
               ],
             ),

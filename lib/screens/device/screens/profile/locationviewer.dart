@@ -1,7 +1,10 @@
+import 'package:ble_street_lights/safestate/safestate.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'dart:ui' as ui;
 
 class DeviceLocationViewer extends StatefulWidget {
   const DeviceLocationViewer({
@@ -23,7 +26,30 @@ class DeviceLocationViewer extends StatefulWidget {
   State<StatefulWidget> createState() => _DeviceLocationViewerState();
 }
 
-class _DeviceLocationViewerState extends State<DeviceLocationViewer> {
+class _DeviceLocationViewerState extends SafeState<DeviceLocationViewer> {
+  BitmapDescriptor customIcon = BitmapDescriptor.defaultMarker;
+  
+  _getCustomIcon() async {
+    final Uint8List markerIcon = await _getBytesFromAsset('assets/images/mapmarker.png', 65);
+
+    setState(() {
+      customIcon = BitmapDescriptor.fromBytes(markerIcon);
+    });
+  }
+
+  Future<Uint8List> _getBytesFromAsset(String path, int width) async {
+    ByteData data = await rootBundle.load(path);
+    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(), targetWidth: width);
+    ui.FrameInfo info = await codec.getNextFrame();
+    return (await info.image.toByteData(format: ui.ImageByteFormat.png))!.buffer.asUint8List();
+  }
+
+  @override
+  void initState() {
+    _getCustomIcon();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final map = GoogleMap(
@@ -48,6 +74,7 @@ class _DeviceLocationViewerState extends State<DeviceLocationViewer> {
             title: widget.deviceName,
             //snippet: "lat: ${widget.position.latitude} \n lng: ${widget.position.longitude}",
           ),
+          icon: customIcon,
         ),
       },
       onMapCreated: (GoogleMapController controller) {
@@ -58,7 +85,6 @@ class _DeviceLocationViewerState extends State<DeviceLocationViewer> {
     );
 
     //### Render the Widget
-
     if (widget.isPreview) {
       return Stack(
         children: [

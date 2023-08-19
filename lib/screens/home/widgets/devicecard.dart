@@ -100,7 +100,7 @@ class _DeviceCardState extends State<DeviceCard> with TickerProviderStateMixin {
                   duration: const Duration(milliseconds: 600),
                   flipped: widget.selected,
                   front: const Image(
-                    image: AssetImage("assets/images/device_icon.png"),
+                    image: AssetImage("assets/images/mapmarker.png"),
                     width: 48,
                     height: 48,
                   ),

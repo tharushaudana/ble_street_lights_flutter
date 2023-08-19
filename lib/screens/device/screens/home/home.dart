@@ -57,10 +57,11 @@ class _DeviceHomeScreenState extends SafeState<DeviceHomeScreen> {
         
         int currentBrightness = provider.deviceData.currentValue<int>("a.b", 0);
         Map currentStage = {};
-        List relayStates = [0, 0, 0, 0];
+        List relayStates = [];
 
         try {
           relayStates  = provider.deviceData.currentValue<Map>("r", {}).values.toList();
+          if (relayStates.isEmpty) relayStates = [0, 0, 0, 0];
         } catch (e) {}
 
         if (currentStageIndex > -1) {

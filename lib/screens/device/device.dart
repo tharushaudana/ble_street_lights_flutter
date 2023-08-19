@@ -130,7 +130,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
                     const Hero(
                       tag: 'img_profile',
                       child: Image(
-                        image: AssetImage("assets/images/device_icon.png"),
+                        image: AssetImage("assets/images/mapmarker.png"),
                         width: 40,
                         height: 40,
                       ),

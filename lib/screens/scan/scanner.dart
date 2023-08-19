@@ -29,6 +29,7 @@ class _ScannerState extends State<Scanner> {
 
   scanForDevices() {
     bluetooth.startScan(
+      timeout: 30,
       started: () {
         radarController.startScan();
 

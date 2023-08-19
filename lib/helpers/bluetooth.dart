@@ -50,6 +50,7 @@ class BluetoothHelper extends Helper {
   }
 
   Future<void> startScan({
+    int timeout = 5,
     VoidCallback? started,
     VoidCallback? stopped,
   }) async {
@@ -65,7 +66,7 @@ class BluetoothHelper extends Helper {
         isScanning = true;
       });
 
-      await flutterBlue.startScan(timeout: Duration(seconds: 5)).then((value) {
+      await flutterBlue.startScan(timeout: Duration(seconds: timeout)).then((value) {
         if (stopped != null) stopped();
 
         setState(() {

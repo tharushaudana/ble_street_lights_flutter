@@ -3,7 +3,7 @@ import 'package:ble_street_lights/components/gradientslider/gradientslider.dart'
 import 'package:flutter/material.dart';
 
 class AstroMode extends StatelessWidget {
-  const AstroMode({
+  AstroMode({
     super.key,
     required this.stage,
     required this.currentBrightness,
@@ -13,6 +13,8 @@ class AstroMode extends StatelessWidget {
   final Map stage;
   final int currentBrightness;
   final List relayStates;
+
+  List disabled = [2, 3];
 
   @override
   Widget build(BuildContext context) {
@@ -109,63 +111,66 @@ class AstroMode extends StatelessWidget {
               child: Row(
                 children: [
                   for (int i = 0; i < 4; i++)
-                    Container(
-                      margin: EdgeInsets.symmetric(
-                        vertical: 0,
-                        horizontal: 10,
-                      ),
-                      child: Column(
-                        children: [
-                          Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              CircularValueIndicator(
-                                size: 55,
-                                highColor: Color(0xffffd4cb),
-                                //highColor: Color(0xff55d0ff),
-                                lowColor: Colors.blue,
-                                //lowColor: Color(0xff413be7),
-                                trackWidth: 3,
-                                value: currentBrightness.toDouble(),
-                              ),
-                              Container(
-                                width: 45,
-                                height: 45,
-                                padding: EdgeInsets.all(5),
-                                decoration: BoxDecoration(
-                                  color: relayStates[i] == 1
-                                      ? Colors.blue
-                                      : Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.shade300,
-                                      offset: const Offset(0, 1),
-                                      blurRadius: 10,
-                                      //spreadRadius: 2,
-                                    ),
-                                  ],
-                                  shape: BoxShape.circle,
+                    Opacity(
+                      opacity: disabled.contains(i) ? 0.4 : 1,
+                      child: Container(
+                        margin: EdgeInsets.symmetric(
+                          vertical: 0,
+                          horizontal: 10,
+                        ),
+                        child: Column(
+                          children: [
+                            Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                CircularValueIndicator(
+                                  size: 55,
+                                  highColor: Color(0xffffd4cb),
+                                  //highColor: Color(0xff55d0ff),
+                                  lowColor: Colors.blue,
+                                  //lowColor: Color(0xff413be7),
+                                  trackWidth: 3,
+                                  value: currentBrightness.toDouble(),
                                 ),
-                                child: Icon(
-                                  Icons.lightbulb_outline_rounded,
-                                  size: 20,
-                                  color: relayStates[i] == 1
-                                      ? Colors.white
-                                      : Colors.grey,
+                                Container(
+                                  width: 45,
+                                  height: 45,
+                                  padding: EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    color: relayStates[i] == 1
+                                        ? Colors.blue
+                                        : Colors.white,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.shade300,
+                                        offset: const Offset(0, 1),
+                                        blurRadius: 10,
+                                        //spreadRadius: 2,
+                                      ),
+                                    ],
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.lightbulb_outline_rounded,
+                                    size: 20,
+                                    color: relayStates[i] == 1
+                                        ? Colors.white
+                                        : Colors.grey,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            "LAMP ${(i + 1)}",
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 10,
+                              ],
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 6),
+                            Text(
+                              "LAMP ${(i + 1)}",
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                 ],

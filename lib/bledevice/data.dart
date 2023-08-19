@@ -19,7 +19,7 @@ class BLEDeviceData {
 
   setCurrentValues(Map values) {
     currentValues = values;
-    
+
     if (isSettingsInitializedWithFromCurrentValues) {
       return;
     } else {
@@ -40,10 +40,12 @@ class BLEDeviceData {
 
     loadSettingsDataForAstroTab(settingsData['astrotab']);
     loadSettingsDataForSettingsTab(settingsData['settingstab']);
-  } 
+  }
 
   loadSettingsData(String tabName, Function(BMap data, bool success) cb) {
-    bool success = !(currentValues == null || settingValues == null || !settingsData.containsKey(tabName));
+    bool success = !(currentValues == null ||
+        settingValues == null ||
+        !settingsData.containsKey(tabName));
     cb(settingsData[tabName], success);
   }
 
@@ -144,28 +146,30 @@ class BLEDeviceData {
   }
 
   _getValue<T>(Map source, String path, T noneValue) {
-    List<String> keys = path.split(".");
+    try {
+      List<String> keys = path.split(".");
 
-    if (!source.containsKey(keys[0])) return noneValue;
+      if (!source.containsKey(keys[0])) return noneValue;
 
-    if (keys.length == 1) return source[keys[0]];
+      if (keys.length == 1) return source[keys[0]];
 
-    Map sector = source[keys[0]];
+      Map sector = source[keys[0]];
 
-    for (int i = 1; i < keys.length; i++) {
-      if (!sector.containsKey(keys[i])) return noneValue;
+      for (int i = 1; i < keys.length; i++) {
+        if (!sector.containsKey(keys[i])) return noneValue;
 
-      if (i == keys.length - 1) {
-        try {
-          return sector[keys[i]];
-        } catch (e) {
-          return noneValue;
+        if (i == keys.length - 1) {
+          try {
+            return sector[keys[i]];
+          } catch (e) {
+            return noneValue;
+          }
+        } else {
+          sector = sector[keys[i]];
         }
-      } else {
-        sector = sector[keys[i]];
       }
+    } catch (e) {
+      return noneValue;
     }
-
-    return noneValue;
   }
 }
