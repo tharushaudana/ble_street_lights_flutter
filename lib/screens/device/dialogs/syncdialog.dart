@@ -89,7 +89,7 @@ class _DeviceSyncDialogState extends SafeState<DeviceSyncDialog> {
 
   _start() {
     setState(() {
-      _timeout = 5; // in secs
+      _timeout = 15; // in secs
       _isFailed = false;
       _isCompleted = false;
       title = widget.title;

@@ -29,12 +29,28 @@ class SyncButton extends StatefulWidget {
 }
 
 class _SyncButtonState extends State<SyncButton> {
+  late Timer _timer;
+
+  int _timeout = 0;
   bool canSync = true;
   bool isSyncing = false;
   bool syncCompleted = false;
 
   syncNow(Map data) {
+    _timeout = 5;
     syncCompleted = false;
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      _timeout--;
+
+      if (_timeout == 0) {
+        syncCompleted = false;
+        showSyncing(false);
+        widget.onResult(false);
+
+        _timer.cancel();
+      }
+    });
 
     BLEDeviceRequest request = BLEDeviceRequest(widget.action)
       ..subject(widget.subject)
@@ -42,11 +58,13 @@ class _SyncButtonState extends State<SyncButton> {
 
     request.listen(
       onSuccess: (_) {
+        _timer.cancel();
         syncCompleted = true;
         showSyncing(false);
         widget.onResult(true);
       },
       onTimeOut: () {
+        _timer.cancel();
         syncCompleted = false;
         showSyncing(false);
         widget.onResult(false);
@@ -61,6 +79,15 @@ class _SyncButtonState extends State<SyncButton> {
       if (b && canSync) canSync = false;
       isSyncing = b;
     });
+  }
+
+  @override
+  void dispose() {
+    try {
+      _timer.cancel();
+    } catch (e) {}
+
+    super.dispose();
   }
 
   @override
