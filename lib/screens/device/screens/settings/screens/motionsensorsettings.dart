@@ -73,9 +73,9 @@ class _MotionSensorSettingsScreenState
           boxShadow: shadow
               ? [
                   BoxShadow(
-                    color: Colors.grey.shade300,
-                    offset: const Offset(0, 1),
-                    blurRadius: 5,
+                    color: Colors.grey.shade400,
+                    offset: const Offset(0, 1.5),
+                    blurRadius: 2,
                     //spreadRadius: 2,
                   ),
                 ]

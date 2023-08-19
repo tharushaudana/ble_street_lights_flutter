@@ -61,6 +61,12 @@ class _CircularValueIndicatorState extends State<CircularValueIndicator>
   }
 
   @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (_currentSettedValue != widget.value || (!_isAnimRunning && _value != widget.value)) {
       _currentSettedValue = widget.value;

@@ -10,6 +10,7 @@ class BLEDeviceRequest {
   late DateTime buildAt;
 
   Function(BLEDeviceMessage response)? onSuccess;
+  Function(String err)? onFailed;
   VoidCallback? onTimeOut;
 
   BLEDeviceRequest(String action) {
@@ -26,8 +27,13 @@ class BLEDeviceRequest {
     return this;
   }
 
-  listen({Function(BLEDeviceMessage response)? onSuccess, VoidCallback? onTimeOut,}) {
+  listen({
+    Function(BLEDeviceMessage response)? onSuccess,
+    Function(String err)? onFailed,
+    VoidCallback? onTimeOut,
+  }) {
     this.onSuccess = onSuccess;
+    this.onFailed = onFailed;
     this.onTimeOut = onTimeOut;
   }
 

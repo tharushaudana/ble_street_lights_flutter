@@ -3,6 +3,7 @@ import 'package:ble_street_lights/backupableitrs/blist/blist.dart';
 import 'package:ble_street_lights/backupableitrs/bmap/bmap.dart';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/components/badgeswitch/badgeswitch.dart';
+import 'package:ble_street_lights/extensions/withopacitynotrans/colorwithopacitynotrans.dart';
 import 'package:ble_street_lights/screens/device/screens/home/manualmode.dart';
 import 'package:ble_street_lights/screens/device/screens/home/syncbtn.dart';
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
@@ -73,9 +74,9 @@ class _DeviceHomeScreenState extends SafeState<DeviceHomeScreen> {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.grey.shade300,
-                              offset: const Offset(0, 1),
-                              blurRadius: 5,
+                              color: Colors.grey.shade400,
+                              offset: const Offset(0, 1.5),
+                              blurRadius: 2,
                               //spreadRadius: 2,
                             ),
                           ],
@@ -114,7 +115,7 @@ class _DeviceHomeScreenState extends SafeState<DeviceHomeScreen> {
                                 alignment: Alignment.center,
                                 padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: Colors.blue,
+                                  color: Colors.black87,
                                   borderRadius: BorderRadius.circular(30),
                                 ),
                                 child: const Text(
@@ -153,9 +154,9 @@ class _DeviceHomeScreenState extends SafeState<DeviceHomeScreen> {
                           color: Colors.white,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.grey.shade300,
-                              offset: const Offset(0, 1),
-                              blurRadius: 5,
+                              color: Colors.grey.shade400,
+                              offset: const Offset(0, 1.5),
+                              blurRadius: 2,
                               //spreadRadius: 2,
                             ),
                           ],
@@ -256,9 +257,9 @@ class _DeviceHomeScreenState extends SafeState<DeviceHomeScreen> {
                           color: Colors.white,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.grey.shade300,
-                              offset: const Offset(0, 1),
-                              blurRadius: 5,
+                              color: Colors.grey.shade400,
+                              offset: const Offset(0, 1.5),
+                              blurRadius: 2,
                               //spreadRadius: 2,
                             ),
                           ],
@@ -294,14 +295,14 @@ class _DeviceHomeScreenState extends SafeState<DeviceHomeScreen> {
                                       decoration: BoxDecoration(
                                         color: Colors.white,
                                         border: Border.all(
-                                          width: 0.5,
+                                          width: 1,
                                           color: Colors.blue,
                                         ),
                                         boxShadow: [
                                           BoxShadow(
                                             color: Colors.grey.shade300,
                                             offset: const Offset(0, 1),
-                                            blurRadius: 10,
+                                            blurRadius: 5,
                                             //spreadRadius: 2,
                                           ),
                                         ],
@@ -326,7 +327,7 @@ class _DeviceHomeScreenState extends SafeState<DeviceHomeScreen> {
               SizedBox(
                 height: double.infinity,
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Spacer(),
                     Container(
@@ -336,7 +337,7 @@ class _DeviceHomeScreenState extends SafeState<DeviceHomeScreen> {
                         horizontal: 15,
                         vertical: 10,
                       ),
-                      margin: EdgeInsets.only(bottom: 150),
+                      margin: EdgeInsets.only(top: 170),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.only(

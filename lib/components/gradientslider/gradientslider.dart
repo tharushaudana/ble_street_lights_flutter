@@ -213,11 +213,11 @@ class GradientSliderPainer extends CustomPainter {
 
     //### draw Shadow
     canvas.drawCircle(
-      c.copyWith(dy: size.height - trackHeight / 2 + 5),
-      thumbSize / 2 + 5,
+      c.copyWith(dy: size.height - trackHeight / 2 + 3),
+      thumbSize / 2,
       Paint()
         ..color = Colors.black.withOpacity(0.2)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5.0),
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2.0),
     );
 
     //### draw Circles

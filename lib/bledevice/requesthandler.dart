@@ -15,9 +15,12 @@ class BLEDeviceRequestHandler {
 
     List<int> bytes = utf8.encode(request.buildJson(++_lastTokenId).trim());
 
-    characteristic!.write(bytes);
-
-    requests[_lastTokenId] = request;
+    try {
+      characteristic!.write(bytes);
+      requests[_lastTokenId] = request;
+    } catch (e) {
+      request.onFailed!("Failed to Send!");
+    }
   }
 
   watchForResponse(BLEDeviceMessage message) {
@@ -28,5 +31,7 @@ class BLEDeviceRequestHandler {
     if (request.onSuccess != null) {
       request.onSuccess!(message);
     }
+
+    requests.remove(message.type);
   }
 }

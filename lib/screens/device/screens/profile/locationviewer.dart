@@ -34,7 +34,7 @@ class _DeviceLocationViewerState extends State<DeviceLocationViewer> {
       myLocationButtonEnabled: !widget.isPreview,
       initialCameraPosition: CameraPosition(
         target: widget.position,
-        zoom: 15.5,
+        zoom: 19,
       ),
       zoomControlsEnabled: false,
       gestureRecognizers: {

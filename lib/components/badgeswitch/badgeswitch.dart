@@ -1,3 +1,4 @@
+import 'package:ble_street_lights/safestate/safestate.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
@@ -23,7 +24,7 @@ class BadgeSwitch extends StatefulWidget {
   State<StatefulWidget> createState() => _BadgeSwitchState();
 }
 
-class _BadgeSwitchState extends State<BadgeSwitch> with SingleTickerProviderStateMixin {
+class _BadgeSwitchState extends SafeState<BadgeSwitch> with SingleTickerProviderStateMixin {
   late List _childOrder;
   bool _changeOrder = false;
 
@@ -67,10 +68,11 @@ class _BadgeSwitchState extends State<BadgeSwitch> with SingleTickerProviderStat
       ),
     )..addListener(() {
         if (_animation.value == 1)  {
-          _animRunning = false;
           _changeOrder = true;
           _percentage = 0;
           _animController.reset();
+          _animRunning = false;
+
         } else {
           _percentage = _animation.value;
         }
@@ -78,6 +80,12 @@ class _BadgeSwitchState extends State<BadgeSwitch> with SingleTickerProviderStat
       });
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
   }
 
   @override

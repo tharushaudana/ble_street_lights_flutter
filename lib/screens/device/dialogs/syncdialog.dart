@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -21,6 +23,9 @@ class DeviceSyncDialog extends StatefulWidget {
 class _DeviceSyncDialogState extends SafeState<DeviceSyncDialog> {
   late SyncDialogController controller;
 
+  late Timer _timer;
+
+  int _timeout = 0; // in secs
   bool _isFailed = false;
   bool _isCompleted = false;
 
@@ -35,6 +40,8 @@ class _DeviceSyncDialogState extends SafeState<DeviceSyncDialog> {
   }
 
   completed({bool close = false}) {
+    _timer.cancel();
+
     if (!close) {
       setState(() {
         _isCompleted = true;
@@ -56,6 +63,19 @@ class _DeviceSyncDialogState extends SafeState<DeviceSyncDialog> {
       _isCompleted = false;
     });
 
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      _timeout--;
+
+      if (_timeout == 0) {
+        setState(() {
+          _isFailed = true;
+          title = "Request Timeout!";
+        });
+
+        _timer.cancel();
+      }
+    });
+
     widget.doSync(this);
   }
 
@@ -67,16 +87,12 @@ class _DeviceSyncDialogState extends SafeState<DeviceSyncDialog> {
     }
   }
 
-  @override
-  void initState() {
-    title = widget.title;
-
-    _doneGif = const AssetImage("assets/images/done-loop-10.gif");
-
-    super.initState();
-
-    controller = SyncDialogController(onChangeTitle: (String title) {
-      changeTitle(title);
+  _start() {
+    setState(() {
+      _timeout = 5; // in secs
+      _isFailed = false;
+      _isCompleted = false;
+      title = widget.title;
     });
 
     Future.delayed(const Duration(milliseconds: 2000), () {
@@ -85,8 +101,33 @@ class _DeviceSyncDialogState extends SafeState<DeviceSyncDialog> {
   }
 
   @override
+  void initState() {
+    title = widget.title;
+
+    _doneGif = const AssetImage("assets/images/done-loop-10.gif");
+
+    super.initState();
+
+    controller = SyncDialogController(
+      onChangeTitle: (String title) {
+        changeTitle(title);
+      },
+      onFailed: () {
+        failed();
+      },
+    );
+
+    _start();
+  }
+
+  @override
   void dispose() {
     _doneGif.evict();
+
+    try {
+      _timer.cancel();
+    } catch (e) {}
+
     super.dispose();
   }
 
@@ -120,7 +161,7 @@ class _DeviceSyncDialogState extends SafeState<DeviceSyncDialog> {
                         size: 80,
                         color: Colors.green.shade600,
                       ).animate().fade(duration: 500.ms),*/
-                      Image(
+                    Image(
                         image: _doneGif,
                         width: 85,
                         height: 85,
@@ -134,7 +175,38 @@ class _DeviceSyncDialogState extends SafeState<DeviceSyncDialog> {
                 ),
               ),
             ),
-            _isFailed || _isCompleted
+            _isCompleted
+                ? TextButton(
+                    onPressed: () {
+                      _close();
+                    },
+                    child: const Text("CLOSE"),
+                  )
+                : _isFailed
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          TextButton(
+                            onPressed: () {
+                              _start();
+                            },
+                            child: const Text("TRY AGAIN"),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              _close();
+                            },
+                            child: const Text(
+                              "CLOSE",
+                              style: TextStyle(
+                                color: Colors.red,
+                              ),
+                            ),
+                          )
+                        ],
+                      )
+                    : Container(),
+            /*_isFailed || _isCompleted
                 ? TextButton(
                     onPressed: () {
                       //connectDevice();
@@ -142,7 +214,7 @@ class _DeviceSyncDialogState extends SafeState<DeviceSyncDialog> {
                     },
                     child: const Text("CLOSE"),
                   )
-                : Container(),
+                : Container(),*/
           ],
         ),
       ),
@@ -151,11 +223,19 @@ class _DeviceSyncDialogState extends SafeState<DeviceSyncDialog> {
 }
 
 class SyncDialogController {
-  SyncDialogController({required this.onChangeTitle});
+  SyncDialogController({
+    required this.onChangeTitle,
+    required this.onFailed,
+  });
 
   final Function(String title) onChangeTitle;
+  final VoidCallback onFailed;
 
   changeTitle(String title) {
     onChangeTitle(title);
+  }
+
+  failed() {
+    onFailed();
   }
 }

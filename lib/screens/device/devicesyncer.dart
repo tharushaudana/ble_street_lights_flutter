@@ -9,18 +9,18 @@ Future<bool> showDeviceSyncDialog({
   required BLEDeviceConnectionProvider provider,
   required String action,
   required String subject,
-  required Map data,
-  required Function(SyncDialogController dialogController, VoidCallback sendNow) doSync,
+  Map? data,
+  required Function(
+    SyncDialogController dialogController,
+    Function({Map? d}) sendNow,
+  ) doSync,
   bool closeOnSuccess = false,
   String initialText = "Syncing Settings...",
   String successText = "Sync Completed.",
-  String failedText = "Sync Failed!"
+  String failedText = "Sync Failed!",
 }) {
+  
   final c = Completer<bool>();
-
-  BLEDeviceRequest request = BLEDeviceRequest(action)
-    ..subject(subject)
-    ..data(data);
 
   showDialog(
     context: context,
@@ -28,20 +28,31 @@ Future<bool> showDeviceSyncDialog({
     builder: (context) => DeviceSyncDialog(
       title: initialText,
       doSync: (dialog) {
-        request.listen(
-          onSuccess: (_) {
-            c.complete(true);
-            dialog.completed(close: closeOnSuccess);
-            if (!closeOnSuccess) dialog.changeTitle(successText);
-          },
-          onTimeOut: () {
-            c.complete(false);
-            dialog.failed();
-            dialog.changeTitle(failedText);
-          },
-        );
+        doSync(dialog.controller, ({Map? d}) {
+          if (data == null && d == null) return;
 
-        doSync(dialog.controller, () {
+          BLEDeviceRequest request = BLEDeviceRequest(action)
+            ..subject(subject)
+            ..data(data ?? d!);
+
+          request.listen(
+            onSuccess: (_) {
+              c.complete(true);
+              dialog.completed(close: closeOnSuccess);
+              if (!closeOnSuccess) dialog.changeTitle(successText);
+            },
+            onFailed: (err) {
+              c.complete(false);
+              dialog.failed();
+              dialog.changeTitle(err);
+            },
+            onTimeOut: () {
+              c.complete(false);
+              dialog.failed();
+              dialog.changeTitle(failedText);
+            },
+          );
+
           provider.makeRequest(request);
         });
       },

@@ -74,7 +74,31 @@ class ManualMode extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 10),
+        GradientSlider(
+          onChange: (value) {
+            onChangeLampValue(value.toInt());
+          },
+          min: 0,
+          max: 100,
+          value: settingsData["lamps"][selectedLampIndex]["pwm"].toDouble(),
+          intLabel: true,
+          height: 55,
+          trackHeight: 10,
+          thumbSize: 30,
+          tricksCount: 50,
+          tricksHeight: 15,
+          colors: const [
+            Colors.blue,
+            Color(0xffffd4cb)
+          ],
+          thumbBorderColor: Colors.blue,
+          thumbLabelTextStyle: const TextStyle(
+            color: Colors.blue,
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 20),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -143,30 +167,6 @@ class ManualMode extends StatelessWidget {
                   ],
                 ),
             ],
-          ),
-        ),
-        GradientSlider(
-          onChange: (value) {
-            onChangeLampValue(value.toInt());
-          },
-          min: 0,
-          max: 100,
-          value: settingsData["lamps"][selectedLampIndex]["pwm"].toDouble(),
-          intLabel: true,
-          height: 60,
-          trackHeight: 10,
-          thumbSize: 30,
-          tricksCount: 50,
-          tricksHeight: 15,
-          colors: const [
-            Colors.blue,
-            Color(0xffffd4cb)
-          ],
-          thumbBorderColor: Colors.blue,
-          thumbLabelTextStyle: const TextStyle(
-            color: Colors.blue,
-            fontSize: 11,
-            fontWeight: FontWeight.bold,
           ),
         ),
       ],

@@ -11,6 +11,7 @@ import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 import 'package:time_range_picker/time_range_picker.dart';
 import 'dart:math' as math;
 import 'dart:developer';
+import 'package:ble_street_lights/safestate/safestate.dart';
 
 class DimmingStagesSettingsScreen extends StatefulWidget {
   const DimmingStagesSettingsScreen({
@@ -30,7 +31,6 @@ class DimmingStagesSettingsScreen extends StatefulWidget {
 
 class _DimmingStagesSettingsScreenState
     extends State<DimmingStagesSettingsScreen> {
-
   Future<bool> syncSettings(
     BLEDeviceConnectionProvider provider,
     Map data, {
@@ -78,9 +78,9 @@ class _DimmingStagesSettingsScreenState
           boxShadow: shadow
               ? [
                   BoxShadow(
-                    color: Colors.grey.shade300,
-                    offset: const Offset(0, 1),
-                    blurRadius: 5,
+                    color: Colors.grey.shade400,
+                    offset: const Offset(0, 1.5),
+                    blurRadius: 2,
                     //spreadRadius: 2,
                   ),
                 ]
@@ -152,7 +152,7 @@ class _DimmingStagesSettingsScreenState
                     setState(() {
                       widget.settingsData["enabled"] = will;
                     });
-                    
+
                     if (will) {
                       return true;
                     }
@@ -354,8 +354,10 @@ class _DimmingStagesSettingsScreenState
 
                             for (var stage in widget.settingsData['stages']) {
                               data['b'].add(stage['pwm']);
-                              data['f'].add(stage['from'].hour + stage['from'].minute / 100);
-                              data['o'].add(stage['to'].hour + stage['to'].minute / 100);
+                              data['f'].add(stage['from'].hour +
+                                  stage['from'].minute / 100);
+                              data['o'].add(
+                                  stage['to'].hour + stage['to'].minute / 100);
                             }
                           }
 
@@ -398,11 +400,9 @@ class ManualStagesDialog extends StatefulWidget {
   State<StatefulWidget> createState() => _ManualStagesDialogState();
 }
 
-class _ManualStagesDialogState extends State<ManualStagesDialog>
+class _ManualStagesDialogState extends SafeState<ManualStagesDialog>
     with TickerProviderStateMixin {
   late TabController _tabController;
-
-  List unfinishedStages = [];
 
   addStage() async {
     TimeRange? range = await openTimeRangePicker();
@@ -577,57 +577,59 @@ class _ManualStagesDialogState extends State<ManualStagesDialog>
                 ),
               ),
               const SizedBox(height: 10),
-              TextButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text("Are you sure ?"),
-                      content: const Text(
-                          "After delete this stage, it can't be undo."),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            deleteStage(index);
-                            Navigator.pop(context);
-                          },
-                          child: const Text(
+              widget.stages.length > 1
+                  ? TextButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text("Are you sure ?"),
+                            content: const Text(
+                                "After delete this stage, it can't be undo."),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  deleteStage(index);
+                                  Navigator.pop(context);
+                                },
+                                child: const Text(
+                                  "DELETE",
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text("CANCEL"),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.delete,
+                            color: Colors.red.withOpacity(0.7),
+                            size: 20,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
                             "DELETE",
                             style: TextStyle(
-                              color: Colors.red,
+                              color: Colors.red.withOpacity(0.7),
+                              fontSize: 13,
                             ),
                           ),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text("CANCEL"),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.delete,
-                      color: Colors.red.withOpacity(0.7),
-                      size: 20,
-                    ),
-                    const SizedBox(width: 5),
-                    Text(
-                      "DELETE",
-                      style: TextStyle(
-                        color: Colors.red.withOpacity(0.7),
-                        fontSize: 13,
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-              ),
+                    )
+                  : Container(),
             ],
           ),
         ],
