@@ -1,6 +1,8 @@
 import 'dart:developer';
 import 'dart:ui';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
+import 'package:ble_street_lights/backupableitrs/blist/blist.dart';
+import 'package:ble_street_lights/backupableitrs/bmap/bmap.dart';
 import 'package:ble_street_lights/components/sliverpersistentheaderbuilder/sliverpersistentheaderbuilder.dart';
 import 'package:ble_street_lights/components/neumorphismbutton/neumorphismbutton.dart';
 import 'package:ble_street_lights/safestate/safestate.dart';
@@ -23,7 +25,7 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends SafeState<SettingsScreen>
     with AutomaticKeepAliveClientMixin<SettingsScreen> {
-  Map settingsData = {
+  /*Map settingsData = {
     "motionSensor": {
       "enabled": false,
       "sensorCount": 1,
@@ -45,7 +47,31 @@ class _SettingsScreenState extends SafeState<SettingsScreen>
         }
       ]
     },
-  };
+  };*/
+
+  BMap settingsData = BMap({
+    "motionSensor": BMap({
+      "enabled": false,
+      "sensorCount": 1,
+      "holdTime": 1,
+    }),
+    "dimmingStages": BMap({
+      "enabled": false,
+      "mode": "manual",
+      "stages": BList([
+        BMap({
+          "pwm": 70,
+          "from": const TimeOfDay(hour: 19, minute: 30),
+          "to": const TimeOfDay(hour: 20, minute: 30),
+        }),
+        BMap({
+          "pwm": 50,
+          "from": const TimeOfDay(hour: 20, minute: 30),
+          "to": const TimeOfDay(hour: 21, minute: 30),
+        })
+      ]),
+    }),
+  });
 
   Widget _settingCard(
     Widget child, {

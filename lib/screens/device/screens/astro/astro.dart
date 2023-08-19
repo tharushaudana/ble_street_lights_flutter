@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:ui';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/bledevice/request.dart';
+import 'package:ble_street_lights/backupableitrs/bmap/bmap.dart';
 import 'package:ble_street_lights/components/sliverpersistentheaderbuilder/sliverpersistentheaderbuilder.dart';
 import 'package:ble_street_lights/components/neumorphismbutton/neumorphismbutton.dart';
 import 'package:ble_street_lights/screens/device/devicesyncer.dart';
@@ -34,18 +35,24 @@ class _AstroScreenState extends State<AstroScreen>
   double _scrollPercentage = 0;
   double _shrinkPercentage = 0;
 
-  Map settingsData = {
+  /*Map settingsData = {
     "enabled": false,
     "sunrise": 1,
     "sunset": 1,
-  };
+  };*/
+
+  BMap settingsData = BMap({
+    "enabled": false,
+    "sunrise": 1,
+    "sunset": 1,
+  });
 
   Future<bool> syncSettings(
     BLEDeviceConnectionProvider provider,
     Map data, {
     bool closeOnSuccess = false,
-  }) {
-    return showDeviceSyncDialog(
+  }) async {
+    bool b = await showDeviceSyncDialog(
       context: context,
       provider: provider,
       action: "set",
@@ -59,6 +66,12 @@ class _AstroScreenState extends State<AstroScreen>
         sendNow();
       },
     );
+
+    if (b) {
+      settingsData.clearBackup();
+    }
+
+    return b;
   }
 
   Widget _valueBox(String title, String value) {
@@ -166,6 +179,14 @@ class _AstroScreenState extends State<AstroScreen>
     });
   }
 
+  _openSettings() {
+    _autoScrollTo(_scrollController.position.maxScrollExtent);
+  }
+
+  _closeSettings() {
+    _autoScrollTo(0);
+  }
+
   @override
   void initState() {
     _scrollController = ScrollController();
@@ -177,6 +198,7 @@ class _AstroScreenState extends State<AstroScreen>
 
       if (_scrollPercentage == 0.0) {
         _screenController.isSettingsOpened = false;
+        settingsData.restoreBackup();
       } else {
         _screenController.isSettingsOpened = true;
       }
@@ -184,7 +206,7 @@ class _AstroScreenState extends State<AstroScreen>
 
     _screenController = AstroScreenController(
       shouldCloseSettings: () {
-        _autoScrollTo(0);
+        _closeSettings();
       },
     );
 
@@ -233,9 +255,9 @@ class _AstroScreenState extends State<AstroScreen>
             }
 
             if (_scrollPercentage < 0.5) {
-              _autoScrollTo(0);
+              _closeSettings();
             } else {
-              _autoScrollTo(_scrollController.position.maxScrollExtent);
+              _openSettings();
             }
           }
 
@@ -453,10 +475,11 @@ class _AstroScreenState extends State<AstroScreen>
                                       switched: settingsData["enabled"],
                                       glowEnabled: false,
                                       onSwitching: (will) async {
+                                        setState(() {
+                                          settingsData["enabled"] = will;
+                                        });
+
                                         if (will) {
-                                          setState(() {
-                                            settingsData["enabled"] = will;
-                                          });
                                           return true;
                                         }
 
@@ -466,13 +489,13 @@ class _AstroScreenState extends State<AstroScreen>
                                           closeOnSuccess: true,
                                         );
 
-                                        if (result) {
+                                        if (!result) {
                                           WidgetsBinding.instance
                                               .addPostFrameCallback((
                                             timeStamp,
                                           ) {
                                             setState(() {
-                                              settingsData["enabled"] = will;
+                                              settingsData["enabled"] = !will;
                                             });
                                           });
                                         }

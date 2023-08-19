@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
+import 'package:ble_street_lights/backupableitrs/bmap/bmap.dart';
 import 'package:ble_street_lights/components/neumorphismbutton/neumorphismbutton.dart';
 import 'package:ble_street_lights/screens/device/devicesyncer.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,7 @@ class MotionSensorSettingsScreen extends StatefulWidget {
   });
 
   final BLEDeviceConnectionProvider provider;
-  final Map settingsData;
+  final BMap settingsData;
   final VoidCallback? onClose;
 
   @override
@@ -29,8 +30,8 @@ class _MotionSensorSettingsScreenState
     BLEDeviceConnectionProvider provider,
     Map data, {
     bool closeOnSuccess = false,
-  }) {
-    return showDeviceSyncDialog(
+  }) async {
+    bool b = await showDeviceSyncDialog(
       context: context,
       provider: provider,
       action: "set",
@@ -44,6 +45,12 @@ class _MotionSensorSettingsScreenState
         sendNow();
       },
     );
+
+    if (b) {
+      widget.settingsData.clearBackup();
+    }
+
+    return b;
   }
 
   Widget _settingCard(
@@ -91,6 +98,7 @@ class _MotionSensorSettingsScreenState
 
   @override
   void dispose() {
+    widget.settingsData.restoreBackup();
     if (widget.onClose != null) widget.onClose!();
     super.dispose();
   }
@@ -141,10 +149,11 @@ class _MotionSensorSettingsScreenState
                   initialSwitched: widget.settingsData["enabled"],
                   glowEnabled: false,
                   onSwitching: (will) async {
+                    setState(() {
+                      widget.settingsData["enabled"] = will;
+                    });
+
                     if (will) {
-                      setState(() {
-                        widget.settingsData["enabled"] = will;
-                      });
                       return true;
                     }
 
@@ -154,12 +163,12 @@ class _MotionSensorSettingsScreenState
                       closeOnSuccess: true,
                     );
 
-                    if (result) {
+                    if (!result) {
                       WidgetsBinding.instance.addPostFrameCallback((
                         timeStamp,
                       ) {
                         setState(() {
-                          widget.settingsData["enabled"] = will;
+                          widget.settingsData["enabled"] = !will;
                         });
                       });
                     }

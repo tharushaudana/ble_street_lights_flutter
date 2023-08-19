@@ -1,3 +1,5 @@
+import 'package:ble_street_lights/backupableitrs/blist/blist.dart';
+import 'package:ble_street_lights/backupableitrs/bmap/bmap.dart';
 import 'package:flutter/material.dart';
 
 class BLEDeviceData {
@@ -9,12 +11,12 @@ class BLEDeviceData {
   bool isLoadedSettingsDataForAstroTab = false;
   bool isLoadedSettingsDataForSettingsTab = false;
 
-  bool loadSettingsDataForHomeTab(Map data) {
+  bool loadSettingsDataForHomeTab(BMap data) {
     if (currentValues == null) return false;
 
     data["mode"] = currentValue("m", 1) == 2 ? "astro" : "manual";
 
-    data["lamps"] = [];
+    data["lamps"] = BList([]);
 
     for (String k in ['a', 'b', 'c', 'd']) {
       data["lamps"].add({
@@ -23,39 +25,26 @@ class BLEDeviceData {
       });
     }
 
+    print(currentValues);
+
+    data.clearBackup();
+
     return true;
   }
 
-  bool loadSettingsDataForAstroTab(Map data) {
+  bool loadSettingsDataForAstroTab(BMap data) {
     if (settingValues == null) return false;
 
     data["enabled"] = settingValue("o.s", 0) == 1;
     data["sunrise"] = settingValue("o.r", 0);
     data["sunset"] = settingValue("o.t", 0);
 
+    data.clearBackup();
+
     return true;
   }
 
-/**
-    "dimmingStages": {
-      "enabled": false,
-      "mode": "manual",
-      "stages": [
-        {
-          "pwm": 70,
-          "from": const TimeOfDay(hour: 19, minute: 30),
-          "to": const TimeOfDay(hour: 20, minute: 30),
-        },
-        {
-          "pwm": 50,
-          "from": const TimeOfDay(hour: 20, minute: 30),
-          "to": const TimeOfDay(hour: 21, minute: 30),
-        }
-      ]
-    },
- */
-
-  bool loadSettingsDataForSettingsTab(Map data) {
+  bool loadSettingsDataForSettingsTab(BMap data) {
     if (settingValues == null) return false;
 
     //#### Motion Sensor
@@ -85,7 +74,7 @@ class BLEDeviceData {
     int stagesCount = settingValue("d.m", 0);
     if (stagesCount < 1) return true;
 
-    data["dimmingStages"]["stages"] = [];
+    data["dimmingStages"]["stages"] = BList([]);
 
     for (int i = 0; i < stagesCount; i++) {
       int pwm = settingValue<List>("d.b", [])[i];
@@ -105,7 +94,7 @@ class BLEDeviceData {
       });
     }
 
-    print(data);
+    data.clearBackup();
 
     return true;
   }

@@ -1,4 +1,6 @@
 import 'dart:developer';
+import 'package:ble_street_lights/backupableitrs/blist/blist.dart';
+import 'package:ble_street_lights/backupableitrs/bmap/bmap.dart';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/components/badgeswitch/badgeswitch.dart';
 import 'package:ble_street_lights/components/swipecardswitch/swipecardswitch.dart';
@@ -17,7 +19,7 @@ class DeviceHomeScreen extends StatefulWidget {
 
 class _DeviceHomeScreenState extends State<DeviceHomeScreen>
     with AutomaticKeepAliveClientMixin<DeviceHomeScreen> {
-  Map settingsData = {
+  /*Map settingsData = {
     "mode": "manual",
     "lamps": [
       {"pwm": 20, "rvalue": 1},
@@ -25,7 +27,17 @@ class _DeviceHomeScreenState extends State<DeviceHomeScreen>
       {"pwm": 50, "rvalue": 1},
       {"pwm": 75, "rvalue": 0}
     ]
-  };
+  };*/
+
+  BMap settingsData = BMap({
+    "mode": "manual",
+    "lamps": BList([
+      {"pwm": 20, "rvalue": 1},
+      {"pwm": 40, "rvalue": 0},
+      {"pwm": 50, "rvalue": 1},
+      {"pwm": 75, "rvalue": 0}
+    ])
+  });
 
   int selectedLampIndex = 0;
 

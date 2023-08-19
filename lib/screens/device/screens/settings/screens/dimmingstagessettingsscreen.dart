@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
+import 'package:ble_street_lights/backupableitrs/bmap/bmap.dart';
 import 'package:ble_street_lights/components/neumorphismbutton/neumorphismbutton.dart';
 import 'package:ble_street_lights/mapbackup/mapbackup.dart';
 import 'package:ble_street_lights/screens/device/devicesyncer.dart';
@@ -20,7 +21,7 @@ class DimmingStagesSettingsScreen extends StatefulWidget {
   });
 
   final BLEDeviceConnectionProvider provider;
-  final Map settingsData;
+  final BMap settingsData;
   final VoidCallback? onClose;
 
   @override
@@ -29,8 +30,6 @@ class DimmingStagesSettingsScreen extends StatefulWidget {
 
 class _DimmingStagesSettingsScreenState
     extends State<DimmingStagesSettingsScreen> {
-
-  Map _previousSettingsData = {};   
 
   Future<bool> syncSettings(
     BLEDeviceConnectionProvider provider,
@@ -53,8 +52,7 @@ class _DimmingStagesSettingsScreenState
     );
 
     if (b) {
-      _previousSettingsData.clear();
-      _previousSettingsData.addAll(widget.settingsData);
+      widget.settingsData.clearBackup();
     }
 
     return b;
@@ -99,27 +97,8 @@ class _DimmingStagesSettingsScreenState
   }
 
   @override
-  void initState() {
-    //_previousSettingsData.clear();
-    //_previousSettingsData.addAll(widget.settingsData);
-
-    _previousSettingsData = Map.from(widget.settingsData);
-
-    super.initState();
-  }
-
-  @override
   void dispose() {
-    //### for reset changed data when sync not completed.
-    //widget.settingsData.clear();
-    //widget.settingsData.addAll(_previousSettingsData);
-
-    /*for (MapEntry<dynamic, dynamic> entry in _previousSettingsData.entries) {
-      widget.settingsData[entry.key] = entry.value;
-    }*/
-
-    print(_previousSettingsData);
-  
+    widget.settingsData.restoreBackup();
     if (widget.onClose != null) widget.onClose!();
     super.dispose();
   }
@@ -170,10 +149,11 @@ class _DimmingStagesSettingsScreenState
                   initialSwitched: widget.settingsData["enabled"],
                   glowEnabled: false,
                   onSwitching: (will) async {
+                    setState(() {
+                      widget.settingsData["enabled"] = will;
+                    });
+                    
                     if (will) {
-                      setState(() {
-                        widget.settingsData["enabled"] = will;
-                      });
                       return true;
                     }
 
@@ -183,12 +163,12 @@ class _DimmingStagesSettingsScreenState
                       closeOnSuccess: true,
                     );
 
-                    if (result) {
+                    if (!result) {
                       WidgetsBinding.instance.addPostFrameCallback((
                         timeStamp,
                       ) {
                         setState(() {
-                          widget.settingsData["enabled"] = will;
+                          widget.settingsData["enabled"] = !will;
                         });
                       });
                     }
