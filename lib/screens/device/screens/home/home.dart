@@ -212,7 +212,7 @@ class _DeviceHomeScreenState extends SafeState<DeviceHomeScreen> {
                                       BoxShadow(
                                         color: Colors.grey.shade300,
                                         offset: const Offset(0, 1),
-                                        blurRadius: 5,
+                                        blurRadius: 3,
                                         //spreadRadius: 2,
                                       ),
                                     ],
@@ -223,7 +223,7 @@ class _DeviceHomeScreenState extends SafeState<DeviceHomeScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "230",
+                                        "0",
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           color: Colors.blue,

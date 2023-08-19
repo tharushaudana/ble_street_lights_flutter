@@ -237,157 +237,110 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
                             const SizedBox(height: 10),
                             Row(
                               children: [
-                                FilledButton(
-                                  onPressed: () {
-                                    DateTime now = Time.now();
-
-                                    showDeviceSyncDialog(
-                                      context: context,
-                                      provider: provider,
-                                      action: "set",
-                                      subject: "rtc",
-                                      data: {
-                                        's': now.second,
-                                        'm': now.minute,
-                                        'h': now.hour,
-                                        'w': now.weekday,
-                                        'd': now.day,
-                                        'n': now.month,
-                                        'y': int.parse(
-                                            now.year.toString().substring(1)),
-                                      },
-                                      initialText: "Syncing time to RTC...",
-                                      closeOnSuccess: false,
-                                      doSync: (
-                                        dialogController,
-                                        sendNow,
-                                      ) {
-                                        sendNow();
-                                      },
-                                    );
-                                  },
-                                  child: const Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.watch_later_rounded),
-                                      SizedBox(width: 5),
-                                      Text(
-                                        "SYNC TIME",
-                                        style: TextStyle(fontSize: 13),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
+                                SizedBox(
+                                  height: 35,
                                   child: FilledButton(
-                                    onPressed: () async {
-                                      /*showDialog(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (context) => DeviceSyncDialog(
-                                          title: "Getting Location...",
-                                          doSync: (dialog) async {
-                                            LatLng? cpos =
-                                                await getCurrentLocation();
-
-                                            if (cpos == null) {
-                                              dialog.failed();
-                                              dialog.changeTitle(
-                                                  "Failed to Get!");
-                                              return;
-                                            }
-
-                                            dialog.changeTitle(
-                                                "Syncing Location...");
-
-                                            Future.delayed(
-                                              const Duration(seconds: 2),
-                                              () {
-                                                BLEDeviceRequest request =
-                                                    BLEDeviceRequest('set')
-                                                      ..subject('loc')
-                                                      ..data(
-                                                        {
-                                                          't': cpos.latitude,
-                                                          'n': cpos.longitude,
-                                                        },
-                                                      );
-
-                                                request.listen(
-                                                  onSuccess: (_) {
-                                                    dialog.completed();
-                                                    dialog.changeTitle(
-                                                        "Sync Completed.");
-                                                    updateDeviceLocationInMap(
-                                                        cpos);
-                                                  },
-                                                  onTimeOut: () {
-                                                    dialog.failed();
-                                                    dialog.changeTitle(
-                                                        "Sync Failed!");
-                                                  },
-                                                );
-                                                provider.makeRequest(request);
-                                              },
-                                            );
-                                          },
-                                        ),
-                                      );*/
-
-                                      LatLng? cpos;
-
-                                      bool b = await showDeviceSyncDialog(
+                                    onPressed: () {
+                                      DateTime now = Time.now();
+                                
+                                      showDeviceSyncDialog(
                                         context: context,
                                         provider: provider,
                                         action: "set",
-                                        subject: "loc",
-                                        initialText: "Getting Location...",
+                                        subject: "rtc",
+                                        data: {
+                                          's': now.second,
+                                          'm': now.minute,
+                                          'h': now.hour,
+                                          'w': now.weekday,
+                                          'd': now.day,
+                                          'n': now.month,
+                                          'y': int.parse(
+                                              now.year.toString().substring(1)),
+                                        },
+                                        initialText: "Syncing time to RTC...",
                                         closeOnSuccess: false,
                                         doSync: (
                                           dialogController,
                                           sendNow,
-                                        ) async {
-                                          cpos = await getCurrentLocation();
-
-                                          if (cpos == null) {
-                                            dialogController.failed();
-                                            dialogController
-                                                .changeTitle("Failed to Get!");
-                                            return;
-                                          }
-
-                                          Future.delayed(
-                                              const Duration(seconds: 2), () {
-                                            dialogController.changeTitle(
-                                                "Syncing Location...");
-                                            sendNow(d: {
-                                              't': cpos!.latitude,
-                                              'n': cpos!.longitude,
-                                            });
-                                          });
+                                        ) {
+                                          sendNow();
                                         },
                                       );
-
-                                      if (b) {
-                                        updateDeviceLocationInMap(cpos!);
-                                      }
                                     },
                                     child: const Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.center,
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
                                       children: [
-                                        Icon(Icons.location_on_rounded),
+                                        Icon(Icons.watch_later_rounded, size: 20,),
                                         SizedBox(width: 5),
                                         Text(
-                                          "SYNC LOCATION",
+                                          "SYNC TIME",
                                           style: TextStyle(fontSize: 13),
                                         ),
                                       ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: SizedBox(
+                                    height: 35,
+                                    child: FilledButton(
+                                      onPressed: () async {
+                                        LatLng? cpos;
+                                    
+                                        bool b = await showDeviceSyncDialog(
+                                          context: context,
+                                          provider: provider,
+                                          action: "set",
+                                          subject: "loc",
+                                          initialText: "Getting Location...",
+                                          closeOnSuccess: false,
+                                          doSync: (
+                                            dialogController,
+                                            sendNow,
+                                          ) async {
+                                            cpos = await getCurrentLocation();
+                                    
+                                            if (cpos == null) {
+                                              dialogController.failed();
+                                              dialogController
+                                                  .changeTitle("Failed to Get!");
+                                              return;
+                                            }
+                                    
+                                            Future.delayed(
+                                                const Duration(seconds: 2), () {
+                                              dialogController.changeTitle(
+                                                  "Syncing Location...");
+                                              sendNow(d: {
+                                                't': cpos!.latitude,
+                                                'n': cpos!.longitude,
+                                              });
+                                            });
+                                          },
+                                        );
+                                    
+                                        if (b) {
+                                          updateDeviceLocationInMap(cpos!);
+                                        }
+                                      },
+                                      child: const Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Icon(Icons.location_on_rounded, size: 20,),
+                                          SizedBox(width: 5),
+                                          Text(
+                                            "SYNC LOCATION",
+                                            style: TextStyle(fontSize: 13),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),

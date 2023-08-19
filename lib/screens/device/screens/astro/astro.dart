@@ -63,7 +63,7 @@ class _AstroScreenState extends State<AstroScreen> {
     return b;
   }
 
-  Widget _valueBox(String title, String value) {
+  Widget _valueBox(String title, String value, AssetImage iconImg) {
     return Container(
       margin: const EdgeInsets.only(left: 10),
       padding: const EdgeInsets.symmetric(
@@ -75,10 +75,15 @@ class _AstroScreenState extends State<AstroScreen> {
       ),
       child: Row(
         children: [
-          Icon(
+          /*Icon(
             Icons.calendar_month_rounded,
             color: Colors.grey.shade400,
             size: 30,
+          ),*/
+          Image(
+            image: iconImg,
+            width: 30,
+            height: 30,
           ),
           const SizedBox(width: 20),
           Column(
@@ -354,13 +359,31 @@ class _AstroScreenState extends State<AstroScreen> {
                                     ),
                                   ),
                                   const SizedBox(height: 15),
-                                  _valueBox("Sunrise", sunriseAt),
+                                  _valueBox(
+                                    "Sunrise",
+                                    sunriseAt,
+                                    const AssetImage(
+                                        "assets/images/sunrise_icon.png"),
+                                  ),
                                   const SizedBox(height: 15),
-                                  _valueBox("Sunset", sunsetAt),
+                                  _valueBox(
+                                    "Sunset",
+                                    sunsetAt,
+                                    const AssetImage("assets/images/sunset_icon.png"),
+                                  ),
                                   const SizedBox(height: 15),
-                                  _valueBox("Offset Sunrise", ofsunriseAt),
+                                  _valueBox(
+                                    "Offset Sunrise",
+                                    ofsunriseAt,
+                                    const AssetImage(
+                                        "assets/images/ofsunrise_icon.png"),
+                                  ),
                                   const SizedBox(height: 15),
-                                  _valueBox("Offset Sunset", ofsunsetAt),
+                                  _valueBox(
+                                    "Offset Sunset",
+                                    ofsunsetAt,
+                                    const AssetImage("assets/images/ofsunset_icon.png"),
+                                  ),
                                 ],
                               ),
                             ),
