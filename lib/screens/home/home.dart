@@ -261,128 +261,132 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            const Text("Smart Street Light Controller"),
-            const Spacer(),
-            selectedDeviceIds.isNotEmpty
-                ? Row(
-                    children: [
-                      Text("${selectedDeviceIds.length}")
-                          .animate()
-                          .fade(duration: 300.ms),
-                      const SizedBox(width: 20),
-                      IconButton(
-                        onPressed: () {
-                          setState(() {
-                            selectedDeviceIds.clear();
-                          });
-                        },
-                        icon: const Icon(Icons.close),
-                      ).animate().fade(duration: 300.ms),
-                    ],
-                  ) //.animate().scale(duration: 300.ms)
+    return Banner(
+      message: "DEMO",
+      location: BannerLocation.topEnd,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Row(
+            children: [
+              const Text("Smart Street Light Controller"),
+              const Spacer(),
+              selectedDeviceIds.isNotEmpty
+                  ? Row(
+                      children: [
+                        Text("${selectedDeviceIds.length}")
+                            .animate()
+                            .fade(duration: 300.ms),
+                        const SizedBox(width: 20),
+                        IconButton(
+                          onPressed: () {
+                            setState(() {
+                              selectedDeviceIds.clear();
+                            });
+                          },
+                          icon: const Icon(Icons.close),
+                        ).animate().fade(duration: 300.ms),
+                      ],
+                    ) //.animate().scale(duration: 300.ms)
+                  : Container(),
+            ],
+          ),
+          elevation: 0,
+          bottom: PreferredSize(
+            preferredSize: Size.fromHeight(
+                bluetooth.isScanning && !isPulledForRefresh ? 6.0 : 0),
+            child: bluetooth.isScanning && !isPulledForRefresh
+                ? LinearProgressIndicator(
+                    color: Colors.blue.shade400,
+                  )
                 : Container(),
-          ],
+          ),
         ),
-        elevation: 0,
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(
-              bluetooth.isScanning && !isPulledForRefresh ? 6.0 : 0),
-          child: bluetooth.isScanning && !isPulledForRefresh
-              ? LinearProgressIndicator(
-                  color: Colors.blue.shade400,
-                )
-              : Container(),
-        ),
-      ),
-      body: devices.isNotEmpty && devices.length != deletedDeviceIds.length
-          ? LiquidPullToRefresh(
-              onRefresh: onRefreshList,
-              showChildOpacityTransition: false,
-              child: Container(
-                margin: const EdgeInsets.only(top: 10),
-                child: ListView.builder(
-                  itemCount: devices.length,
-                  itemBuilder: (context, i) {
-                    return HideAnimatedListItem(
-                      hidden: deletedDeviceIds.contains(devices[i][1]),
-                      child: DeviceCard(
-                        name: devices[i][0],
-                        address: devices[i][1],
-                        rssi: devices[i][2],
-                        available: isDeviceAvailable(devices[i][1]),
-                        ischecking: bluetooth.isScanning &&
-                            !isDeviceAvailable(devices[i][1]),
-                        selectOnTap: selectedDeviceIds.isNotEmpty,
-                        selected: selectedDeviceIds.contains(devices[i][1]),
-                        onTap: () {
-                          openDeviceScreen(i);
-                        },
-                        onSelect: () {
-                          if (!selectedDeviceIds.contains(devices[i][1])) {
-                            setState(() {
-                              selectedDeviceIds.add(devices[i][1]);
-                            });
-                          }
-                        },
-                        onUnselect: () {
-                          if (selectedDeviceIds.contains(devices[i][1])) {
-                            setState(() {
-                              selectedDeviceIds.remove(devices[i][1]);
-                            });
-                          }
-                        },
-                      )
-                          .animate()
-                          .fade(duration: 300.ms, delay: (100 * (i + 1)).ms)
-                          .moveX(duration: 300.ms, delay: (100 * (i + 1)).ms),
-                    );
-                  },
+        body: devices.isNotEmpty && devices.length != deletedDeviceIds.length
+            ? LiquidPullToRefresh(
+                onRefresh: onRefreshList,
+                showChildOpacityTransition: false,
+                child: Container(
+                  margin: const EdgeInsets.only(top: 10),
+                  child: ListView.builder(
+                    itemCount: devices.length,
+                    itemBuilder: (context, i) {
+                      return HideAnimatedListItem(
+                        hidden: deletedDeviceIds.contains(devices[i][1]),
+                        child: DeviceCard(
+                          name: devices[i][0],
+                          address: devices[i][1],
+                          rssi: devices[i][2],
+                          available: isDeviceAvailable(devices[i][1]),
+                          ischecking: bluetooth.isScanning &&
+                              !isDeviceAvailable(devices[i][1]),
+                          selectOnTap: selectedDeviceIds.isNotEmpty,
+                          selected: selectedDeviceIds.contains(devices[i][1]),
+                          onTap: () {
+                            openDeviceScreen(i);
+                          },
+                          onSelect: () {
+                            if (!selectedDeviceIds.contains(devices[i][1])) {
+                              setState(() {
+                                selectedDeviceIds.add(devices[i][1]);
+                              });
+                            }
+                          },
+                          onUnselect: () {
+                            if (selectedDeviceIds.contains(devices[i][1])) {
+                              setState(() {
+                                selectedDeviceIds.remove(devices[i][1]);
+                              });
+                            }
+                          },
+                        )
+                            .animate()
+                            .fade(duration: 300.ms, delay: (100 * (i + 1)).ms)
+                            .moveX(duration: 300.ms, delay: (100 * (i + 1)).ms),
+                      );
+                    },
+                  ),
                 ),
-              ),
-            )
-          : isInitialized
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.exposure_zero,
-                        size: 150,
-                        color: Colors.grey.withAlpha(100),
-                      ),
-                      Text(
-                        "DEVICES",
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
+              )
+            : isInitialized
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.exposure_zero,
+                          size: 150,
                           color: Colors.grey.withAlpha(100),
                         ),
-                      ),
-                    ],
-                  ),
-                )
-              : Container(),
-      floatingActionButton: bluetooth.isScanning
-          ? null
-          : selectedDeviceIds.isEmpty
-              ? FloatingActionButton(
-                  onPressed: () => openScanner(),
-                  //onPressed: () => throw Exception("Test exception."),
-                  tooltip: 'Scan',
-                  child: const Icon(Icons.radar),
-                ).animate().scale(duration: 300.ms)
-              : FloatingActionButton(
-                  onPressed: () => deleteSelectedDevices(),
-                  tooltip: 'Delete',
-                  backgroundColor: Colors.red,
-                  child: const Icon(
-                    Icons.delete,
-                  ),
-                ).animate().scale(duration: 300.ms, delay: 500.ms),
+                        Text(
+                          "DEVICES",
+                          style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey.withAlpha(100),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : Container(),
+        floatingActionButton: bluetooth.isScanning
+            ? null
+            : selectedDeviceIds.isEmpty
+                ? FloatingActionButton(
+                    onPressed: () => openScanner(),
+                    //onPressed: () => throw Exception("Test exception."),
+                    tooltip: 'Scan',
+                    child: const Icon(Icons.radar),
+                  ).animate().scale(duration: 300.ms)
+                : FloatingActionButton(
+                    onPressed: () => deleteSelectedDevices(),
+                    tooltip: 'Delete',
+                    backgroundColor: Colors.red,
+                    child: const Icon(
+                      Icons.delete,
+                    ),
+                  ).animate().scale(duration: 300.ms, delay: 500.ms),
+      ),
     );
     //.animate().move(duration: 200.ms);
   }

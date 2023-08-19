@@ -33,7 +33,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
 
   DateTime lastSeenTime = Time.now();
   Timer? timerLastSeenUpdate;
-  String lastSeenStr = "recently";
+  String lastSeenStr = "not connected yet";
 
   late AstroScreenController _astroScreenController;
 
@@ -79,13 +79,15 @@ class _DeviceScreenState extends State<DeviceScreen> {
           isConnected = false;
         });
 
+        lastSeenStr = "active recently";
+
         lastSeenTime = Time.now();
 
         timerLastSeenUpdate = Timer.periodic(
           const Duration(seconds: 30),
           (timer) {
             setState(() {
-              lastSeenStr = Time.dateTimeToHumanDiff(lastSeenTime);
+              lastSeenStr = "active ${Time.dateTimeToHumanDiff(lastSeenTime)}";
             });
           },
         );
@@ -151,7 +153,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
                               Text(widget.deviceData[0]),
                               const SizedBox(height: 3),
                               Text(
-                                isConnected ? "online" : "active $lastSeenStr",
+                                isConnected ? "online" : lastSeenStr,
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.normal,
