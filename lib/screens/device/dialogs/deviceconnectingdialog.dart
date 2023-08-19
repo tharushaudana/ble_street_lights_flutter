@@ -17,6 +17,8 @@ class DeviceConnectingDialog extends StatefulWidget {
 }
 
 class _DeviceConnectingDialogState extends SafeState<DeviceConnectingDialog> {
+  late AssetImage _blueWaveGif;
+
   bool isTimeout = false;
 
   connectDevice() async {
@@ -46,9 +48,17 @@ class _DeviceConnectingDialogState extends SafeState<DeviceConnectingDialog> {
   void initState() {
     super.initState();
 
+    _blueWaveGif = const AssetImage("assets/images/blue-wave.gif");
+
     Future.delayed(const Duration(milliseconds: 2000), () {
       connectDevice();
     });
+  }
+
+  @override
+  void dispose() {
+    _blueWaveGif.evict();
+    super.dispose();
   }
 
   @override
@@ -60,13 +70,13 @@ class _DeviceConnectingDialogState extends SafeState<DeviceConnectingDialog> {
         ),
       ),
       content: Container(
-        height: 170,
+        height: 180,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             !isTimeout
-                ? const Icon(
+                ? /*const Icon(
                     Icons.bluetooth_rounded,
                     size: 80,
                     color: Colors.black87,
@@ -78,7 +88,13 @@ class _DeviceConnectingDialogState extends SafeState<DeviceConnectingDialog> {
                       duration: 600.ms,
                       delay: 1000.ms,
                       color: Colors.blue,
-                    )
+                    )*/
+                    Image(
+                        image: _blueWaveGif,
+                        width: 135,
+                        height: 135,
+                      )
+
                 : Icon(
                     Icons.bluetooth_rounded,
                     size: 80,

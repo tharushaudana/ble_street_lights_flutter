@@ -24,7 +24,8 @@ class GradientSlider extends StatefulWidget {
       color: Color(0xff413be7),
       fontWeight: FontWeight.bold,
     ),
-    required this.onChange,
+    this.onChange,
+    this.indicateOnly = false,
   });
 
   final double min;
@@ -42,7 +43,8 @@ class GradientSlider extends StatefulWidget {
   final Color thumbBgColor;
   final Color thumbBorderColor;
   final TextStyle thumbLabelTextStyle;
-  final Function(double value) onChange;
+  final Function(double value)? onChange;
+  final bool indicateOnly;
 
   @override
   State<StatefulWidget> createState() => _GradientSliderState();
@@ -75,7 +77,7 @@ class _GradientSliderState extends State<GradientSlider> {
         if (!isThumbDetected) return;
         double v = (widget.max - widget.min) * percent;
         v = double.parse(v.toStringAsFixed(2));
-        widget.onChange(v);
+        if (widget.onChange != null) widget.onChange!(v);
       },
     );
 
@@ -109,6 +111,7 @@ class _GradientSliderState extends State<GradientSlider> {
           thumbPercent: thumbPercent,
           thumbLabelTextStyle: widget.thumbLabelTextStyle,
           thumbLabel: widget.intLabel ? "${widget.value.toInt()}%" : "${widget.value}%",
+          indicateOnly: widget.indicateOnly,
           listener: sliderPainerListener,
         ),
       ),
@@ -130,6 +133,7 @@ class GradientSliderPainer extends CustomPainter {
     required this.thumbPercent,
     required this.thumbLabel,
     required this.thumbLabelTextStyle,
+    required this.indicateOnly,
     required this.listener,
   }) {
     _initListener();
@@ -145,6 +149,7 @@ class GradientSliderPainer extends CustomPainter {
   final Color thumbBgColor;
   final Color thumbBorderColor;
   final TextStyle thumbLabelTextStyle;
+  final bool indicateOnly;
   //---
   final double thumbPercent;
   final String thumbLabel;
@@ -190,10 +195,10 @@ class GradientSliderPainer extends CustomPainter {
     _paintTricks();
     _paintMainTrick();
     _paintMainTrickLabel();
-    _painThumb();
+    if (!indicateOnly) _paintThumb();
   }
 
-  _painThumb() {
+  _paintThumb() {
     Offset c = _thumbCenter();
 
     Rect rect = Rect.fromCenter(

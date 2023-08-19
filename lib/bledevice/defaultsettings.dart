@@ -8,10 +8,10 @@ Map getDefaultSettings() {
     'hometab': BMap({
       "mode": "manual",
       "lamps": BList([
-        BMap({"pwm": 20, "rvalue": 1}),
-        BMap({"pwm": 40, "rvalue": 0}),
-        BMap({"pwm": 50, "rvalue": 1}),
-        BMap({"pwm": 75, "rvalue": 0})
+        BMap({"pwm": 0, "rvalue": 0}),
+        BMap({"pwm": 0, "rvalue": 0}),
+        BMap({"pwm": 0, "rvalue": 0}),
+        BMap({"pwm": 0, "rvalue": 0})
       ]),
     }),
 

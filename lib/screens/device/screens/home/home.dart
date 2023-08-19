@@ -4,7 +4,8 @@ import 'package:ble_street_lights/backupableitrs/bmap/bmap.dart';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/components/badgeswitch/badgeswitch.dart';
 import 'package:ble_street_lights/extensions/withopacitynotrans/colorwithopacitynotrans.dart';
-import 'package:ble_street_lights/screens/device/screens/home/manualmode.dart';
+import 'package:ble_street_lights/screens/device/screens/home/modes/astromode.dart';
+import 'package:ble_street_lights/screens/device/screens/home/modes/manualmode.dart';
 import 'package:ble_street_lights/screens/device/screens/home/syncbtn.dart';
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
@@ -46,8 +47,31 @@ class _DeviceHomeScreenState extends SafeState<DeviceHomeScreen> {
           });
         }
 
-        int motionSensorCount = provider.deviceData.settingsData['settingstab']['motionSensor']['sensorCount'];
+        int motionSensorCount = provider.deviceData.settingsData['settingstab']
+            ['motionSensor']['sensorCount'];
         Map motionSensorStates = provider.deviceData.currentValue<Map>("p", {});
+
+        //#### for Astro mode only
+        int currentStageIndex = provider.deviceData.currentValue<int>("a.g", -1);
+        //int currentStageIndex = 1;
+        
+        int currentBrightness = provider.deviceData.currentValue<int>("a.b", 0);
+        Map currentStage = {};
+        List relayStates = [0, 0, 0, 0];
+
+        try {
+          relayStates  = provider.deviceData.currentValue<Map>("r", {}).values.toList();
+        } catch (e) {}
+
+        if (currentStageIndex > -1) {
+          try {
+            currentStage = {
+              ...provider.deviceData.settingsData['settingstab']
+                  ['dimmingStages']["stages"][currentStageIndex]
+            };
+          } catch (e) {}
+        }
+        //####
 
         return SizedBox(
           height: double.infinity,
@@ -241,11 +265,11 @@ class _DeviceHomeScreenState extends SafeState<DeviceHomeScreen> {
                                       });
                                     },
                                   )
-                                : Container(
-                                    child: Center(
-                                      child: Text("Not yet :("),
-                                    ),
-                                  )
+                                : AstroMode(
+                                    stage: currentStage,
+                                    currentBrightness: currentBrightness,
+                                    relayStates: relayStates,
+                                  ),
                           ],
                         ),
                       ),
@@ -311,7 +335,15 @@ class _DeviceHomeScreenState extends SafeState<DeviceHomeScreen> {
                                       child: Icon(
                                         Icons.sensors_rounded,
                                         size: 20,
-                                        color: motionSensorStates[['a', 'b', 'c', 'd'][i]] == 1 ? Colors.green : Colors.grey,
+                                        color: motionSensorStates[[
+                                                  'a',
+                                                  'b',
+                                                  'c',
+                                                  'd'
+                                                ][i]] ==
+                                                1
+                                            ? Colors.green
+                                            : Colors.grey,
                                       ),
                                     ),
                                   ),

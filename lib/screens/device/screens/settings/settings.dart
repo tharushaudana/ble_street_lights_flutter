@@ -98,7 +98,6 @@ class _SettingsScreenState extends SafeState<SettingsScreen> {
       provider,
       _,
     ) {
-
       if (!isSettingsLoaded) {
         provider.deviceData.loadSettingsData('settingstab', (data, success) {
           settingsData = data;
@@ -318,7 +317,7 @@ class _SettingsScreenState extends SafeState<SettingsScreen> {
                           Column(
                             children: _hidable(
                               settingsData["dimmingStages"]["enabled"] ? -1 : 0,
-                              const [
+                              [
                                 Icon(
                                   Icons.subdirectory_arrow_right_rounded,
                                   size: 20,
@@ -327,10 +326,13 @@ class _SettingsScreenState extends SafeState<SettingsScreen> {
                                   Icons.subdirectory_arrow_right_rounded,
                                   size: 20,
                                 ),
-                                Icon(
-                                  Icons.subdirectory_arrow_right_rounded,
-                                  size: 20,
-                                ),
+                                settingsData["dimmingStages"]["mode"] ==
+                                        "manual"
+                                    ? Icon(
+                                        Icons.subdirectory_arrow_right_rounded,
+                                        size: 20,
+                                      )
+                                    : Container(),
                               ],
                             ),
                           ),
@@ -401,36 +403,48 @@ class _SettingsScreenState extends SafeState<SettingsScreen> {
                                         ),
                                       ],
                                     ),
-                                    TableRow(
-                                      children: [
-                                        TableCell(
-                                          child: Container(
-                                            margin: EdgeInsets.only(top: 4),
-                                            child: const Text(
-                                              "COUNT: ",
-                                              style: TextStyle(
-                                                color: Colors.black87,
+                                    settingsData["dimmingStages"]["mode"] ==
+                                            "manual"
+                                        ? TableRow(
+                                            children: [
+                                              TableCell(
+                                                child: Container(
+                                                  margin:
+                                                      EdgeInsets.only(top: 4),
+                                                  child: const Text(
+                                                    "COUNT: ",
+                                                    style: TextStyle(
+                                                      color: Colors.black87,
+                                                    ),
+                                                  ),
+                                                ),
                                               ),
-                                            ),
-                                          ),
-                                        ),
-                                        TableCell(
-                                          child: Container(
-                                            margin: EdgeInsets.only(top: 4),
-                                            child: Text(
-                                              settingsData["dimmingStages"]
-                                                      ["stages"]
-                                                  .length
-                                                  .toString(),
-                                              style: const TextStyle(
-                                                color: Colors.blue,
-                                                fontWeight: FontWeight.bold,
+                                              TableCell(
+                                                child: Container(
+                                                  margin:
+                                                      EdgeInsets.only(top: 4),
+                                                  child: Text(
+                                                    settingsData[
+                                                                "dimmingStages"]
+                                                            ["stages"]
+                                                        .length
+                                                        .toString(),
+                                                    style: const TextStyle(
+                                                      color: Colors.blue,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
                                               ),
-                                            ),
+                                            ],
+                                          )
+                                        : TableRow(
+                                            children: [
+                                              TableCell(child: Container()),
+                                              TableCell(child: Container()),
+                                            ],
                                           ),
-                                        ),
-                                      ],
-                                    ),
                                   ],
                                 ),
                               ),

@@ -91,6 +91,7 @@ class ManualMode extends StatelessWidget {
             Colors.blue,
             Color(0xffffd4cb)
           ],
+          tricksColor: Colors.grey.shade300,
           thumbBorderColor: Colors.blue,
           thumbLabelTextStyle: const TextStyle(
             color: Colors.blue,
@@ -99,74 +100,76 @@ class ManualMode extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 20),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              for (int i = 0; i < settingsData["lamps"].length; i++)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 55,
-                      height: 55,
-                      margin: EdgeInsets.symmetric(
-                        vertical: 0,
-                        horizontal: 10,
-                      ),
-                      padding: EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        border: selectedLampIndex == i
-                            ? Border.all(
-                                width: 0.5,
-                                color: Colors.blue,
-                              )
-                            : null,
-                        shape: BoxShape.circle,
-                      ),
-                      child: GestureDetector(
-                        onTap: () {
-                          if (i == selectedLampIndex) return;
-                          onChangeSelectIndex(i);
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: selectedLampIndex == i
-                                ? Colors.blue
-                                : Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.shade300,
-                                offset: const Offset(0, 1),
-                                blurRadius: 10,
-                                //spreadRadius: 2,
-                              ),
-                            ],
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.lightbulb_outline_rounded,
-                            size: 20,
-                            color: selectedLampIndex == i
-                                ? Colors.white
-                                : Colors.grey,
+        Center(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                for (int i = 0; i < settingsData["lamps"].length; i++)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 55,
+                        height: 55,
+                        margin: EdgeInsets.symmetric(
+                          vertical: 0,
+                          horizontal: 10,
+                        ),
+                        padding: EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          border: selectedLampIndex == i
+                              ? Border.all(
+                                  width: 0.5,
+                                  color: Colors.blue,
+                                )
+                              : null,
+                          shape: BoxShape.circle,
+                        ),
+                        child: GestureDetector(
+                          onTap: () {
+                            if (i == selectedLampIndex) return;
+                            onChangeSelectIndex(i);
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: selectedLampIndex == i
+                                  ? Colors.blue
+                                  : Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.shade300,
+                                  offset: const Offset(0, 1),
+                                  blurRadius: 10,
+                                  //spreadRadius: 2,
+                                ),
+                              ],
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.lightbulb_outline_rounded,
+                              size: 20,
+                              color: selectedLampIndex == i
+                                  ? Colors.white
+                                  : Colors.grey,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      "LAMP ${(i + 1)}",
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 10,
+                      const SizedBox(height: 6),
+                      Text(
+                        "LAMP ${(i + 1)}",
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-            ],
+                    ],
+                  ),
+              ],
+            ),
           ),
         ),
       ],
