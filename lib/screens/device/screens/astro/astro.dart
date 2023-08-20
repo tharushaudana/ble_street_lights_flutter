@@ -190,7 +190,7 @@ class _AstroScreenState extends State<AstroScreen> {
 
     int nowMinutes = now.hour * 60 + now.minute;
     int startMinutes = start.hour * 60 + start.minute;
-    int endMinutes = start.hour * 60 + end.minute;
+    int endMinutes = end.hour * 60 + end.minute;
 
     return nowMinutes >= startMinutes && nowMinutes <= endMinutes;
   }
