@@ -303,9 +303,9 @@ class _MotionSensorSettingsScreenState
                                 Container(
                                   width: double.infinity,
                                   child: SfSlider(
-                                    min: 0,
-                                    max: 120,
-                                    interval: 30,
+                                    min: 15,
+                                    max: 300,
+                                    interval: 57,
                                     showTicks: true,
                                     showLabels: true,
                                     showDividers: true,
@@ -333,7 +333,7 @@ class _MotionSensorSettingsScreenState
                                 ),
                               ),
                               Text(
-                                "minutes",
+                                "seconds",
                                 style: TextStyle(
                                     fontSize: 15,
                                     color: Colors.blue.withOpacity(0.5)),

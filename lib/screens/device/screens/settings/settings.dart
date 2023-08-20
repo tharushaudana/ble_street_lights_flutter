@@ -245,7 +245,7 @@ class _SettingsScreenState extends SafeState<SettingsScreen> {
                                           child: Container(
                                             margin: EdgeInsets.only(top: 4),
                                             child: Text(
-                                              "${settingsData["motionSensor"]["holdTime"]} min",
+                                              "${settingsData["motionSensor"]["holdTime"]} sec",
                                               style: const TextStyle(
                                                 color: Colors.blue,
                                                 fontWeight: FontWeight.bold,
