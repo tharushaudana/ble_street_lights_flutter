@@ -4,6 +4,7 @@ import 'package:ble_street_lights/helpers/bluetooth.dart';
 import 'package:ble_street_lights/helpers/location.dart';
 import 'package:ble_street_lights/screens/device/device.dart';
 import 'package:ble_street_lights/screens/home/widgets/devicecard.dart';
+import 'package:ble_street_lights/screens/info/info.dart';
 import 'package:ble_street_lights/screens/scan/scan.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -12,7 +13,10 @@ import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.title,});
+  const HomeScreen({
+    super.key,
+    required this.title,
+  });
 
   final String title;
 
@@ -266,6 +270,19 @@ class _HomeScreenState extends State<HomeScreen> {
       location: BannerLocation.topEnd,
       child: Scaffold(
         appBar: AppBar(
+          actions: [
+            IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => InfoScreen(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.info_outline_rounded),
+            ),
+          ],
           title: Row(
             children: [
               const Text("Smart Street Light Controller"),
@@ -348,26 +365,32 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               )
             : isInitialized
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.exposure_zero,
-                          size: 150,
+                ? Container(
+                  width: double.infinity,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        "NO ANY DEVICE(S)",
+                        style: TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
                           color: Colors.grey.withAlpha(100),
                         ),
-                        Text(
-                          "DEVICES",
-                          style: TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey.withAlpha(100),
-                          ),
+                      ),
+                      const SizedBox(height: 5),
+                      const Text(
+                        "Scan & add device to continue.",
+                        style: TextStyle(
+                          fontSize: 12,
+                          //fontWeight: FontWeight.bold,
+                          color: Colors.grey,
                         ),
-                      ],
-                    ),
-                  )
+                      ),
+                    ],
+                  ),
+                )
                 : Container(),
         floatingActionButton: bluetooth.isScanning
             ? null
