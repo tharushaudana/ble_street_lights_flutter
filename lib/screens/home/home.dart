@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:ble_street_lights/components/hideanimatedlistitem/hideanimatedlistitem.dart';
 import 'package:ble_street_lights/helpers/bluetooth.dart';
@@ -120,7 +121,23 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  /*disconnectDevicesBeforeScan() async {
+    List<BluetoothDevice> connected = await bluetooth.flutterBlue.connectedDevices;
+
+    List<BluetoothDevice> shouldDisconnect = [];
+
+    for (BluetoothDevice d in connected) {
+      if (devices.any((elem) => elem[1] == d.id.toString())) {
+        d.disconnect();
+      }
+    }
+  }*/
+
   scanForDevices() async {
+    /*try {
+      await disconnectDevicesBeforeScan();
+    } catch (e) {}*/
+
     if (!await bluetooth.checkIsEnabled() || !await location.checkIsEnabled()) {
       showUnableToScanAlert();
       return;

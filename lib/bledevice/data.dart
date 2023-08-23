@@ -112,10 +112,20 @@ class BLEDeviceData {
 
     data["dimmingStages"]["stages"] = BList([]);
 
+    List pwms = settingValue<List>("d.b", []);
+    List froms = settingValue<List>("d.f", []);
+    List tos = settingValue<List>("d.o", []);
+
+    if (!(pwms.length == stagesCount && froms.length == stagesCount && tos.length == stagesCount)) return false;
+
     for (int i = 0; i < stagesCount; i++) {
-      int pwm = settingValue<List>("d.b", [])[i];
+      /*int pwm = settingValue<List>("d.b", [])[i];
       String from = settingValue<List>("d.f", [])[i];
-      String to = settingValue<List>("d.o", [])[i];
+      String to = settingValue<List>("d.o", [])[i];*/
+
+      int pwm = pwms[i];
+      String from = froms[i];
+      String to = tos[i];
 
       data["dimmingStages"]["stages"].add(BMap({
         "pwm": pwm,

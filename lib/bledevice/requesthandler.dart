@@ -17,6 +17,7 @@ class BLEDeviceRequestHandler {
 
     try {
       characteristic!.write(bytes);
+      //characteristic!.write(bytes, withoutResponse: true);
       requests[_lastTokenId] = request;
     } catch (e) {
       request.onFailed!("Failed to Send!");
