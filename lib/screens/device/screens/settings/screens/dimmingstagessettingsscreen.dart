@@ -457,6 +457,7 @@ class _ManualStagesDialogState extends SafeState<ManualStagesDialog>
         ticksColor: Colors.blue,
         paintingStyle: PaintingStyle.fill,
         strokeColor: Colors.blue.withOpacity(0.5),
+        interval: const Duration(minutes: 1),
         labels: [
           for (int i = 0; i < 12; i++)
             ClockLabel(

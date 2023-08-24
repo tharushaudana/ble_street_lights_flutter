@@ -100,7 +100,7 @@ class BLEDeviceData {
 
     int status = settingValue("d.s", 0);
     data["dimmingStages"]["enabled"] = status == 1;
-    if (status != 1) return true;
+    if (status != 1)  return true;
 
     int dimmingType = settingValue("d.t", 0);
     if (dimmingType == 1 || dimmingType == 2) {
@@ -108,7 +108,10 @@ class BLEDeviceData {
     }
 
     int stagesCount = settingValue("d.m", 0);
-    if (stagesCount < 1) return true;
+    if (stagesCount < 1) {
+      data.clearBackup();
+      return true;
+    }
 
     data["dimmingStages"]["stages"] = BList([]);
 

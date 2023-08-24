@@ -65,11 +65,16 @@ class ManualMode extends StatelessWidget {
                         onChangeRelayValue(1);
                       }
                     },
-                    child: Icon(
+                    child: /*Icon(
                       Icons.lightbulb_outline_rounded,
                       size: 30,
                       color: settingsData["lamps"][selectedLampIndex]["rvalue"] == 1 ? Colors.blue : Colors.grey[700],
-                    ),
+                    ),*/
+                    Text(settingsData["lamps"][selectedLampIndex]["rvalue"] == 1 ? "ON" : "OFF", style: TextStyle(
+                      color: settingsData["lamps"][selectedLampIndex]["rvalue"] == 1 ? Colors.blue : Colors.grey[700],
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),)
                   ),
                 ),
               ),
@@ -78,6 +83,7 @@ class ManualMode extends StatelessWidget {
         ),
         GradientSlider(
           onChange: (value) {
+            if (settingsData["lamps"][selectedLampIndex]["rvalue"] == 0) return;
             onChangeLampValue(value.toInt());
           },
           min: 0,

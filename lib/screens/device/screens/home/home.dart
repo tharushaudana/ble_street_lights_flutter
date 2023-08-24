@@ -26,6 +26,34 @@ class _DeviceHomeScreenState extends SafeState<DeviceHomeScreen> {
 
   bool isSettingsLoaded = false;
 
+  Map _decodeCurrentStageData(Map? data) {
+    if (data == null) return {};
+
+    try {
+      return {
+        "from": TimeOfDay(
+          hour: int.parse(data["f"].split(".")[0]),
+          minute: int.parse(data["f"].split(".")[1]),
+        ),
+        "to": TimeOfDay(
+          hour: int.parse(data["n"].split(".")[0]),
+          minute: int.parse(data["n"].split(".")[1]),
+        ),
+      };
+    } catch (e) {}
+
+    return {};
+  }
+
+  List _decodeRelayStates(Map data) {
+    try {
+      List states = data.values.toList();
+      if (states.isNotEmpty) return states;
+    } catch (e) {}
+
+    return [0, 0, 0, 0];
+  }
+
   @override
   void dispose() {
     settingsData.restoreBackup();
@@ -52,26 +80,16 @@ class _DeviceHomeScreenState extends SafeState<DeviceHomeScreen> {
         Map motionSensorStates = provider.deviceData.currentValue<Map>("p", {});
 
         //#### for Astro mode only
-        int currentStageIndex = provider.deviceData.currentValue<int>("a.g", -1);
-        //int currentStageIndex = 1;
-        
         int currentBrightness = provider.deviceData.currentValue<int>("a.b", 0);
-        Map currentStage = {};
-        List relayStates = [];
+        Map? currentStage = _decodeCurrentStageData(
+            provider.deviceData.currentValue<Map?>("a.s", null));
+        List relayStates =
+            _decodeRelayStates(provider.deviceData.currentValue<Map>("r", {}));
 
-        try {
+        /*try {
           relayStates  = provider.deviceData.currentValue<Map>("r", {}).values.toList();
           if (relayStates.isEmpty) relayStates = [0, 0, 0, 0];
-        } catch (e) {}
-
-        if (currentStageIndex > -1) {
-          try {
-            currentStage = {
-              ...provider.deviceData.settingsData['settingstab']
-                  ['dimmingStages']["stages"][currentStageIndex]
-            };
-          } catch (e) {}
-        }
+        } catch (e) {}*/
         //####
 
         return SizedBox(
@@ -245,28 +263,37 @@ class _DeviceHomeScreenState extends SafeState<DeviceHomeScreen> {
                             ),
                             const SizedBox(height: 5),
                             settingsData["mode"] == "manual"
-                                ? ManualMode(
-                                    settingsData: settingsData,
-                                    selectedLampIndex: selectedLampIndex,
-                                    onChangeSelectIndex: (index) {
-                                      setState(() {
-                                        selectedLampIndex = index;
-                                      });
-                                    },
-                                    onChangeLampValue: (value) {
-                                      setState(() {
-                                        settingsData["lamps"][selectedLampIndex]
-                                            ["pwm"] = value;
-                                      });
-                                    },
-                                    onChangeRelayValue: (rvalue) {
-                                      setState(() {
-                                        settingsData["lamps"][selectedLampIndex]
-                                            ["rvalue"] = rvalue;
-                                      });
-                                    },
+                                ? AbsorbPointer(
+                                    absorbing: isSyncing,
+                                    child: Opacity(
+                                      opacity: isSyncing ? 0.5 : 1,
+                                      child: ManualMode(
+                                        settingsData: settingsData,
+                                        selectedLampIndex: selectedLampIndex,
+                                        onChangeSelectIndex: (index) {
+                                          setState(() {
+                                            selectedLampIndex = index;
+                                          });
+                                        },
+                                        onChangeLampValue: (value) {
+                                          setState(() {
+                                            settingsData["lamps"]
+                                                    [selectedLampIndex]["pwm"] =
+                                                value;
+                                          });
+                                        },
+                                        onChangeRelayValue: (rvalue) {
+                                          setState(() {
+                                            settingsData["lamps"]
+                                                    [selectedLampIndex]
+                                                ["rvalue"] = rvalue;
+                                          });
+                                        },
+                                      ),
+                                    ),
                                   )
                                 : AstroMode(
+                                    modeType: provider.deviceData.settingsData['settingstab']["dimmingStages"]["mode"],
                                     stage: currentStage,
                                     currentBrightness: currentBrightness,
                                     relayStates: relayStates,

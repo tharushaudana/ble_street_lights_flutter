@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 class AstroMode extends StatelessWidget {
   AstroMode({
     super.key,
+    required this.modeType,
     required this.stage,
     required this.currentBrightness,
     required this.relayStates,
   });
 
+  final String modeType;
   final Map stage;
   final int currentBrightness;
   final List relayStates;
@@ -25,54 +27,77 @@ class AstroMode extends StatelessWidget {
           Column(
             children: [
               stage.isNotEmpty
-                  ? Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                  ? Stack(
+                      alignment: Alignment.centerLeft,
                       children: [
                         Container(
-                          padding: EdgeInsets.all(10),
+                          padding: EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: Colors.blue.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              width: 1,
+                              color: Colors.blue,
+                            ),
+                            shape: BoxShape.circle,
                           ),
                           child: Text(
-                            "${stage["from"].hour.toString().padRight(2, '0')}:${stage["from"].minute.toString().padRight(2, '0')}",
+                            modeType == "manual" ? "M" : "G",
                             style: TextStyle(
-                              fontWeight: FontWeight.bold,
                               color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
                             ),
                           ),
                         ),
-                        const SizedBox(width: 15),
-                        Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          size: 15,
-                          color: Colors.blue,
-                        ),
-                        const SizedBox(width: 15),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            "${stage["to"].hour.toString().padRight(2, '0')}:${stage["to"].minute.toString().padRight(2, '0')}",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.blue.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                "${stage["from"].hour.toString().padRight(2, '0')}:${stage["from"].minute.toString().padRight(2, '0')}",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 15),
+                            Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              size: 15,
                               color: Colors.blue,
                             ),
-                          ),
+                            const SizedBox(width: 15),
+                            Container(
+                              padding: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.blue.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                "${stage["to"].hour.toString().padRight(2, '0')}:${stage["to"].minute.toString().padRight(2, '0')}",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     )
                   : Container(
-                          padding: EdgeInsets.all(15),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                    child: Text(
+                      padding: EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
                         "No Stage",
                         style: TextStyle(
                           color: Colors.blue,
@@ -80,7 +105,7 @@ class AstroMode extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                  ),
+                    ),
               const SizedBox(height: 10),
               GradientSlider(
                 min: 0,
@@ -130,7 +155,7 @@ class AstroMode extends StatelessWidget {
                                   lowColor: Colors.blue,
                                   //lowColor: Color(0xff413be7),
                                   trackWidth: 3,
-                                  value: currentBrightness.toDouble(),
+                                  value: disabled.contains(i) ? 0 : currentBrightness.toDouble(),
                                 ),
                                 Container(
                                   width: 45,

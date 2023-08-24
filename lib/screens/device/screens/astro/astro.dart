@@ -451,13 +451,13 @@ class _AstroScreenState extends State<AstroScreen> {
                                         children: [
                                           Icon(
                                             Icons
-                                                .keyboard_double_arrow_down_outlined,
+                                                .keyboard_double_arrow_up_outlined,
                                             size: 15,
                                             color: Colors.white,
                                           ),
-                                          const SizedBox(width: 5),
+                                          SizedBox(width: 5),
                                           Text(
-                                            "Scroll down for offset settings",
+                                            "Scroll up for offset settings",
                                             style: TextStyle(
                                               color: Colors.white,
                                             ),
