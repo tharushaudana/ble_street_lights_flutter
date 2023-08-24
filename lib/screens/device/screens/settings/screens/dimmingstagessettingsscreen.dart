@@ -404,6 +404,8 @@ class _ManualStagesDialogState extends SafeState<ManualStagesDialog>
     with TickerProviderStateMixin {
   late TabController _tabController;
 
+  final int maximumStages = 20;
+
   addStage() async {
     TimeRange? range = await openTimeRangePicker();
 
@@ -428,13 +430,17 @@ class _ManualStagesDialogState extends SafeState<ManualStagesDialog>
   reInitTabController() {
     _tabController.dispose();
     _tabController =
-        TabController(length: widget.stages.length + 1, vsync: this);
+        TabController(length: getTabsLength(), vsync: this);
 
     if (widget.stages.isNotEmpty) {
       _tabController.index = widget.stages.length - 1;
     }
 
     addTabControllerListener();
+  }
+
+  getTabsLength() {
+    return widget.stages.length < maximumStages ? widget.stages.length + 1 : widget.stages.length;
   }
 
   addTabControllerListener() {
@@ -641,7 +647,7 @@ class _ManualStagesDialogState extends SafeState<ManualStagesDialog>
   @override
   void initState() {
     _tabController =
-        TabController(length: widget.stages.length + 1, vsync: this);
+        TabController(length: getTabsLength(), vsync: this);
     addTabControllerListener();
     super.initState();
   }
@@ -660,36 +666,38 @@ class _ManualStagesDialogState extends SafeState<ManualStagesDialog>
       stageItems.add(stageItem(i));
     }
 
-    stageItems.add(
-      Container(
-        padding: EdgeInsets.all(30),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              "No more stages.",
-              style: TextStyle(
-                color: Colors.grey,
+    if (stageItems.length < maximumStages) {
+      stageItems.add(
+        Container(
+          padding: EdgeInsets.all(30),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                "No more stages.",
+                style: TextStyle(
+                  color: Colors.grey,
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            FilledButton(
-              onPressed: () {
-                addStage();
-              },
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.add),
-                  SizedBox(width: 5),
-                  Text("ADD ONE"),
-                ],
+              const SizedBox(height: 20),
+              FilledButton(
+                onPressed: () {
+                  addStage();
+                },
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.add),
+                    SizedBox(width: 5),
+                    Text("ADD ONE"),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    }
 
     return Dialog(
       shape: const RoundedRectangleBorder(
@@ -712,7 +720,7 @@ class _ManualStagesDialogState extends SafeState<ManualStagesDialog>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  for (int i = 0; i < widget.stages.length + 1; i++)
+                  for (int i = 0; i < getTabsLength(); i++)
                     GestureDetector(
                       onTap: () {
                         _tabController.index = i;
