@@ -292,11 +292,23 @@ class _DimmingStagesSettingsScreenState
                                               .subdirectory_arrow_right_rounded,
                                           size: 20,
                                         ),
-                                        Text(
-                                          "${widget.settingsData["stages"].length} STAGE(S)",
-                                          style: const TextStyle(
-                                            color: Colors.grey,
-                                            fontWeight: FontWeight.bold,
+                                        GestureDetector(
+                                          onTap: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) =>
+                                                  StagesViewerDialog(
+                                                stages: widget
+                                                    .settingsData["stages"],
+                                              ),
+                                            );
+                                          },
+                                          child: Text(
+                                            "${widget.settingsData["stages"].length} STAGE(S)",
+                                            style: const TextStyle(
+                                              color: Colors.blue,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -304,29 +316,35 @@ class _DimmingStagesSettingsScreenState
                                   ],
                                 ),
                                 const Spacer(),
-                                FilledButton(
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) => ManualStagesDialog(
-                                        stages: widget.settingsData["stages"],
-                                        onClose: () {
-                                          WidgetsBinding.instance
-                                              .addPostFrameCallback(
-                                                  (timeStamp) {
-                                            setState(() {});
-                                          });
-                                        },
+                                Column(
+                                  children: [
+                                    FilledButton(
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) =>
+                                              ManualStagesDialog(
+                                            stages:
+                                                widget.settingsData["stages"],
+                                            onClose: () {
+                                              WidgetsBinding.instance
+                                                  .addPostFrameCallback(
+                                                      (timeStamp) {
+                                                setState(() {});
+                                              });
+                                            },
+                                          ),
+                                        );
+                                      },
+                                      child: const Row(
+                                        children: [
+                                          Icon(Icons.edit),
+                                          SizedBox(width: 5),
+                                          Text("EDIT")
+                                        ],
                                       ),
-                                    );
-                                  },
-                                  child: const Row(
-                                    children: [
-                                      Icon(Icons.edit),
-                                      SizedBox(width: 5),
-                                      Text("EDIT")
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -429,8 +447,7 @@ class _ManualStagesDialogState extends SafeState<ManualStagesDialog>
 
   reInitTabController() {
     _tabController.dispose();
-    _tabController =
-        TabController(length: getTabsLength(), vsync: this);
+    _tabController = TabController(length: getTabsLength(), vsync: this);
 
     if (widget.stages.isNotEmpty) {
       _tabController.index = widget.stages.length - 1;
@@ -440,7 +457,9 @@ class _ManualStagesDialogState extends SafeState<ManualStagesDialog>
   }
 
   getTabsLength() {
-    return widget.stages.length < maximumStages ? widget.stages.length + 1 : widget.stages.length;
+    return widget.stages.length < maximumStages
+        ? widget.stages.length + 1
+        : widget.stages.length;
   }
 
   addTabControllerListener() {
@@ -464,6 +483,7 @@ class _ManualStagesDialogState extends SafeState<ManualStagesDialog>
         paintingStyle: PaintingStyle.fill,
         strokeColor: Colors.blue.withOpacity(0.5),
         interval: const Duration(minutes: 1),
+        minDuration: const Duration(minutes: 1),
         labels: [
           for (int i = 0; i < 12; i++)
             ClockLabel(
@@ -646,8 +666,7 @@ class _ManualStagesDialogState extends SafeState<ManualStagesDialog>
 
   @override
   void initState() {
-    _tabController =
-        TabController(length: getTabsLength(), vsync: this);
+    _tabController = TabController(length: getTabsLength(), vsync: this);
     addTabControllerListener();
     super.initState();
   }
@@ -755,6 +774,149 @@ class _ManualStagesDialogState extends SafeState<ManualStagesDialog>
                       ),
                     ),
                 ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class StagesViewerDialog extends StatelessWidget {
+  const StagesViewerDialog({
+    super.key,
+    required this.stages,
+  });
+
+  final List stages;
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(
+          Radius.circular(20),
+        ),
+      ),
+      child: Container(
+        height: 430,
+        padding: EdgeInsets.symmetric(
+          vertical: 20,
+          horizontal: 15,
+        ),
+        child: Column(
+          children: [
+            const Text(
+              "Stages List",
+              style: TextStyle(
+                color: Colors.black87,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+            const SizedBox(height: 15),
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Column(
+                  children: [
+                    for (int i = 0; i < stages.length; i++)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 10,
+                        ),
+                        margin: const EdgeInsets.only(top: 8),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            width: 0.5,
+                            color: Colors.grey.shade400,
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "STAGE ${(i + 1).toString().padLeft(2, '0')}",
+                                  style: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 8,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(5),
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
+                                      child: Text(
+                                        "${stages[i]["from"].hour.toString().padRight(2, '0')}:${stages[i]["from"].minute.toString().padRight(2, '0')}",
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.blue,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Icon(
+                                      Icons.arrow_forward_ios_rounded,
+                                      size: 10,
+                                      color: Colors.blue.withOpacity(0.7),
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Container(
+                                      padding: const EdgeInsets.all(5),
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
+                                      child: Text(
+                                        "${stages[i]["to"].hour.toString().padRight(2, '0')}:${stages[i]["to"].minute.toString().padRight(2, '0')}",
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.blue,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            const Spacer(),
+                            Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                CircularProgressIndicator(
+                                  value: stages[i]["pwm"] / 100,
+                                  strokeWidth: 2,
+                                  backgroundColor: Colors.grey.shade300,
+                                ),
+                                Text(
+                                  "${stages[i]["pwm"]}%",
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           ],

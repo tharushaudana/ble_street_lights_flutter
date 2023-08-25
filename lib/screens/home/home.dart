@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:ble_street_lights/components/hideanimatedlistitem/hideanimatedlistitem.dart';
 import 'package:ble_street_lights/helpers/bluetooth.dart';
 import 'package:ble_street_lights/helpers/location.dart';
@@ -8,6 +9,7 @@ import 'package:ble_street_lights/screens/home/widgets/devicecard.dart';
 import 'package:ble_street_lights/screens/info/info.dart';
 import 'package:ble_street_lights/screens/scan/scan.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
@@ -25,8 +27,10 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   late SharedPreferences sharedPrefs;
+
+  late Timer autoCloseTimer;
 
   BluetoothHelper bluetooth = BluetoothHelper();
   LocationHelper location = LocationHelper();
@@ -261,9 +265,36 @@ class _HomeScreenState extends State<HomeScreen> {
     updateSharedPrefs();
   }
 
+  startAutoCloseTimer() {
+    autoCloseTimer = Timer(const Duration(seconds: 30), () { 
+      print("==========================");
+      print("closeddddddddd");
+      SystemNavigator.pop();
+    });
+  }
+
+  cancelAutoCloseTimer() {
+    try {
+      autoCloseTimer.cancel();
+    } catch (e) {}
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    if (state == AppLifecycleState.paused) {
+      startAutoCloseTimer();
+    } else if (state == AppLifecycleState.resumed) {
+      cancelAutoCloseTimer();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addObserver(this);
 
     bluetooth.setStateClass(this);
     location.setStateClass(this);
@@ -435,6 +466,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     bluetooth.dispose();
     location.dispose();
+    cancelAutoCloseTimer();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 }
