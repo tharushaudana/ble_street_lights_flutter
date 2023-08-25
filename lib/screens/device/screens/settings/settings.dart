@@ -35,7 +35,7 @@ class _SettingsScreenState extends SafeState<SettingsScreen> {
       width: double.infinity,
       margin: EdgeInsets.symmetric(
         horizontal: 20,
-        vertical: 10,
+        vertical: 6,
       ),
       padding: EdgeInsets.symmetric(
         horizontal: 20,
@@ -108,6 +108,7 @@ class _SettingsScreenState extends SafeState<SettingsScreen> {
       return Column(
         children: [
           const SizedBox(height: 15),
+
           _settingCard(
             GestureDetector(
               onTap: () {
@@ -279,6 +280,7 @@ class _SettingsScreenState extends SafeState<SettingsScreen> {
             shadow: true,
             border: true,
           ),
+
           _settingCard(
             GestureDetector(
               onTap: () {
@@ -462,6 +464,56 @@ class _SettingsScreenState extends SafeState<SettingsScreen> {
                     onSwitching: (will) async {
                       return false;
                     },
+                  ),
+                ],
+              ),
+            ),
+            shadow: true,
+            border: true,
+          ),
+
+          _settingCard(
+            GestureDetector(
+              onTap: () {
+              },
+              child: Row(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Advanced Settings",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            shadow: true,
+            border: true,
+          ),
+
+          _settingCard(
+            GestureDetector(
+              onTap: () {
+              },
+              child: Row(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Reboot Device",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

@@ -817,105 +817,109 @@ class StagesViewerDialog extends StatelessWidget {
             ),
             const SizedBox(height: 15),
             Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: Column(
-                  children: [
-                    for (int i = 0; i < stages.length; i++)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 6,
-                          horizontal: 10,
-                        ),
-                        margin: const EdgeInsets.only(top: 8),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            width: 0.5,
-                            color: Colors.grey.shade400,
+              child: Scrollbar(
+                trackVisibility: true,
+                radius: const Radius.circular(5),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: Column(
+                    children: [
+                      for (int i = 0; i < stages.length; i++)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 6,
+                            horizontal: 10,
                           ),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "STAGE ${(i + 1).toString().padLeft(2, '0')}",
-                                  style: const TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 8,
-                                    fontWeight: FontWeight.bold,
+                          margin: const EdgeInsets.only(top: 8),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              width: 0.5,
+                              color: Colors.grey.shade400,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "STAGE ${(i + 1).toString().padLeft(2, '0')}",
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 8,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 5),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(5),
-                                      decoration: BoxDecoration(
-                                        color: Colors.blue.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(5),
-                                      ),
-                                      child: Text(
-                                        "${stages[i]["from"].hour.toString().padRight(2, '0')}:${stages[i]["from"].minute.toString().padRight(2, '0')}",
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.blue,
-                                          fontSize: 12,
+                                  const SizedBox(height: 5),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(5),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue.withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(5),
+                                        ),
+                                        child: Text(
+                                          "${stages[i]["from"].hour.toString().padRight(2, '0')}:${stages[i]["from"].minute.toString().padRight(2, '0')}",
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.blue,
+                                            fontSize: 12,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Icon(
-                                      Icons.arrow_forward_ios_rounded,
-                                      size: 10,
-                                      color: Colors.blue.withOpacity(0.7),
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Container(
-                                      padding: const EdgeInsets.all(5),
-                                      decoration: BoxDecoration(
-                                        color: Colors.blue.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(5),
+                                      const SizedBox(width: 5),
+                                      Icon(
+                                        Icons.arrow_forward_ios_rounded,
+                                        size: 10,
+                                        color: Colors.blue.withOpacity(0.7),
                                       ),
-                                      child: Text(
-                                        "${stages[i]["to"].hour.toString().padRight(2, '0')}:${stages[i]["to"].minute.toString().padRight(2, '0')}",
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.blue,
-                                          fontSize: 12,
+                                      const SizedBox(width: 5),
+                                      Container(
+                                        padding: const EdgeInsets.all(5),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue.withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(5),
+                                        ),
+                                        child: Text(
+                                          "${stages[i]["to"].hour.toString().padRight(2, '0')}:${stages[i]["to"].minute.toString().padRight(2, '0')}",
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.blue,
+                                            fontSize: 12,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            const Spacer(),
-                            Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                CircularProgressIndicator(
-                                  value: stages[i]["pwm"] / 100,
-                                  strokeWidth: 2,
-                                  backgroundColor: Colors.grey.shade300,
-                                ),
-                                Text(
-                                  "${stages[i]["pwm"]}%",
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
+                                    ],
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                              const Spacer(),
+                              Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  CircularProgressIndicator(
+                                    value: stages[i]["pwm"] / 100,
+                                    strokeWidth: 2,
+                                    backgroundColor: Colors.grey.shade300,
+                                  ),
+                                  Text(
+                                    "${stages[i]["pwm"]}%",
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
