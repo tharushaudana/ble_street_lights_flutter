@@ -95,6 +95,7 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
         timeout: Duration(milliseconds: timeoutMillis),
       );
       _listenStateChanges();
+      _isConnecting = false;
     } catch (e) {
       _isConnecting = false;
       rethrow;

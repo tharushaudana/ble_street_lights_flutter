@@ -98,7 +98,7 @@ class AstroMode extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
-                        "No Stage",
+                        "No Active Stage",
                         style: TextStyle(
                           color: Colors.blue,
                           //fontSize: 25,

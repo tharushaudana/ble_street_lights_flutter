@@ -27,10 +27,8 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
+class _HomeScreenState extends State<HomeScreen> {
   late SharedPreferences sharedPrefs;
-
-  late Timer autoCloseTimer;
 
   BluetoothHelper bluetooth = BluetoothHelper();
   LocationHelper location = LocationHelper();
@@ -265,36 +263,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     updateSharedPrefs();
   }
 
-  startAutoCloseTimer() {
-    autoCloseTimer = Timer(const Duration(seconds: 30), () { 
-      print("==========================");
-      print("closeddddddddd");
-      SystemNavigator.pop();
-    });
-  }
-
-  cancelAutoCloseTimer() {
-    try {
-      autoCloseTimer.cancel();
-    } catch (e) {}
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-
-    if (state == AppLifecycleState.paused) {
-      startAutoCloseTimer();
-    } else if (state == AppLifecycleState.resumed) {
-      cancelAutoCloseTimer();
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-
-    WidgetsBinding.instance.addObserver(this);
 
     bluetooth.setStateClass(this);
     location.setStateClass(this);
@@ -466,8 +437,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void dispose() {
     bluetooth.dispose();
     location.dispose();
-    cancelAutoCloseTimer();
-    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 }

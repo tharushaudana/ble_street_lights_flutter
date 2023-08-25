@@ -25,9 +25,15 @@ class DeviceScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _DeviceScreenState();
 }
 
-class _DeviceScreenState extends State<DeviceScreen> {
+class _DeviceScreenState extends State<DeviceScreen>
+    with WidgetsBindingObserver {
+  
+  final autoCloseDuration = const Duration(minutes: 15);
+
   late TabController _tabController;
   late BLEDevice device;
+
+  late Timer autoCloseTimer;
 
   bool isConnected = false;
 
@@ -61,8 +67,47 @@ class _DeviceScreenState extends State<DeviceScreen> {
     );
   }
 
+  closeScreen() {
+    Navigator.pop(context);
+  }
+
+  startAutoCloseTimer() {
+    autoCloseTimer = Timer(autoCloseDuration, () {
+      try {
+        Navigator.pop(context);
+      } catch (e) {}
+    });
+  }
+
+  cancelAutoCloseTimer() {
+    try {
+      autoCloseTimer.cancel();
+    } catch (e) {}
+  }
+
+  updateLastSeenText(String newText) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      setState(() {
+        lastSeenStr = newText;
+      });
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    if (state == AppLifecycleState.paused) {
+      startAutoCloseTimer();
+    } else if (state == AppLifecycleState.resumed) {
+      cancelAutoCloseTimer();
+    }
+  }
+
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
+
     device = BLEDevice(
       widget.deviceData[1],
       onConnected: () {
@@ -79,16 +124,15 @@ class _DeviceScreenState extends State<DeviceScreen> {
           isConnected = false;
         });
 
-        lastSeenStr = "active recently";
+        updateLastSeenText("active recently");
 
         lastSeenTime = Time.now();
 
         timerLastSeenUpdate = Timer.periodic(
           const Duration(seconds: 30),
           (timer) {
-            setState(() {
-              lastSeenStr = "active ${Time.dateTimeToHumanDiff(lastSeenTime)}";
-            });
+            updateLastSeenText(
+                "active ${Time.dateTimeToHumanDiff(lastSeenTime)}");
           },
         );
       },
@@ -226,6 +270,9 @@ class _DeviceScreenState extends State<DeviceScreen> {
     if (widget.didPop != null) {
       widget.didPop!();
     }
+
+    cancelAutoCloseTimer();
+    WidgetsBinding.instance.removeObserver(this);
 
     super.dispose();
   }
