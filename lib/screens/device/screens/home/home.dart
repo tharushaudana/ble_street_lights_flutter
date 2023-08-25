@@ -283,17 +283,25 @@ class _DeviceHomeScreenState extends SafeState<DeviceHomeScreen> {
                                           });
                                         },
                                         onChangeRelayValue: (rvalue) {
-                                          setState(() {
+                                          settingsData["lamps"]
+                                                  [selectedLampIndex]
+                                              ["rvalue"] = rvalue;
+
+                                          if (rvalue == 0) {
                                             settingsData["lamps"]
                                                     [selectedLampIndex]
-                                                ["rvalue"] = rvalue;
-                                          });
+                                                ["pwm"] = 0;
+                                          }
+
+                                          setState(() {});
                                         },
                                       ),
                                     ),
                                   )
                                 : AstroMode(
-                                    modeType: provider.deviceData.settingsData['settingstab']["dimmingStages"]["mode"],
+                                    modeType: provider.deviceData
+                                            .settingsData['settingstab']
+                                        ["dimmingStages"]["mode"],
                                     stage: currentStage,
                                     currentBrightness: currentBrightness,
                                     relayStates: relayStates,
