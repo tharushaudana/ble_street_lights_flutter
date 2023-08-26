@@ -97,16 +97,16 @@ class _DeviceScreenState extends State<DeviceScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
 
-    if (state == AppLifecycleState.paused) {
+    /*if (state == AppLifecycleState.paused) {
       startAutoCloseTimer();
     } else if (state == AppLifecycleState.resumed) {
       cancelAutoCloseTimer();
-    }
+    }*/
   }
 
   @override
   void initState() {
-    WidgetsBinding.instance.addObserver(this);
+    //WidgetsBinding.instance.addObserver(this);
 
     device = BLEDevice(
       widget.deviceData[1],

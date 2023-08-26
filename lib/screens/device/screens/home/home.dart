@@ -287,11 +287,7 @@ class _DeviceHomeScreenState extends SafeState<DeviceHomeScreen> {
                                                   [selectedLampIndex]
                                               ["rvalue"] = rvalue;
 
-                                          if (rvalue == 0) {
-                                            settingsData["lamps"]
-                                                    [selectedLampIndex]
-                                                ["pwm"] = 0;
-                                          }
+                                          settingsData["lamps"][selectedLampIndex]["pwm"] = rvalue == 0 ? 0 : 100;
 
                                           setState(() {});
                                         },
