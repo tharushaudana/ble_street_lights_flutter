@@ -27,12 +27,14 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
   final VoidCallback onConnected;
   final VoidCallback onDisconnected;
   final Function(BLEDeviceMessage message)? onMessage;
+  final VoidCallback? onWrongMessage;
 
   BLEDevice(
     String id, {
     required this.onConnected,
     required this.onDisconnected,
     this.onMessage,
+    this.onWrongMessage,
   }) {
     device = BluetoothDevice.fromId(id);
     deviceData = BLEDeviceData();
@@ -46,6 +48,7 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
         BLEDeviceMessage? message = BLEDeviceMessage.fromBytes(data);
 
         if (message == null) {
+          if (onWrongMessage != null) onWrongMessage!();
           return;
         }
 

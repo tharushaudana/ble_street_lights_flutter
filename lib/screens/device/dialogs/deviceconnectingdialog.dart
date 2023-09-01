@@ -28,6 +28,7 @@ class _DeviceConnectingDialogState extends SafeState<DeviceConnectingDialog> {
 
   bool canClose = false;
   bool shouldClose = false;
+  bool disposed = false;
 
   connectDevice() async {
     setState(() {
@@ -48,6 +49,8 @@ class _DeviceConnectingDialogState extends SafeState<DeviceConnectingDialog> {
   }
 
   close() {
+    if (disposed) return;
+    
     if (!canClose) {
       shouldClose = true;
       return;
@@ -84,6 +87,7 @@ class _DeviceConnectingDialogState extends SafeState<DeviceConnectingDialog> {
   @override
   void dispose() {
     _blueWaveGif.evict();
+    disposed = true;
     super.dispose();
   }
 

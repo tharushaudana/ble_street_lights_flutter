@@ -148,6 +148,9 @@ class _DeviceScreenState extends State<DeviceScreen>
           firstMsgReceived = true;
         }
       },
+      onWrongMessage: () {
+
+      },
     );
 
     connectingDialog = DeviceConnectingDialog(device: device);

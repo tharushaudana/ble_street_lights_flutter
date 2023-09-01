@@ -9,7 +9,7 @@ class BLEDeviceMessage {
   Map data = {};
 
   static BLEDeviceMessage? fromBytes(List<int> data) {
-    try {
+    /*try {
       String msg = utf8.decode(data);
 
       final json = jsonDecode(msg) as Map;
@@ -29,6 +29,21 @@ class BLEDeviceMessage {
       log("utf8 decode error");
       log(e.toString());
       return null;
-    }
+    }*/
+      String msg = utf8.decode(data);
+
+      final json = jsonDecode(msg) as Map;
+      
+      if (!json.containsKey('t')) return null;
+
+      final message = BLEDeviceMessage();
+
+      message.type = json['t'];
+
+      if (json.containsKey('d')) {
+        message.data = json['d'];
+      }
+
+      return message;
   }
 }
