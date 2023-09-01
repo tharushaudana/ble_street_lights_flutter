@@ -5,12 +5,17 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:ble_street_lights/safestate/safestate.dart';
 
 class DeviceConnectingDialog extends StatefulWidget {
-  const DeviceConnectingDialog({
+  DeviceConnectingDialog({
     super.key,
     required this.device,
   });
 
   final BLEDevice device;
+  late VoidCallback onClose;
+
+  close() {
+    onClose();
+  }
 
   @override
   State<StatefulWidget> createState() => _DeviceConnectingDialogState();
@@ -21,6 +26,9 @@ class _DeviceConnectingDialogState extends SafeState<DeviceConnectingDialog> {
 
   bool isTimeout = false;
 
+  bool canClose = false;
+  bool shouldClose = false;
+
   connectDevice() async {
     setState(() {
       isTimeout = false;
@@ -28,15 +36,23 @@ class _DeviceConnectingDialogState extends SafeState<DeviceConnectingDialog> {
 
     try {
       await widget.device.connect(8000);
-      close();
     } catch (e) {
       setState(() {
         isTimeout = true;
       });
+
+      try {
+        widget.device.disconnect();
+      } catch (e) {}
     }
   }
 
   close() {
+    if (!canClose) {
+      shouldClose = true;
+      return;
+    }
+
     if (Navigator.canPop(context)) {
       Navigator.pop(context);
     } else {
@@ -48,11 +64,21 @@ class _DeviceConnectingDialogState extends SafeState<DeviceConnectingDialog> {
   void initState() {
     super.initState();
 
+    widget.onClose =() {
+      close();
+    };
+
     _blueWaveGif = const AssetImage("assets/images/blue-wave.gif");
 
-    Future.delayed(const Duration(milliseconds: 4000), () {
-      connectDevice();
+    // prevent close during animation
+    Future.delayed(const Duration(milliseconds: 5000), () {
+      canClose = true;
+      if (shouldClose) {
+        close();
+      }
     });
+
+    connectDevice();
   }
 
   @override
@@ -69,7 +95,7 @@ class _DeviceConnectingDialogState extends SafeState<DeviceConnectingDialog> {
           Radius.circular(20),
         ),
       ),
-      content: Container(
+      content: SizedBox(
         height: 180,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

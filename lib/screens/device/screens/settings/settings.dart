@@ -136,7 +136,7 @@ class _SettingsScreenState extends SafeState<SettingsScreen> {
                       Text(
                         "Motion Sensor",
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 17,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -308,7 +308,7 @@ class _SettingsScreenState extends SafeState<SettingsScreen> {
                       const Text(
                         "Dimming Stages",
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 17,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -484,7 +484,7 @@ class _SettingsScreenState extends SafeState<SettingsScreen> {
                       const Text(
                         "Advanced Settings",
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 17,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -509,7 +509,7 @@ class _SettingsScreenState extends SafeState<SettingsScreen> {
                       const Text(
                         "Reboot Device",
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 17,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

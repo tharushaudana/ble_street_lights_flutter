@@ -103,12 +103,15 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
   }
 
   Future<void> disconnect() async {
-    _stateSubscription?.cancel();
-    _characteristicValueStateSubscription?.cancel();
     try {
       await device.disconnect();
       // ignore: empty_catches
     } catch (e) {}
+  }
+
+  dispose() {
+    _stateSubscription?.cancel();
+    _characteristicValueStateSubscription?.cancel();
   }
 
   _listenStateChanges() {

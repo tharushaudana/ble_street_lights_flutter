@@ -95,6 +95,9 @@ class BLEDeviceData {
 
     data["motionSensor"]["sensorCount"] = sensorCount;
     data["motionSensor"]["holdTime"] = holdTime;
+    // sensitive levels
+    data["motionSensor"]["slevels"][0] = settingValue("m.a", 0);
+    data["motionSensor"]["slevels"][1] = settingValue("m.b", 0);
 
     //#### Dimming Stages
 

@@ -43,6 +43,8 @@ class _DeviceScreenState extends State<DeviceScreen>
   Timer? timerLastSeenUpdate;
   String lastSeenStr = "not connected yet";
 
+  late DeviceConnectingDialog connectingDialog;
+
   late AstroScreenController _astroScreenController;
 
   openProfileScreen() {
@@ -64,7 +66,7 @@ class _DeviceScreenState extends State<DeviceScreen>
       context: context,
       barrierDismissible: false,
       builder: (context) {
-        return DeviceConnectingDialog(device: device);
+        return connectingDialog;
       },
     );
   }
@@ -142,12 +144,13 @@ class _DeviceScreenState extends State<DeviceScreen>
         //log(message.type.toString());
         //log(jsonEncode(message.data));
         if (!firstMsgReceived) {
-          setState(() {
-            firstMsgReceived = true;
-          });
+          connectingDialog.close();
+          firstMsgReceived = true;
         }
       },
     );
+
+    connectingDialog = DeviceConnectingDialog(device: device);
 
     super.initState();
 
@@ -227,63 +230,41 @@ class _DeviceScreenState extends State<DeviceScreen>
           //elevation: 0,
           titleSpacing: 0,
         ),
-        body: !firstMsgReceived && !isConnected
-            ? const Center(child: CircularProgressIndicator())
-            : !firstMsgReceived
-                ? Center(
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      child: const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Initializing...",
-                            style: TextStyle(
-                              fontSize: 20,
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          LinearProgressIndicator()
-                        ],
-                      ),
-                    ),
-                  )
-                : BottomTabBarLayout(
-                    tabs: const [
-                      ["Home", Icons.home, Color(0xFF5B36B7)],
-                      ["Astro", Icons.wb_sunny_rounded, Color(0xFFC9379C)],
-                      ["Meter", Icons.energy_savings_leaf, Color(0xFFE6A91A)],
-                      ["Settings", Icons.settings_rounded, Color(0xFF1193A9)],
-                    ],
-                    onController: (controller) {
-                      _tabController = controller;
-                    },
-                    children: [
-                      ChangeNotifierProvider(
-                        create: (_) => BLEDeviceConnectionProvider(device),
-                        child: DeviceHomeScreen(),
-                      ),
-                      ChangeNotifierProvider(
-                        create: (_) => BLEDeviceConnectionProvider(device),
-                        child: AstroScreen(
-                          onController: (controller) {
-                            _astroScreenController = controller;
-                          },
-                        ),
-                      ),
-                      const Center(
-                        child: Text(
-                          "Meter",
-                          style: TextStyle(fontSize: 30),
-                        ),
-                      ),
-                      ChangeNotifierProvider(
-                        create: (_) => BLEDeviceConnectionProvider(device),
-                        child: SettingsScreen(),
-                      ),
-                    ],
-                  ).animate().moveY(duration: 500.ms).fade(duration: 500.ms)
+        body: BottomTabBarLayout(
+          tabs: const [
+            ["Home", Icons.home, Color(0xFF5B36B7)],
+            ["Astro", Icons.wb_sunny_rounded, Color(0xFFC9379C)],
+            ["Meter", Icons.energy_savings_leaf, Color(0xFFE6A91A)],
+            ["Settings", Icons.settings_rounded, Color(0xFF1193A9)],
+          ],
+          onController: (controller) {
+            _tabController = controller;
+          },
+          children: [
+            ChangeNotifierProvider(
+              create: (_) => BLEDeviceConnectionProvider(device),
+              child: DeviceHomeScreen(),
+            ),
+            ChangeNotifierProvider(
+              create: (_) => BLEDeviceConnectionProvider(device),
+              child: AstroScreen(
+                onController: (controller) {
+                  _astroScreenController = controller;
+                },
+              ),
+            ),
+            const Center(
+              child: Text(
+                "Meter",
+                style: TextStyle(fontSize: 30),
+              ),
+            ),
+            ChangeNotifierProvider(
+              create: (_) => BLEDeviceConnectionProvider(device),
+              child: SettingsScreen(),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -291,6 +272,7 @@ class _DeviceScreenState extends State<DeviceScreen>
   @override
   void dispose() {
     device.disconnect();
+    device.dispose();
 
     if (timerLastSeenUpdate != null && timerLastSeenUpdate!.isActive) {
       timerLastSeenUpdate!.cancel();

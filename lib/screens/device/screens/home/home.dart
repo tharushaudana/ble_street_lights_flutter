@@ -8,6 +8,7 @@ import 'package:ble_street_lights/screens/device/screens/home/modes/astromode.da
 import 'package:ble_street_lights/screens/device/screens/home/modes/manualmode.dart';
 import 'package:ble_street_lights/screens/device/screens/home/syncbtn.dart';
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
 import 'package:provider/provider.dart';
 import 'package:ble_street_lights/safestate/safestate.dart';
@@ -287,7 +288,9 @@ class _DeviceHomeScreenState extends SafeState<DeviceHomeScreen> {
                                                   [selectedLampIndex]
                                               ["rvalue"] = rvalue;
 
-                                          settingsData["lamps"][selectedLampIndex]["pwm"] = rvalue == 0 ? 0 : 100;
+                                          settingsData["lamps"]
+                                                  [selectedLampIndex]["pwm"] =
+                                              rvalue == 0 ? 0 : 100;
 
                                           setState(() {});
                                         },
@@ -324,15 +327,51 @@ class _DeviceHomeScreenState extends SafeState<DeviceHomeScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              "Motion Sensors",
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey,
-                              ),
+                            Row(
+                              children: [
+                                const Text(
+                                  "Motion Sensors",
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                const Spacer(),
+                                motionSensorStates.isNotEmpty && motionSensorStates["x"]
+                                    ? Container(
+                                        width: 10,
+                                        height: 10,
+                                        decoration: const BoxDecoration(
+                                            color: Colors.green,
+                                            shape: BoxShape.circle,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.green,
+                                                offset: Offset(0, 0),
+                                                blurRadius: 20,
+                                                spreadRadius: 1,
+                                              )
+                                            ]),
+                                      )
+                                        .animate(
+                                          onPlay: (controller) =>
+                                              controller.repeat(),
+                                        )
+                                        .fadeIn(duration: 500.ms)
+                                        .fadeOut(
+                                            duration: 500.ms, delay: 500.ms)
+                                    : Container(
+                                        width: 10,
+                                        height: 10,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.grey,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                              ],
                             ),
-                            const SizedBox(height: 10),
+                            const SizedBox(height: 16),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -366,7 +405,7 @@ class _DeviceHomeScreenState extends SafeState<DeviceHomeScreen> {
                                       ),
                                       child: Icon(
                                         Icons.sensors_rounded,
-                                        size: 20,
+                                        size: 25,
                                         color: motionSensorStates[[
                                                   'a',
                                                   'b',

@@ -126,7 +126,7 @@ class _MotionSensorSettingsScreenState
                       const Text(
                         "Status",
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 17,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -198,12 +198,12 @@ class _MotionSensorSettingsScreenState
                                 children: [
                                   const Row(
                                     children: [
-                                      Icon(Icons.auto_awesome_motion_rounded),
+                                      Icon(Icons.auto_awesome_motion_rounded, size: 18),
                                       SizedBox(width: 10),
                                       Text(
                                         "Sensor Count",
                                         style: TextStyle(
-                                          fontSize: 20,
+                                          fontSize: 17,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -292,72 +292,79 @@ class _MotionSensorSettingsScreenState
                           children: [
                             const Row(
                               children: [
-                                Icon(Icons.settings),
+                                Icon(Icons.settings, size: 18),
                                 SizedBox(width: 10),
                                 Text(
                                   "Sensitive Configuration",
                                   style: TextStyle(
-                                    fontSize: 20,
+                                    fontSize: 17,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 15),
+                            const SizedBox(height: 5),
                             Row(
                               children: [
-                                // A, B only sensitive
-                                for (int i = 0; i < 2; i++)
-                                  InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        _selectedSensorIndex = i;
-                                      });
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 3,
-                                        horizontal: 15,
-                                      ),
-                                      margin: const EdgeInsets.only(right: 6),
-                                      decoration: BoxDecoration(
-                                          color: _selectedSensorIndex == i
-                                              ? Colors.blue
-                                              : Colors.transparent,
-                                          border: Border.all(
-                                            color: _selectedSensorIndex == i
-                                                ? Colors.blue
-                                                : Colors.black,
-                                            width: 1,
+                                Row(
+                                  children: [
+                                    // A, B only sensitive
+                                    for (int i = 0; i < 2; i++)
+                                      InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            _selectedSensorIndex = i;
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 3,
+                                            horizontal: 15,
                                           ),
-                                          borderRadius:
-                                              BorderRadius.circular(20)),
-                                      child: Text(
-                                        "Channel ${['A', 'B'][i]}",
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: _selectedSensorIndex == i
-                                              ? Colors.white
-                                              : Colors.black,
+                                          margin:
+                                              const EdgeInsets.only(right: 6),
+                                          decoration: BoxDecoration(
+                                              color: _selectedSensorIndex == i
+                                                  ? Colors.blue
+                                                  : Colors.transparent,
+                                              border: Border.all(
+                                                color: _selectedSensorIndex == i
+                                                    ? Colors.blue
+                                                    : Colors.black,
+                                                width: 1,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(20)),
+                                          child: Text(
+                                            ['A', 'B'][i],
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              color: _selectedSensorIndex == i
+                                                  ? Colors.white
+                                                  : Colors.black,
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ),
+                                  ],
+                                ),
+                                Expanded(child: SfSlider(
+                                  min: 0,
+                                  max: 100,
+                                  stepSize: 25,
+                                  interval: 25,
+                                  showTicks: true,
+                                  showDividers: true,
+                                  showLabels: true,
+                                  value: widget.settingsData["slevels"]
+                                      [_selectedSensorIndex],
+                                  onChanged: (value) {
+                                    widget.settingsData["slevels"]
+                                        [_selectedSensorIndex] = value.toInt();
+                                    setState(() {});
+                                  },
+                                ),),
                               ],
-                            ),
-                            SfSlider(
-                              min: 0,
-                              max: 100,
-                              stepSize: 25,
-                              interval: 25,
-                              showTicks: true,
-                              showDividers: true,
-                              showLabels: true,
-                              value: widget.settingsData["slevels"][_selectedSensorIndex],
-                              onChanged: (value) {
-                                widget.settingsData["slevels"][_selectedSensorIndex] = value.toInt();
-                                setState(() {});
-                              },
                             ),
                           ],
                         ),
@@ -371,12 +378,12 @@ class _MotionSensorSettingsScreenState
                                 children: [
                                   const Row(
                                     children: [
-                                      Icon(Icons.timelapse_rounded),
+                                      Icon(Icons.timelapse_rounded, size: 18),
                                       SizedBox(width: 10),
                                       Text(
                                         "Hold Time",
                                         style: TextStyle(
-                                          fontSize: 20,
+                                          fontSize: 17,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),

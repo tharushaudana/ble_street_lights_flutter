@@ -121,7 +121,7 @@ class _DimmingStagesSettingsScreenState
                     const Text(
                       "Status",
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 17,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -193,7 +193,7 @@ class _DimmingStagesSettingsScreenState
                               const Text(
                                 "Mode",
                                 style: TextStyle(
-                                  fontSize: 20,
+                                  fontSize: 17,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -278,7 +278,7 @@ class _DimmingStagesSettingsScreenState
                                     const Text(
                                       "Stages",
                                       style: TextStyle(
-                                        fontSize: 20,
+                                        fontSize: 17,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -425,7 +425,7 @@ class _ManualStagesDialogState extends SafeState<ManualStagesDialog>
   final int maximumStages = 20;
 
   addStage() async {
-    TimeRange? range = await openTimeRangePicker();
+    TimeRange? range = await openTimeRangePicker(index: widget.stages.length);
 
     if (range == null) return;
 
@@ -469,6 +469,7 @@ class _ManualStagesDialogState extends SafeState<ManualStagesDialog>
   }
 
   Future<TimeRange?> openTimeRangePicker({
+    required int index,
     TimeOfDay? from,
     TimeOfDay? to,
   }) async {
@@ -484,6 +485,12 @@ class _ManualStagesDialogState extends SafeState<ManualStagesDialog>
         strokeColor: Colors.blue.withOpacity(0.5),
         interval: const Duration(minutes: 1),
         minDuration: const Duration(minutes: 1),
+        disabledTime: index == 0
+            ? null
+            : TimeRange(
+                startTime: widget.stages[0]["from"],
+                endTime: widget.stages[index - 1]["to"],
+              ),
         labels: [
           for (int i = 0; i < 12; i++)
             ClockLabel(
@@ -545,6 +552,7 @@ class _ManualStagesDialogState extends SafeState<ManualStagesDialog>
                 child: InkWell(
                   onTap: () async {
                     TimeRange? range = await openTimeRangePicker(
+                      index: index,
                       from: stage["from"],
                       to: stage["to"],
                     );
@@ -854,13 +862,15 @@ class StagesViewerDialog extends StatelessWidget {
                                   const SizedBox(height: 5),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
                                       Container(
                                         padding: const EdgeInsets.all(5),
                                         decoration: BoxDecoration(
                                           color: Colors.blue.withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(5),
+                                          borderRadius:
+                                              BorderRadius.circular(5),
                                         ),
                                         child: Text(
                                           "${stages[i]["from"].hour.toString().padRight(2, '0')}:${stages[i]["from"].minute.toString().padRight(2, '0')}",
@@ -882,7 +892,8 @@ class StagesViewerDialog extends StatelessWidget {
                                         padding: const EdgeInsets.all(5),
                                         decoration: BoxDecoration(
                                           color: Colors.blue.withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(5),
+                                          borderRadius:
+                                              BorderRadius.circular(5),
                                         ),
                                         child: Text(
                                           "${stages[i]["to"].hour.toString().padRight(2, '0')}:${stages[i]["to"].minute.toString().padRight(2, '0')}",

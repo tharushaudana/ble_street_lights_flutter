@@ -369,7 +369,8 @@ class _AstroScreenState extends State<AstroScreen> {
                                   _valueBox(
                                     "Sunset",
                                     sunsetAt,
-                                    const AssetImage("assets/images/sunset_icon.png"),
+                                    const AssetImage(
+                                        "assets/images/sunset_icon.png"),
                                   ),
                                   const SizedBox(height: 15),
                                   _valueBox(
@@ -382,7 +383,8 @@ class _AstroScreenState extends State<AstroScreen> {
                                   _valueBox(
                                     "Offset Sunset",
                                     ofsunsetAt,
-                                    const AssetImage("assets/images/ofsunset_icon.png"),
+                                    const AssetImage(
+                                        "assets/images/ofsunset_icon.png"),
                                   ),
                                 ],
                               ),
@@ -493,7 +495,7 @@ class _AstroScreenState extends State<AstroScreen> {
                                         const Text(
                                           "Offset Status",
                                           style: TextStyle(
-                                            fontSize: 20,
+                                            fontSize: 17,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
@@ -572,13 +574,15 @@ class _AstroScreenState extends State<AstroScreen> {
                                                   children: [
                                                     const Row(
                                                       children: [
-                                                        Icon(Icons
-                                                            .sunny_snowing),
+                                                        Icon(
+                                                          Icons.sunny_snowing,
+                                                          size: 18,
+                                                        ),
                                                         SizedBox(width: 10),
                                                         Text(
                                                           "Offset Sunrise",
                                                           style: TextStyle(
-                                                            fontSize: 20,
+                                                            fontSize: 17,
                                                             fontWeight:
                                                                 FontWeight.bold,
                                                           ),
@@ -643,12 +647,15 @@ class _AstroScreenState extends State<AstroScreen> {
                                                   children: [
                                                     const Row(
                                                       children: [
-                                                        Icon(Icons.nights_stay),
+                                                        Icon(
+                                                          Icons.nights_stay,
+                                                          size: 18,
+                                                        ),
                                                         SizedBox(width: 10),
                                                         Text(
                                                           "Offset Sunset",
                                                           style: TextStyle(
-                                                            fontSize: 20,
+                                                            fontSize: 17,
                                                             fontWeight:
                                                                 FontWeight.bold,
                                                           ),
