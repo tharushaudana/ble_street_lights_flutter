@@ -342,13 +342,13 @@ class _DeviceHomeScreenState extends SafeState<DeviceHomeScreen> {
                                     ? Container(
                                         width: 10,
                                         height: 10,
-                                        decoration: const BoxDecoration(
-                                            color: Colors.green,
+                                        decoration: BoxDecoration(
+                                            color: Colors.greenAccent.shade700,
                                             shape: BoxShape.circle,
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Colors.green,
-                                                offset: Offset(0, 0),
+                                                color: Colors.greenAccent.shade700,
+                                                offset: const Offset(0, 0),
                                                 blurRadius: 20,
                                                 spreadRadius: 1,
                                               )

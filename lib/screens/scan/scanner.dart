@@ -21,6 +21,8 @@ class Scanner extends StatefulWidget {
 }
 
 class _ScannerState extends State<Scanner> {
+  final String deviceNamePrefix = "BLE_";
+
   late RadarController radarController;
 
   BluetoothHelper bluetooth = BluetoothHelper();
@@ -58,7 +60,10 @@ class _ScannerState extends State<Scanner> {
 
     bluetooth.listenForScanResults((List<ScanResult> results) {
       for (ScanResult r in results) {
-        addDevice(r.device, r.rssi);
+        String name = r.device.name;
+        if (name.startsWith(deviceNamePrefix)) {
+          addDevice(r.device, r.rssi);
+        }
       }
     });
   }
@@ -68,7 +73,7 @@ class _ScannerState extends State<Scanner> {
     
     BluetoothDevice deviceModified = BluetoothDevice.fromId(
       device.id.toString(),
-      name: device.name.replaceAll(RegExp(r'BLE_'), ''),
+      name: device.name.replaceAll(RegExp(deviceNamePrefix), ''),
     );
     
     devices.add(deviceModified);
