@@ -26,12 +26,7 @@ Map getDefaultSettings() {
         "enabled": false,
         "sensorCount": 1,
         "holdTime": 1,
-        "config": BList([
-          BMap({"type": "normal", "sensitivity": 75}),
-          BMap({"type": "sensitive", "sensitivity": 75}),
-          BMap({"type": "normal", "sensitivity": 75}),
-          BMap({"type": "sensitive", "sensitivity": 75})
-        ])
+        "slevels": BList([0, 0]) // sensitive levels
       }),
       "dimmingStages": BMap({
         "enabled": false,

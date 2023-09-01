@@ -94,20 +94,6 @@ class _MotionSensorSettingsScreenState
     );
   }
 
-  int _sensitivePirCount() {
-    BList list = widget.settingsData["config"];
-
-    int c = 0;
-
-    for (BMap item in list) {
-      if (item["type"] == "sensitive") {
-        c++;
-      }
-    }
-
-    return c;
-  }
-
   @override
   void initState() {
     super.initState();
@@ -309,7 +295,7 @@ class _MotionSensorSettingsScreenState
                                 Icon(Icons.settings),
                                 SizedBox(width: 10),
                                 Text(
-                                  "Configuration",
+                                  "Sensitive Configuration",
                                   style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
@@ -317,157 +303,61 @@ class _MotionSensorSettingsScreenState
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 10),
+                            const SizedBox(height: 15),
                             Row(
                               children: [
-                                for (int i = 0; i < 4; i++)
-                                  Opacity(
-                                    opacity:
-                                        widget.settingsData['sensorCount'] -
-                                                    1 >=
-                                                i
-                                            ? 1
-                                            : 0.3,
-                                    child: InkWell(
-                                      onTap: () {
-                                        if (widget.settingsData['sensorCount'] -
-                                                1 <
-                                            i) {
-                                          return;
-                                        }
-
-                                        setState(() {
-                                          _selectedSensorIndex = i;
-                                        });
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 3,
-                                          horizontal: 15,
-                                        ),
-                                        margin: const EdgeInsets.only(right: 6),
-                                        decoration: BoxDecoration(
+                                // A, B only sensitive
+                                for (int i = 0; i < 2; i++)
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        _selectedSensorIndex = i;
+                                      });
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 3,
+                                        horizontal: 15,
+                                      ),
+                                      margin: const EdgeInsets.only(right: 6),
+                                      decoration: BoxDecoration(
+                                          color: _selectedSensorIndex == i
+                                              ? Colors.blue
+                                              : Colors.transparent,
+                                          border: Border.all(
                                             color: _selectedSensorIndex == i
                                                 ? Colors.blue
-                                                : Colors.transparent,
-                                            border: Border.all(
-                                              color: _selectedSensorIndex == i
-                                                  ? Colors.blue
-                                                  : Colors.black,
-                                              width: 1,
-                                            ),
-                                            borderRadius:
-                                                BorderRadius.circular(20)),
-                                        child: Text(
-                                          ['A', 'B', 'C', 'D'][i],
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            color: _selectedSensorIndex == i
-                                                ? Colors.white
                                                 : Colors.black,
+                                            width: 1,
                                           ),
+                                          borderRadius:
+                                              BorderRadius.circular(20)),
+                                      child: Text(
+                                        "Channel ${['A', 'B'][i]}",
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: _selectedSensorIndex == i
+                                              ? Colors.white
+                                              : Colors.black,
                                         ),
                                       ),
                                     ),
                                   ),
                               ],
                             ),
-                            const SizedBox(height: 5),
-                            Row(
-                              children: [
-                                ToggleButtons(
-                                  onPressed: (index) {
-                                    if (index == 0) {
-                                      widget.settingsData["config"]
-                                              [_selectedSensorIndex]["type"] =
-                                          "normal";
-                                    } else if (index == 1) {
-                                      widget.settingsData["config"]
-                                              [_selectedSensorIndex]["type"] =
-                                          "sensitive";
-                                    } else {
-                                      return;
-                                    }
-
-                                    setState(() {});
-                                  },
-                                  constraints: const BoxConstraints(minHeight: 30),
-                                  borderRadius: BorderRadius.circular(10),
-                                  isSelected: [
-                                    widget.settingsData["config"]
-                                            [_selectedSensorIndex]["type"] ==
-                                        "normal",
-                                    widget.settingsData["config"]
-                                            [_selectedSensorIndex]["type"] ==
-                                        "sensitive",
-                                  ],
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 5,
-                                      ),
-                                      child: Text(
-                                        "Normal",
-                                        style: TextStyle(
-                                          fontWeight: widget.settingsData[
-                                                              "config"]
-                                                          [_selectedSensorIndex]
-                                                      ["type"] ==
-                                                  "normal"
-                                              ? FontWeight.bold
-                                              : FontWeight.normal,
-                                        ),
-                                      ),
-                                    ),
-                                    Opacity(
-                                      opacity: _sensitivePirCount() < 2 ? 1 : 0.3,
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 10),
-                                        child: Text(
-                                          "Sensitive",
-                                          style: TextStyle(
-                                            fontWeight: widget.settingsData[
-                                                                "config"]
-                                                            [_selectedSensorIndex]
-                                                        ["type"] ==
-                                                    "sensitive"
-                                                ? FontWeight.bold
-                                                : FontWeight.normal,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                widget.settingsData["config"]
-                                            [_selectedSensorIndex]['type'] ==
-                                        "sensitive"
-                                    ? SizedBox(
-                                        width: 140,
-                                        child: SfSlider(
-                                          min: 25,
-                                          max: 100,
-                                          stepSize: 25,
-                                          interval: 25,
-                                          showTicks: true,
-                                          showDividers: true,
-                                          showLabels: true,
-                                          value: widget.settingsData["config"]
-                                                  [_selectedSensorIndex]
-                                              ['sensitivity'],
-                                          onChanged: (value) {
-                                            setState(() {
-                                              widget.settingsData["config"]
-                                                          [_selectedSensorIndex]
-                                                      ['sensitivity'] =
-                                                  value.toInt();
-                                            });
-                                          },
-                                        ),
-                                      )
-                                    : Container(),
-                              ],
+                            SfSlider(
+                              min: 0,
+                              max: 100,
+                              stepSize: 25,
+                              interval: 25,
+                              showTicks: true,
+                              showDividers: true,
+                              showLabels: true,
+                              value: widget.settingsData["slevels"][_selectedSensorIndex],
+                              onChanged: (value) {
+                                widget.settingsData["slevels"][_selectedSensorIndex] = value.toInt();
+                                setState(() {});
+                              },
                             ),
                           ],
                         ),
@@ -542,23 +432,7 @@ class _MotionSensorSettingsScreenState
                         child: FilledButton(
                           onPressed: () {
                             //########### configuration
-                            final co = {};
-                            final c = widget.settingsData["sensorCount"];
 
-                            for (int i = 0; i < c; i++) {
-                              final name = ['a', 'b', 'c', 'd'][i];
-
-                              final t = widget.settingsData["config"][i]["type"];
-                              final s = widget.settingsData["config"][i]["sensitivity"];
-
-                              co[name] = {
-                                't': t == "normal" ? 1 : 0
-                              };
-
-                              if (t == "sensitive") {
-                                co[name]['s'] = s;
-                              }
-                            }
                             //###########
 
                             syncSettings(
@@ -567,7 +441,7 @@ class _MotionSensorSettingsScreenState
                                 'e': 1,
                                 'sc': widget.settingsData["sensorCount"],
                                 'ht': widget.settingsData["holdTime"],
-                                'co': co
+                                'co': widget.settingsData["slevels"]
                               },
                             );
                           },

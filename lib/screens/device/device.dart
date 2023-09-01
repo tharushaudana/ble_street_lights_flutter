@@ -9,6 +9,7 @@ import 'package:ble_street_lights/screens/device/screens/profile/profile.dart';
 import 'package:ble_street_lights/screens/device/screens/settings/settings.dart';
 import 'package:ble_street_lights/time/time.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 class DeviceScreen extends StatefulWidget {
@@ -27,7 +28,6 @@ class DeviceScreen extends StatefulWidget {
 
 class _DeviceScreenState extends State<DeviceScreen>
     with WidgetsBindingObserver {
-  
   final autoCloseDuration = const Duration(minutes: 15);
 
   late TabController _tabController;
@@ -36,6 +36,8 @@ class _DeviceScreenState extends State<DeviceScreen>
   late Timer autoCloseTimer;
 
   bool isConnected = false;
+
+  bool firstMsgReceived = false;
 
   DateTime lastSeenTime = Time.now();
   Timer? timerLastSeenUpdate;
@@ -136,10 +138,15 @@ class _DeviceScreenState extends State<DeviceScreen>
           },
         );
       },
-      /*onMessage: (message) {
-        log(message.type.toString());
-        log(jsonEncode(message.data));
-      },*/
+      onMessage: (message) {
+        //log(message.type.toString());
+        //log(jsonEncode(message.data));
+        if (!firstMsgReceived) {
+          setState(() {
+            firstMsgReceived = true;
+          });
+        }
+      },
     );
 
     super.initState();
@@ -220,41 +227,63 @@ class _DeviceScreenState extends State<DeviceScreen>
           //elevation: 0,
           titleSpacing: 0,
         ),
-        body: BottomTabBarLayout(
-          tabs: const [
-            ["Home", Icons.home, Color(0xFF5B36B7)],
-            ["Astro", Icons.wb_sunny_rounded, Color(0xFFC9379C)],
-            ["Meter", Icons.energy_savings_leaf, Color(0xFFE6A91A)],
-            ["Settings", Icons.settings_rounded, Color(0xFF1193A9)],
-          ],
-          onController: (controller) {
-            _tabController = controller;
-          },
-          children: [
-            ChangeNotifierProvider(
-              create: (_) => BLEDeviceConnectionProvider(device),
-              child: DeviceHomeScreen(),
-            ),
-            ChangeNotifierProvider(
-              create: (_) => BLEDeviceConnectionProvider(device),
-              child: AstroScreen(
-                onController: (controller) {
-                  _astroScreenController = controller;
-                },
-              ),
-            ),
-            const Center(
-              child: Text(
-                "Meter",
-                style: TextStyle(fontSize: 30),
-              ),
-            ),
-            ChangeNotifierProvider(
-              create: (_) => BLEDeviceConnectionProvider(device),
-              child: SettingsScreen(),
-            ),
-          ],
-        ),
+        body: !firstMsgReceived && !isConnected
+            ? const Center(child: CircularProgressIndicator())
+            : !firstMsgReceived
+                ? Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      child: const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Initializing...",
+                            style: TextStyle(
+                              fontSize: 20,
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          LinearProgressIndicator()
+                        ],
+                      ),
+                    ),
+                  )
+                : BottomTabBarLayout(
+                    tabs: const [
+                      ["Home", Icons.home, Color(0xFF5B36B7)],
+                      ["Astro", Icons.wb_sunny_rounded, Color(0xFFC9379C)],
+                      ["Meter", Icons.energy_savings_leaf, Color(0xFFE6A91A)],
+                      ["Settings", Icons.settings_rounded, Color(0xFF1193A9)],
+                    ],
+                    onController: (controller) {
+                      _tabController = controller;
+                    },
+                    children: [
+                      ChangeNotifierProvider(
+                        create: (_) => BLEDeviceConnectionProvider(device),
+                        child: DeviceHomeScreen(),
+                      ),
+                      ChangeNotifierProvider(
+                        create: (_) => BLEDeviceConnectionProvider(device),
+                        child: AstroScreen(
+                          onController: (controller) {
+                            _astroScreenController = controller;
+                          },
+                        ),
+                      ),
+                      const Center(
+                        child: Text(
+                          "Meter",
+                          style: TextStyle(fontSize: 30),
+                        ),
+                      ),
+                      ChangeNotifierProvider(
+                        create: (_) => BLEDeviceConnectionProvider(device),
+                        child: SettingsScreen(),
+                      ),
+                    ],
+                  ).animate().moveY(duration: 500.ms).fade(duration: 500.ms)
       ),
     );
   }
