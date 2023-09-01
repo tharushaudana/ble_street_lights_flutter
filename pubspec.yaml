@@ -88,6 +88,8 @@ flutter:
     - assets/images/ofsunrise_icon.png
     - assets/images/ofsunset_icon.png
     - assets/images/mapmarker.png
+    - assets/images/street1.jpg
+    - assets/images/street2.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

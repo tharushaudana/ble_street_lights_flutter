@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+import 'package:ble_street_lights/screens/login/login.dart';
 import 'package:flutter/foundation.dart' as foundation;
 import 'package:ble_street_lights/screens/home/home.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -43,12 +44,10 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       //home: SplashScreen(),
-      //home: ScanScreen(),
       home: HomeScreen(title: "BLE Street Lights"),
-      //home: DeviceScreen(),
+      //home: LoginScreen(),
       routes: {
         '/home': (context) => HomeScreen(title: "title"),
-        //'/device': (context) => DeviceScreen(),
       },
       /*onGenerateRoute: (settings) {
         

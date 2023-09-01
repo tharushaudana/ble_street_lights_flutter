@@ -289,6 +289,9 @@ class _HomeScreenState extends State<HomeScreen> {
       location: BannerLocation.topEnd,
       child: Scaffold(
         appBar: AppBar(
+          /*systemOverlayStyle: SystemUiOverlayStyle(
+            statusBarColor: Colors.blue
+          ),*/
           actions: [
             IconButton(
               onPressed: () {
