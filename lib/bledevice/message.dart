@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 class BLEDeviceMessage {
   static const int MSGTYPE_CURRENT_VALUES = 0;
@@ -9,11 +10,12 @@ class BLEDeviceMessage {
   Map data = {};
 
   static BLEDeviceMessage? fromBytes(List<int> data) {
-    /*try {
-      String msg = utf8.decode(data);
+    try {
+      //String msg = utf8.decode(data);
+      String msg = bytesToString(data);
 
       final json = jsonDecode(msg) as Map;
-      
+
       if (!json.containsKey('t')) return null;
 
       final message = BLEDeviceMessage();
@@ -25,25 +27,17 @@ class BLEDeviceMessage {
       }
 
       return message;
-    } catch(e) {
-      log("utf8 decode error");
+    } catch (e) {
+      log("decode error");
       log(e.toString());
       return null;
-    }*/
-      String msg = utf8.decode(data);
+    }
+  }
 
-      final json = jsonDecode(msg) as Map;
-      
-      if (!json.containsKey('t')) return null;
-
-      final message = BLEDeviceMessage();
-
-      message.type = json['t'];
-
-      if (json.containsKey('d')) {
-        message.data = json['d'];
-      }
-
-      return message;
+  static bytesToString(List<int> data) {
+    String s = const AsciiDecoder(
+      allowInvalid: true,
+    ).convert(data);
+    return s;
   }
 }
