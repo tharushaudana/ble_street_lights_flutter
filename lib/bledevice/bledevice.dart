@@ -13,7 +13,6 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
   final String _characteristicUuid = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
 
   late BluetoothDevice device;
-  late BLEDeviceData deviceData;
 
   late PacketsDecoder _packetsDecoder;
   late BLEDeviceRequestHandler _requestHandler;
@@ -60,12 +59,6 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
       },
       onFailed: () {},
     );
-  }
-
-  @override
-  initLink() {
-    notifyDeviceDataChange(deviceData);
-    return super.initLink();
   }
 
   @override

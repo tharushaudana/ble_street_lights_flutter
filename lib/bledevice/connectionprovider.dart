@@ -14,8 +14,8 @@ class BLEDeviceConnectionProvider extends ChangeNotifier
 
   BLEDeviceConnectionProvider(BLEDeviceConnectionProviderLink link) {
     _link = link;
-    _link._connectionProvider = this;
-    _link.initLink();
+    //_link._connectionProvider = this;
+    _link.initLink(this);
   }
 
   _notify() {
@@ -27,6 +27,10 @@ class BLEDeviceConnectionProvider extends ChangeNotifier
     } catch (e) {}
   }
 
+  bool _hasListeners() {
+    return hasListeners;
+  }
+
   @override
   void makeRequest(BLEDeviceRequest request) {
     _link.makeRequest(request);
@@ -35,14 +39,32 @@ class BLEDeviceConnectionProvider extends ChangeNotifier
 
 class BLEDeviceConnectionProviderLink
     implements IBLEDeviceConnectionProviderLink {
-  BLEDeviceConnectionProvider? _connectionProvider;
+  late BLEDeviceData deviceData;
 
-  notifyDeviceDataChange(BLEDeviceData deviceData) {
-    _connectionProvider?.deviceData = deviceData;
-    _connectionProvider?._notify();
+  final List<BLEDeviceConnectionProvider> _providers = [];
+
+  notifyDeviceDataChange(BLEDeviceData deviceData, {int index = -1}) {
+    if (index > -1) {
+      _providers[index].deviceData = deviceData;
+      _providers[index]._notify();
+    } else {
+      for (int i = _providers.length - 1; i > -1; i--) {
+        //### remove disposed providers
+        if (!_providers[i]._hasListeners()) {
+          _providers.removeAt(i);
+          continue;
+        }
+        //###
+        _providers[i].deviceData = deviceData;
+        _providers[i]._notify();        
+      }
+    }
   }
 
-  initLink() {}
+  initLink(BLEDeviceConnectionProvider provider) {
+    _providers.add(provider);
+    notifyDeviceDataChange(deviceData, index: _providers.length - 1);
+  }
 
   @override
   void makeRequest(BLEDeviceRequest request) {

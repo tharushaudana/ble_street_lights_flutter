@@ -169,6 +169,10 @@ class _DeviceProfileScreenState extends State<DeviceProfileScreen> {
                         child: Column(
                           children: [
                             Table(
+                              columnWidths: const {
+                                0: FlexColumnWidth(1),
+                                1: FlexColumnWidth(2),
+                              },
                               children: [
                                 _TableRowDeviceDetail(
                                   title: "BLE Signal",
@@ -422,7 +426,7 @@ class _TableRowDeviceDetail extends TableRow {
             height: 40,
             child: Text(
               title,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 fontFamily: 'Nunito',
                 //color: Colors.blueAccent,
