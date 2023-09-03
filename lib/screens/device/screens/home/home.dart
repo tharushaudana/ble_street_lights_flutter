@@ -338,21 +338,15 @@ class _DeviceHomeScreenState extends SafeState<DeviceHomeScreen> {
                                   ),
                                 ),
                                 const Spacer(),
-                                motionSensorStates.isNotEmpty && motionSensorStates["x"]
+                                motionSensorStates.isNotEmpty &&
+                                        motionSensorStates["x"]
                                     ? Container(
                                         width: 10,
                                         height: 10,
                                         decoration: BoxDecoration(
-                                            color: Colors.greenAccent.shade700,
-                                            shape: BoxShape.circle,
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.greenAccent.shade700,
-                                                offset: const Offset(0, 0),
-                                                blurRadius: 20,
-                                                spreadRadius: 1,
-                                              )
-                                            ]),
+                                          color: Colors.greenAccent.shade700,
+                                          shape: BoxShape.circle,
+                                        ),
                                       )
                                         .animate(
                                           onPlay: (controller) =>

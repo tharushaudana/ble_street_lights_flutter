@@ -59,7 +59,7 @@ class AstroMode extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Text(
-                                "${stage["from"].hour.toString().padRight(2, '0')}:${stage["from"].minute.toString().padRight(2, '0')}",
+                                "${stage["from"].hour.toString().padLeft(2, '0')}:${stage["from"].minute.toString().padLeft(2, '0')}",
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.blue,
@@ -80,7 +80,7 @@ class AstroMode extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Text(
-                                "${stage["to"].hour.toString().padRight(2, '0')}:${stage["to"].minute.toString().padRight(2, '0')}",
+                                "${stage["to"].hour.toString().padLeft(2, '0')}:${stage["to"].minute.toString().padLeft(2, '0')}",
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.blue,
