@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:typed_data';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/bledevice/data.dart';
 import 'package:ble_street_lights/bledevice/message.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 class BLEDevice extends BLEDeviceConnectionProviderLink {
   final String _characteristicUuid = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
+  final String _characteristicUuidOta = "beb5483e-36e1-4688-b7f5-ea07361b26a9";
 
   late BluetoothDevice device;
 
@@ -20,6 +22,7 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
   StreamSubscription<BluetoothDeviceState>? _stateSubscription;
   StreamSubscription<List<int>>? _characteristicValueStateSubscription;
   BluetoothCharacteristic? _characteristic;
+  BluetoothCharacteristic? _characteristicOta;
 
   bool _isConnecting = false;
 
@@ -67,6 +70,32 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
     _requestHandler.handle(request);
   }
 
+  @override
+  void sendFirmwareFile(
+    ByteBuffer buffer, {
+    required Function(int writtenLen) onWrite,
+    required VoidCallback onDone,
+  }) async {
+    if (!deviceData.isConnected || _characteristicOta == null) return;
+
+    int totalLen = buffer.lengthInBytes;
+    int writtenLen = 0;
+
+    while (writtenLen < totalLen) {
+      int remain = totalLen - writtenLen;
+      
+      int readLen = 512;
+      if (remain <= 512) readLen = remain;
+
+      Uint8List bytes = buffer.asUint8List(writtenLen, readLen);
+      writtenLen += bytes.length;
+      await _characteristicOta!.write(bytes, withoutResponse: true);
+      onWrite(writtenLen);
+    }
+
+    onDone();
+  }
+
   _saveAndNotifyRequiredData(BLEDeviceMessage message) {
     switch (message.type) {
       case BLEDeviceMessage.MSGTYPE_CURRENT_VALUES:
@@ -75,6 +104,10 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
         break;
       case BLEDeviceMessage.MSGTYPE_SETTINGS_DATA:
         deviceData.setSettingValues(message.data);
+        notifyDeviceDataChange(deviceData);
+        break;
+      case BLEDeviceMessage.MSGTYPE_FIRMWARE_UPDATE_RESULT:
+        deviceData.setFirmwareUpdateResult();
         notifyDeviceDataChange(deviceData);
         break;
     }
@@ -135,7 +168,9 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
       for (BluetoothCharacteristic c in service.characteristics) {
         if (c.uuid.toString() == _characteristicUuid) {
           _characteristic = c;
-          break;
+        }
+        if (c.uuid.toString() == _characteristicUuidOta) {
+          _characteristicOta = c;
         }
       }
     }

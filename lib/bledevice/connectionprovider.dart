@@ -1,9 +1,16 @@
+import 'dart:typed_data';
+
 import 'package:ble_street_lights/bledevice/data.dart';
 import 'package:ble_street_lights/bledevice/request.dart';
 import 'package:flutter/material.dart';
 
 abstract class IBLEDeviceConnectionProviderLink {
   void makeRequest(BLEDeviceRequest request);
+  void sendFirmwareFile(
+    ByteBuffer buffer, {
+    required Function(int writtenLen) onWrite,
+    required VoidCallback onDone,
+  });
 }
 
 class BLEDeviceConnectionProvider extends ChangeNotifier
@@ -35,6 +42,19 @@ class BLEDeviceConnectionProvider extends ChangeNotifier
   void makeRequest(BLEDeviceRequest request) {
     _link.makeRequest(request);
   }
+
+  @override
+  void sendFirmwareFile(
+    ByteBuffer buffer, {
+    required Function(int writtenLen) onWrite,
+    required VoidCallback onDone,
+  }) {
+    _link.sendFirmwareFile(
+      buffer,
+      onWrite: onWrite,
+      onDone: onDone,
+    );
+  }
 }
 
 class BLEDeviceConnectionProviderLink
@@ -56,7 +76,7 @@ class BLEDeviceConnectionProviderLink
         }
         //###
         _providers[i].deviceData = deviceData;
-        _providers[i]._notify();        
+        _providers[i]._notify();
       }
     }
   }
@@ -69,5 +89,14 @@ class BLEDeviceConnectionProviderLink
   @override
   void makeRequest(BLEDeviceRequest request) {
     // TODO: implement makeRequest
+  }
+
+  @override
+  void sendFirmwareFile(
+    ByteBuffer buffe, {
+    required Function(int writtenLen) onWrite,
+    required VoidCallback onDone,
+  }) {
+    // TODO: implement sendFirmwareFile
   }
 }

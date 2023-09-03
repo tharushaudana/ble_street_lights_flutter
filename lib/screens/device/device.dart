@@ -4,6 +4,7 @@ import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/components/bottomtabbarlayout/bottomtabbarlayout.dart';
 import 'package:ble_street_lights/screens/device/dialogs/deviceconnectingdialog.dart';
 import 'package:ble_street_lights/screens/device/screens/astro/astro.dart';
+import 'package:ble_street_lights/screens/device/screens/firmwareupdater/firmwareupdate.dart';
 import 'package:ble_street_lights/screens/device/screens/home/home.dart';
 import 'package:ble_street_lights/screens/device/screens/profile/profile.dart';
 import 'package:ble_street_lights/screens/device/screens/settings/settings.dart';
@@ -56,6 +57,18 @@ class _DeviceScreenState extends State<DeviceScreen>
           child: DeviceProfileScreen(
             deviceData: widget.deviceData,
           ),
+        ),
+      ),
+    );
+  }
+
+  openFirmwareUpdaterScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChangeNotifierProvider(
+          create: (_) => BLEDeviceConnectionProvider(device),
+          child: DeviceFirmwareUpdaterScreen(),
         ),
       ),
     );
@@ -225,8 +238,10 @@ class _DeviceScreenState extends State<DeviceScreen>
                 ),
               ),
               IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.more_vert),
+                onPressed: () {
+                  openFirmwareUpdaterScreen();
+                },
+                icon: const Icon(Icons.more_vert),
               ),
             ],
           ),

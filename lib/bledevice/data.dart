@@ -7,6 +7,7 @@ class BLEDeviceData {
   bool isConnected = false;
   Map? currentValues;
   Map? settingValues;
+  Map? firmwareUpdateResult;
 
   final Map settingsData = getDefaultSettings();
 
@@ -40,6 +41,10 @@ class BLEDeviceData {
 
     loadSettingsDataForAstroTab(settingsData['astrotab']);
     loadSettingsDataForSettingsTab(settingsData['settingstab']);
+  }
+
+  setFirmwareUpdateResult() {
+    firmwareUpdateResult = {};
   }
 
   loadSettingsData(String tabName, Function(BMap data, bool success) cb) {

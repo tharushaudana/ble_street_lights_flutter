@@ -5,6 +5,7 @@ import 'dart:io';
 class BLEDeviceMessage {
   static const int MSGTYPE_CURRENT_VALUES = 0;
   static const int MSGTYPE_SETTINGS_DATA = 1;
+  static const int MSGTYPE_FIRMWARE_UPDATE_RESULT = 2;
 
   int type = -1;
   Map data = {};
