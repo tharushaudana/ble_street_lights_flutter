@@ -21,7 +21,7 @@ class _DeviceFirmwareUpdaterScreenState
   Uint8List? firmwareBytes;
 
   Future<Uint8List> _downloadFirmwareFile() async {
-    final req = await HttpClient()
+    final req =  await HttpClient()
         .getUrl(Uri.parse("https://tmpfiles.org/dl/2212608/firm.bin"));
     final res = await req.close();
     final bytes = await consolidateHttpClientResponseBytes(res);

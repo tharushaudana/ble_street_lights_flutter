@@ -72,8 +72,8 @@ class _ScannerState extends State<Scanner> {
     if (devices.contains(device)) return;
     
     BluetoothDevice deviceModified = BluetoothDevice.fromId(
-      device.id.toString(),
-      name: device.name.replaceAll(RegExp(deviceNamePrefix), ''),
+      device.remoteId.toString(),
+      localName: device.localName.replaceAll(RegExp(deviceNamePrefix), ''),
     );
     
     devices.add(deviceModified);

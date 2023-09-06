@@ -19,12 +19,15 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
   late PacketsDecoder _packetsDecoder;
   late BLEDeviceRequestHandler _requestHandler;
 
-  StreamSubscription<BluetoothDeviceState>? _stateSubscription;
+  StreamSubscription<BluetoothConnectionState>? _stateSubscription;
   StreamSubscription<List<int>>? _characteristicValueStateSubscription;
   BluetoothCharacteristic? _characteristic;
   BluetoothCharacteristic? _characteristicOta;
 
   bool _isConnecting = false;
+
+  final int requestMtu = 512;
+  final int fileWriteMtu = 500;
 
   final VoidCallback onConnected;
   final VoidCallback onDisconnected;
@@ -78,18 +81,34 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
   }) async {
     if (!deviceData.isConnected || _characteristicOta == null) return;
 
+    await device.requestMtu(requestMtu);
+
     int totalLen = buffer.lengthInBytes;
     int writtenLen = 0;
 
     while (writtenLen < totalLen) {
       int remain = totalLen - writtenLen;
-      
-      int readLen = 512;
-      if (remain <= 512) readLen = remain;
+
+      int readLen = fileWriteMtu;
+      if (remain <= fileWriteMtu) readLen = remain;
 
       Uint8List bytes = buffer.asUint8List(writtenLen, readLen);
+
+      Uint8List packet = Uint8List(requestMtu);
+
+      //### fill the packet...
+      for (int i = 0; i < fileWriteMtu; i++) {
+        if (i == bytes.length) break;
+        packet[i] = bytes[i];
+      }
+
+      await _characteristicOta!.write(
+        packet,
+        withoutResponse: true,
+      );
+
       writtenLen += bytes.length;
-      await _characteristicOta!.write(bytes, withoutResponse: true);
+
       onWrite(writtenLen);
     }
 
@@ -144,15 +163,15 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
   }
 
   _listenStateChanges() {
-    _stateSubscription = device.state.listen(null);
+    _stateSubscription = device.connectionState.listen(null);
 
-    _stateSubscription!.onData((BluetoothDeviceState state) {
-      if (state == BluetoothDeviceState.connected) {
+    _stateSubscription!.onData((BluetoothConnectionState state) {
+      if (state == BluetoothConnectionState.connected) {
         onConnected();
         _getCharacteristic();
         deviceData.isConnected = true;
         notifyDeviceDataChange(deviceData);
-      } else if (state == BluetoothDeviceState.disconnected) {
+      } else if (state == BluetoothConnectionState.disconnected) {
         onDisconnected();
         deviceData.isConnected = false;
         notifyDeviceDataChange(deviceData);

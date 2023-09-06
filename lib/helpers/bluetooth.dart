@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 class BluetoothHelper extends Helper {
-  final FlutterBluePlus flutterBlue = FlutterBluePlus.instance;
-
   bool isEnabled = false;
   bool isScanning = false;
 
@@ -14,14 +12,14 @@ class BluetoothHelper extends Helper {
   StreamSubscription? scanResultsListener;
 
   Future<bool> checkIsEnabled() async {
-    isEnabled = await flutterBlue.isOn;
+    isEnabled = await FlutterBluePlus.isAvailable;
     return isEnabled;
   }
 
   void listenForServiceStatusChanges(VoidCallback? cb) {
-    serviceStateChangeListener = flutterBlue.state.listen((state) {
+    serviceStateChangeListener = FlutterBluePlus.adapterState.listen((state) {
       setState(() {
-        isEnabled = state == BluetoothState.on;
+        isEnabled = state == BluetoothAdapterState.on;
       });
 
       if (cb != null) cb();
@@ -32,7 +30,7 @@ class BluetoothHelper extends Helper {
     required VoidCallback started,
     required VoidCallback stopped,
   }) {
-    scanStateChangeListener = flutterBlue.isScanning.listen(
+    scanStateChangeListener = FlutterBluePlus.isScanning.listen(
       (bool scanningNow) {
         if (scanningNow) {
           started();
@@ -54,7 +52,7 @@ class BluetoothHelper extends Helper {
     VoidCallback? started,
     VoidCallback? stopped,
   }) async {
-    if (flutterBlue.isScanningNow) {
+    if (FlutterBluePlus.isScanningNow) {
       if (started != null) started();
       return;
     }
@@ -66,7 +64,7 @@ class BluetoothHelper extends Helper {
         isScanning = true;
       });
 
-      await flutterBlue.startScan(timeout: Duration(seconds: timeout)).then((value) {
+      await FlutterBluePlus.startScan(timeout: Duration(seconds: timeout)).then((value) {
         if (stopped != null) stopped();
 
         setState(() {
@@ -78,15 +76,15 @@ class BluetoothHelper extends Helper {
 
   void stopScan(VoidCallback cb) {
     try {
-      flutterBlue.stopScan().then((value) {
+      FlutterBluePlus.stopScan().then((value) {
         cb();
       });
     } catch (e) {}
   }
 
   void listenForScanResults(cb) {
-    scanResultsListener = flutterBlue.state.listen((state) {
-      flutterBlue.scanResults.listen((results) {
+    scanResultsListener = FlutterBluePlus.adapterState.listen((state) {
+      FlutterBluePlus.scanResults.listen((results) {
         cb(results);
       });
     });
@@ -106,8 +104,8 @@ class BluetoothHelper extends Helper {
       scanResultsListener!.cancel();
     }
 
-    if (flutterBlue.isScanningNow) {
-      flutterBlue.stopScan();
+    if (FlutterBluePlus.isScanningNow) {
+      FlutterBluePlus.stopScan();
     }
 
     super.dispose();

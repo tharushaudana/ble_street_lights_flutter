@@ -137,14 +137,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.6.4"
-  fixnum:
-    dependency: transitive
-    description:
-      name: fixnum
-      sha256: "25517a4deb0c03aa0f32fd12db525856438902d9c16536311e76cdc57b31d7d1"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.0"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -162,10 +154,10 @@ packages:
     dependency: "direct dev"
     description:
       name: flutter_blue_plus
-      sha256: a977e90b7f9dcece90a95a287f8843e3b9028a61199c41bc279832c096d31d43
+      sha256: f587e43b9adee2f21303e50ff2712cf0df703a3e8644917fb9b8e7561864b8e8
       url: "https://pub.dev"
     source: hosted
-    version: "1.5.2"
+    version: "1.14.13"
   flutter_inset_box_shadow:
     dependency: "direct dev"
     description:
@@ -488,14 +480,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.2.4"
-  protobuf:
-    dependency: transitive
-    description:
-      name: protobuf
-      sha256: "01dd9bd0fa02548bf2ceee13545d4a0ec6046459d847b6b061d8a27237108a08"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.0"
   provider:
     dependency: "direct dev"
     description:
