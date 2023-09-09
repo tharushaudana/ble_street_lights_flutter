@@ -4,10 +4,17 @@ import 'package:ble_street_lights/bledevice/defaultsettings.dart';
 import 'package:flutter/material.dart';
 
 class BLEDeviceData {
+  static const int OTA_STA_READY     = 0;
+  static const int OTA_STA_RECEIVING = 1;
+  static const int OTA_STA_RECEIVED  = 2;
+  static const int OTA_STA_UPDATING  = 3;
+  static const int OTA_STA_REBOOTING = 4;
+  static const int OTA_STA_ERROR     = 5;
+
   bool isConnected = false;
   Map? currentValues;
   Map? settingValues;
-  Map? firmwareUpdateResult;
+  Map? otaValues;
 
   final Map settingsData = getDefaultSettings();
 
@@ -43,8 +50,8 @@ class BLEDeviceData {
     loadSettingsDataForSettingsTab(settingsData['settingstab']);
   }
 
-  setFirmwareUpdateResult() {
-    firmwareUpdateResult = {};
+  setOtaValues(Map values) {
+    otaValues = values;
   }
 
   loadSettingsData(String tabName, Function(BMap data, bool success) cb) {
@@ -164,6 +171,11 @@ class BLEDeviceData {
   currentValue<T>(String path, T noneValue) {
     if (currentValues == null || path.trim().isEmpty) return noneValue;
     return _getValue(currentValues!, path, noneValue);
+  }
+
+  otaValue<T>(String path, T noneValue) {
+    if (otaValues == null || path.trim().isEmpty) return noneValue;
+    return _getValue(otaValues!, path, noneValue);
   }
 
   _getValue<T>(Map source, String path, T noneValue) {

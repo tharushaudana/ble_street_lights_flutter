@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:ble_street_lights/bledevice/data.dart';
 import 'package:ble_street_lights/safestate/safestate.dart';
 import 'package:ble_street_lights/screens/device/devicesyncer.dart';
 import 'package:flutter/foundation.dart';
@@ -21,9 +22,11 @@ class _DeviceFirmwareUpdaterScreenState
 
   Uint8List? firmwareBytes;
 
+  String? previousVersion;
+
   Future<Uint8List> _downloadFirmwareFile() async {
-    final req =  await HttpClient().getUrl(Uri.parse("https://tmpfiles.org/dl/2273820/esp32_f1.0v.ino.esp32.bin"));
-    //final req = await HttpClient().getUrl(Uri.parse("https://tmpfiles.org/dl/2273483/fields.json"));
+    //final req = await HttpClient().getUrl(Uri.parse("https://tmpfiles.org/dl/2274759/esp32_f1.0v.ino.esp32.bin"));
+    final req = await HttpClient().getUrl(Uri.parse("https://appstreetlight.000webhostapp.com/firmware/F1.3V.bin"));
     final res = await req.close();
     final bytes = await consolidateHttpClientResponseBytes(res);
     return bytes;
@@ -90,14 +93,49 @@ class _DeviceFirmwareUpdaterScreenState
       provider,
       _,
     ) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text("Firmware Updater"),
-        ),
-        body: Container(
-          width: double.infinity,
-          height: double.infinity,
-          child: Column(
+      int? state = provider.deviceData.otaValue("s", null);
+      String? version = provider.deviceData.otaValue("v", null);
+
+      previousVersion ??= version;
+
+      late Widget view;
+
+      if (version != null &&
+          previousVersion != null &&
+          version != previousVersion) {
+        view = Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.done_outline,
+              size: 60,
+              color: Colors.blue.withOpacity(0.5),
+            ),
+            Text(
+              "Welcome to Version $version",
+              style: const TextStyle(
+                fontSize: 24,
+                color: Colors.blue,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text("updated ${previousVersion!} to $version"),
+          ],
+        );
+      } else {
+        if (state == null) {
+          view = const Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("[Details Not Received]"),
+            ],
+          );
+        }
+
+        if (state == BLEDeviceData.OTA_STA_READY) {
+          view = Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -110,7 +148,7 @@ class _DeviceFirmwareUpdaterScreenState
                           firmwareFileDownloaded = true;
                         });
                       },
-                      child: Text("test"),
+                      child: Text("Download Firmware File"),
                     )
                   : FilledButton(
                       onPressed: () {
@@ -118,19 +156,131 @@ class _DeviceFirmwareUpdaterScreenState
                       },
                       child: Text("Update Now"),
                     ),
-
-              isSending
-                  ? LinearProgressIndicator(
-                      value: sentPercent,
-                    )
-                  : Container(),
               firmwareBytes != null
                   ? Text(
                       "Download successfully. ${firmwareBytes!.length} bytes")
                   : Container(),
-              provider.deviceData.firmwareUpdateResult != null
-                  ? Text("Success write to esp.")
-                  : Container(),
+            ],
+          );
+        }
+
+        if (state == BLEDeviceData.OTA_STA_RECEIVING) {
+          view = Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text("Sending the file..."),
+              const SizedBox(height: 10),
+              LinearProgressIndicator(
+                value: sentPercent,
+              ),
+            ],
+          );
+        }
+
+        if (state == BLEDeviceData.OTA_STA_RECEIVED) {
+          view = const Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "File Successfully Received",
+                style: TextStyle(
+                  fontSize: 24,
+                  color: Colors.blue,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text("starting OTA update..."),
+            ],
+          );
+        }
+
+        if (state == BLEDeviceData.OTA_STA_UPDATING) {
+          view = const Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "OTA Updating...",
+                style: TextStyle(
+                  fontSize: 24,
+                  color: Colors.blue,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          );
+        }
+
+        if (state == BLEDeviceData.OTA_STA_REBOOTING) {
+          view = const Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "Rebooting The Device...",
+                style: TextStyle(
+                  fontSize: 24,
+                  color: Colors.blue,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text("looking for re-connecting"),
+            ],
+          );
+        }
+
+        if (state == BLEDeviceData.OTA_STA_ERROR) {
+          view = Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                "Error",
+                style: TextStyle(
+                  fontSize: 24,
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(provider.deviceData.otaValue("e", "[no description]")),
+            ],
+          );
+        }
+      }
+
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text("Firmware Updater"),
+        ),
+        body: Container(
+          width: double.infinity,
+          height: double.infinity,
+          padding: EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  const Text(
+                    "Current Version:",
+                    style: TextStyle(
+                      fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    version ?? "[not received]",
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              Expanded(
+                child: view,
+              ),
             ],
           ),
         ),

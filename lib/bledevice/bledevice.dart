@@ -135,7 +135,7 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
         notifyDeviceDataChange(deviceData);
         break;
       case BLEDeviceMessage.MSGTYPE_FIRMWARE_UPDATE_RESULT:
-        deviceData.setFirmwareUpdateResult();
+        deviceData.setOtaValues(message.data);
         notifyDeviceDataChange(deviceData);
         break;
     }
