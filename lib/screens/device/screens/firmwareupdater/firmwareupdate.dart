@@ -22,9 +22,15 @@ class _DeviceFirmwareUpdaterScreenState
   bool errorLoadInfo = false;
   Map? info;
 
+  bool firmwareUpdateStarted = false;
+
   bool firmwareFileDownloaded = false;
+  bool errorFirmwareFileDownload = false;
+
   bool isSending = false;
   double sentPercent = 0;
+
+  double? progress;
 
   Uint8List? firmwareBytes;
 
@@ -76,6 +82,8 @@ class _DeviceFirmwareUpdaterScreenState
       setState(() {
         infoLoaded = true;
       });
+
+      print(info);
     } catch (e) {
       log("Info Load Error: $e");
 
@@ -85,12 +93,47 @@ class _DeviceFirmwareUpdaterScreenState
     }
   }
 
+  _startDownloadFirmwareFile() async {
+    setState(() {
+      firmwareUpdateStarted = true;
+      errorFirmwareFileDownload = false;
+    });
+
+    await Future.delayed(const Duration(milliseconds: 1000));
+
+    try {
+      await _downloadFirmwareFile();
+
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      setState(() {
+        firmwareFileDownloaded = true;
+      });
+    } catch (e) {
+      setState(() {
+        errorFirmwareFileDownload = true;
+      });
+    }
+  }
+
   Future<Uint8List> _downloadFirmwareFile() async {
-    //final req = await HttpClient().getUrl(Uri.parse("https://tmpfiles.org/dl/2274759/esp32_f1.0v.ino.esp32.bin"));
-    final req = await HttpClient().getUrl(Uri.parse(
-        "https://appstreetlight.000webhostapp.com/firmware/F1.3V.bin"));
+    final url = "${info!['url']}${info!['name']}.bin";
+
+    final req = await HttpClient().getUrl(
+      Uri.parse(url),
+    );
+
     final res = await req.close();
-    final bytes = await consolidateHttpClientResponseBytes(res);
+
+    final bytes = await consolidateHttpClientResponseBytes(
+      res,
+      onBytesReceived: (cumulative, total) {
+        if (total == null) return;
+        setState(() {
+          progress = cumulative / total;
+        });
+      },
+    );
 
     return bytes;
   }
@@ -187,9 +230,18 @@ class _DeviceFirmwareUpdaterScreenState
               color: Colors.red,
             ),
             const SizedBox(height: 10),
-            const Text("Unable to retrive firmware update informations.", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold,),),
+            const Text(
+              "Unable to retrive firmware update informations.",
+              style: TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             const SizedBox(height: 5),
-            const Text("Make sure you have turn on mobile data or wifi.", style: TextStyle(fontSize: 12),),
+            const Text(
+              "Make sure you have turn on mobile data or wifi.",
+              style: TextStyle(fontSize: 12),
+            ),
             TextButton(
               onPressed: () {
                 _getInfo();
@@ -249,8 +301,8 @@ class _DeviceFirmwareUpdaterScreenState
             ),
           ],
         );
-      } 
-      else if (double.parse(version!) == double.parse(info!["available_version"])) {
+      } else if (double.parse(version!) ==
+          double.parse(info!["available_version"])) {
         view = Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -272,16 +324,14 @@ class _DeviceFirmwareUpdaterScreenState
               ),
             ),
             const SizedBox(height: 6),
-            const Text("Update not available yet.", style: TextStyle(fontSize: 12),),
+            const Text(
+              "Update not available yet.",
+              style: TextStyle(fontSize: 12),
+            ),
           ],
         ).animate().fade(duration: 500.ms);
-      }
-      else if (state == BLEDeviceData.OTA_STA_READY) {
-        view = Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            !firmwareFileDownloaded
+      } else if (state == BLEDeviceData.OTA_STA_READY) {
+        /*!firmwareFileDownloaded
                 ? FilledButton(
                     onPressed: () async {
                       firmwareBytes = await _downloadFirmwareFile();
@@ -300,9 +350,233 @@ class _DeviceFirmwareUpdaterScreenState
                   ),
             firmwareBytes != null
                 ? Text("Download successfully. ${firmwareBytes!.length} bytes")
-                : Container(),
-          ],
-        );
+                : Container(),*/
+
+        view = !firmwareUpdateStarted
+            ? Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: 15,
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        width: 1,
+                        color: Colors.grey,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            const Text(
+                              "Device:",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const Spacer(),
+                            Text(
+                              info!["device"],
+                              style: const TextStyle(
+                                fontSize: 18,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 5),
+                        Row(
+                          children: [
+                            const Text(
+                              "Current Version:",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const Spacer(),
+                            Text(
+                              version,
+                              style: const TextStyle(
+                                fontSize: 18,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: 15,
+                    ),
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(
+                          width: 1,
+                          color: Colors.blue,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.blue,
+                            blurRadius: 5,
+                          )
+                        ]),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.switch_access_shortcut_outlined,
+                          size: 60,
+                          color: Colors.blue.withOpacity(0.8),
+                        ),
+                        const SizedBox(width: 25),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Update Available",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              info!["available_version"],
+                              style: const TextStyle(
+                                fontSize: 40,
+                                fontFamily: "monospace",
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Container(
+                    width: double.infinity,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Description",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(info!["description"]),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  Container(
+                    width: double.infinity,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Release Note",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(info!["relase"]),
+                      ],
+                    ),
+                  ),
+                  const Spacer(),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (mContext) => AlertDialog(
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(20),
+                              ),
+                            ),
+                            title: const Text(
+                              "Warning",
+                              textAlign: TextAlign.center,
+                            ),
+                            content: const Text(
+                              "Download firmware will generate data traffic, are you sure to continue?",
+                              textAlign: TextAlign.center,
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(mContext);
+                                },
+                                child: const Text("Cancel"),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(mContext);
+                                  _startDownloadFirmwareFile();
+                                },
+                                child: const Text("Download"),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      child: const Text("UPDATE NOW"),
+                    ),
+                  ),
+                ],
+              )
+            : Container(
+                margin: const EdgeInsets.only(top: 20),
+                child: Column(
+                  children: [
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        SizedBox(
+                          width: 150,
+                          height: 150,
+                          child: CircularProgressIndicator(
+                            value: progress,
+                            backgroundColor: Colors.blue.withOpacity(0.2),
+                          ),
+                        ),
+                        Column(
+                          children: [
+                            Icon(
+                              Icons.download_rounded,
+                              color: Colors.blue,
+                              size: 40,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 30),
+                    Text(
+                      "Downloading...",
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                ),
+              );
       } else if (state == BLEDeviceData.OTA_STA_RECEIVING) {
         view = Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -388,31 +662,7 @@ class _DeviceFirmwareUpdaterScreenState
           width: double.infinity,
           height: double.infinity,
           padding: EdgeInsets.all(20),
-          child: Column(
-            children: [
-              /*Row(
-                children: [
-                  const Text(
-                    "Current Version:",
-                    style: TextStyle(
-                      fontSize: 18,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    version ?? "[not received]",
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),*/
-              Expanded(
-                child: view,
-              ),
-            ],
-          ),
+          child: view,
         ),
       );
     });
