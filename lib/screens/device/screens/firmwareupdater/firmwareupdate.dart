@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:ble_street_lights/safestate/safestate.dart';
 import 'package:ble_street_lights/screens/device/devicesyncer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
@@ -13,7 +14,7 @@ class DeviceFirmwareUpdaterScreen extends StatefulWidget {
 }
 
 class _DeviceFirmwareUpdaterScreenState
-    extends State<DeviceFirmwareUpdaterScreen> {
+    extends SafeState<DeviceFirmwareUpdaterScreen> {
   bool firmwareFileDownloaded = false;
   bool isSending = false;
   double sentPercent = 0;
@@ -21,8 +22,8 @@ class _DeviceFirmwareUpdaterScreenState
   Uint8List? firmwareBytes;
 
   Future<Uint8List> _downloadFirmwareFile() async {
-    final req =  await HttpClient()
-        .getUrl(Uri.parse("https://tmpfiles.org/dl/2212608/firm.bin"));
+    final req =  await HttpClient().getUrl(Uri.parse("https://tmpfiles.org/dl/2273820/esp32_f1.0v.ino.esp32.bin"));
+    //final req = await HttpClient().getUrl(Uri.parse("https://tmpfiles.org/dl/2273483/fields.json"));
     final res = await req.close();
     final bytes = await consolidateHttpClientResponseBytes(res);
     return bytes;
@@ -37,6 +38,7 @@ class _DeviceFirmwareUpdaterScreenState
       subject: "fus",
       data: {
         's': firmwareBytes!.length,
+        //'s': 1182456,
       },
       closeOnSuccess: true,
       doSync: (
@@ -56,9 +58,14 @@ class _DeviceFirmwareUpdaterScreenState
       log("Start sending firmware file...");
 
       int totalLen = firmwareBytes!.length;
+      //int totalLen = 1182456;
+
+      //Uint8List list = Uint8List(1182456);
+      //list.fillRange(0, 1182456, 1);
 
       provider.sendFirmwareFile(
         firmwareBytes!.buffer,
+        //list.buffer,
         onWrite: (writtenLen) {
           setState(() {
             sentPercent = (writtenLen / totalLen);

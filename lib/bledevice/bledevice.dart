@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:typed_data';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/bledevice/data.dart';
+import 'package:ble_street_lights/bledevice/filesender.dart';
 import 'package:ble_street_lights/bledevice/message.dart';
 import 'package:ble_street_lights/bledevice/packetsdecoder.dart';
 import 'package:ble_street_lights/bledevice/request.dart';
@@ -12,7 +13,8 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 class BLEDevice extends BLEDeviceConnectionProviderLink {
   final String _characteristicUuid = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
-  final String _characteristicUuidOta = "beb5483e-36e1-4688-b7f5-ea07361b26a9";
+  final String _characteristicUuidOtaTx = "beb5483e-36e1-4688-b7f5-ea07361b26a9";
+  final String _characteristicUuidOtaRx = "beb5483e-36e1-4688-b7f5-ea07361b26a7";
 
   late BluetoothDevice device;
 
@@ -22,7 +24,8 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
   StreamSubscription<BluetoothConnectionState>? _stateSubscription;
   StreamSubscription<List<int>>? _characteristicValueStateSubscription;
   BluetoothCharacteristic? _characteristic;
-  BluetoothCharacteristic? _characteristicOta;
+  BluetoothCharacteristic? _characteristicOtaTx;
+  BluetoothCharacteristic? _characteristicOtaRx;
 
   bool _isConnecting = false;
 
@@ -79,11 +82,15 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
     required Function(int writtenLen) onWrite,
     required VoidCallback onDone,
   }) async {
-    if (!deviceData.isConnected || _characteristicOta == null) return;
+    if (!deviceData.isConnected || _characteristicOtaTx == null || _characteristicOtaRx == null) return;
 
     await device.requestMtu(requestMtu);
 
-    int totalLen = buffer.lengthInBytes;
+    final sender = BleFileSender(buffer, _characteristicOtaRx!, _characteristicOtaTx!);
+    sender.listen(onWrite, onDone);
+    sender.start();
+
+    /*int totalLen = buffer.lengthInBytes;
     int writtenLen = 0;
 
     while (writtenLen < totalLen) {
@@ -102,7 +109,7 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
         packet[i] = bytes[i];
       }
 
-      await _characteristicOta!.write(
+      await _characteristicOtaTx!.write(
         packet,
         withoutResponse: true,
       );
@@ -110,9 +117,11 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
       writtenLen += bytes.length;
 
       onWrite(writtenLen);
+
+      await Future.delayed(const Duration(milliseconds: 40));
     }
 
-    onDone();
+    onDone();*/
   }
 
   _saveAndNotifyRequiredData(BLEDeviceMessage message) {
@@ -188,17 +197,20 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
         if (c.uuid.toString() == _characteristicUuid) {
           _characteristic = c;
         }
-        if (c.uuid.toString() == _characteristicUuidOta) {
-          _characteristicOta = c;
+        if (c.uuid.toString() == _characteristicUuidOtaTx) {
+          _characteristicOtaTx = c;
+        }
+        if (c.uuid.toString() == _characteristicUuidOtaRx) {
+          _characteristicOtaRx = c;
         }
       }
     }
 
     if (_characteristic != null) {
-      _characteristic!.setNotifyValue(true);
+      await _characteristic!.setNotifyValue(true);
 
       _characteristicValueStateSubscription =
-          _characteristic!.value.listen(null);
+          _characteristic!.lastValueStream.listen(null);
 
       _characteristicValueStateSubscription!.onData((data) {
         if (_packetsDecoder.processPacket(data)) {
@@ -207,6 +219,10 @@ class BLEDevice extends BLEDeviceConnectionProviderLink {
           //Do something...
         }
       });
+    }
+
+    if (_characteristicOtaRx != null) {
+      await _characteristicOtaRx!.setNotifyValue(true);
     }
 
     _requestHandler.characteristic = _characteristic;
