@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:ble_street_lights/bledevice/data.dart';
 import 'package:ble_street_lights/components/simplestepper/simplestepper.dart';
 import 'package:ble_street_lights/safestate/safestate.dart';
@@ -14,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:enhance_stepper/enhance_stepper.dart';
 import 'package:cupertino_stepper/cupertino_stepper.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'dart:math' as math;
 
 class DeviceFirmwareUpdaterScreen extends StatefulWidget {
   @override
@@ -39,7 +39,7 @@ class _DeviceFirmwareUpdaterScreenState
 
   String? previousVersion;
 
-  late PageController setpPageController;
+  BLEDeviceConnectionProvider? _provider;
 
   _getInfo() async {
     setState(() {
@@ -87,8 +87,6 @@ class _DeviceFirmwareUpdaterScreenState
       setState(() {
         infoLoaded = true;
       });
-
-      print(info);
     } catch (e) {
       log("Info Load Error: $e");
 
@@ -107,13 +105,17 @@ class _DeviceFirmwareUpdaterScreenState
     await Future.delayed(const Duration(milliseconds: 1000));
 
     try {
-      //await _downloadFirmwareFile();
+      //return;
+
+      firmwareBytes = await _downloadFirmwareFile();
 
       await Future.delayed(const Duration(milliseconds: 500));
 
       setState(() {
         firmwareFileDownloaded = true;
       });
+
+      _startUpdate();
     } catch (e) {
       setState(() {
         errorFirmwareFileDownload = true;
@@ -143,7 +145,9 @@ class _DeviceFirmwareUpdaterScreenState
     return bytes;
   }
 
-  _startUpdate(BLEDeviceConnectionProvider provider) async {
+  _startUpdate() async {
+    if (_provider == null || firmwareBytes == null) return;
+
     setState(() {
       progress = null;
     });
@@ -153,7 +157,7 @@ class _DeviceFirmwareUpdaterScreenState
     bool b = await showDeviceSyncDialog(
       context: context,
       initialText: "Starting Send...",
-      provider: provider,
+      provider: _provider!,
       action: "set",
       subject: "fus",
       data: {
@@ -179,7 +183,7 @@ class _DeviceFirmwareUpdaterScreenState
 
       int totalLen = firmwareBytes!.length;
 
-      provider.sendFirmwareFile(
+      _provider!.sendFirmwareFile(
         firmwareBytes!.buffer,
         onWrite: (writtenLen) {
           setState(() {
@@ -187,15 +191,99 @@ class _DeviceFirmwareUpdaterScreenState
           });
         },
         onDone: () {
-          log("Write Doneeeeeeeeeeeee!");
+          log("Firmware File Sent.");
         },
       );
     }
   }
 
+  int? _getCurrentStep(int? state) {
+    if (state == BLEDeviceData.OTA_STA_READY && firmwareUpdateStarted) return 0;
+
+    if (state == BLEDeviceData.OTA_STA_RECEIVING) return 1;
+
+    if (state == BLEDeviceData.OTA_STA_RECEIVED) {
+      progress = null;
+      return 1;
+    }
+
+    if (state == BLEDeviceData.OTA_STA_UPDATING) return 2;
+
+    if (state == BLEDeviceData.OTA_STA_REBOOTING) return 3;
+
+    return null;
+  }
+
+  //############################### Animated Icons ###################################
+  Animate _iconDownload() {
+    return Transform.rotate(
+      angle: math.pi / 2,
+      child: const Icon(
+        //Icons.arrow_downward_rounded,
+        Icons.arrow_right_alt_rounded,
+        color: Colors.blue,
+        size: 40,
+      ),
+    )
+        .animate(
+          onPlay: (controller) => controller.repeat(),
+        )
+        .move(
+          begin: const Offset(0, -10),
+          end: const Offset(0, 10),
+          duration: 1000.ms,
+          curve: Curves.easeInOutSine,
+        )
+        .fade(duration: 500.ms)
+        .fadeOut(duration: 500.ms, delay: 500.ms);
+  }
+
+  Animate _iconUpload() {
+    return Transform.rotate(
+      angle: math.pi + math.pi / 2,
+      child: const Icon(
+        //Icons.arrow_downward_rounded,
+        Icons.arrow_right_alt_rounded,
+        color: Colors.blue,
+        size: 40,
+      ),
+    )
+        .animate(
+          onPlay: (controller) => controller.repeat(),
+        )
+        .move(
+          begin: const Offset(0, 10),
+          end: const Offset(0, -10),
+          duration: 1000.ms,
+          curve: Curves.easeInOutSine,
+        )
+        .fade(duration: 500.ms)
+        .fadeOut(duration: 500.ms, delay: 500.ms);
+  }
+
+  Animate _iconSync() {
+    return const Icon(
+      //Icons.arrow_downward_rounded,
+      Icons.sync_rounded,
+      color: Colors.blue,
+      size: 40,
+    )
+        .animate(
+          onPlay: (controller) => controller.repeat(),
+        )
+        .rotate(
+          begin: 0,
+          end: -math.pi / 2,
+          duration: 1000.ms,
+          curve: Curves.easeInOutSine,
+        )
+        .fade(duration: 500.ms)
+        .fadeOut(duration: 500.ms, delay: 500.ms);
+  }
+  //##################################################################################
+
   @override
   void initState() {
-    setpPageController = PageController();
     super.initState();
     _getInfo();
   }
@@ -207,8 +295,12 @@ class _DeviceFirmwareUpdaterScreenState
       provider,
       _,
     ) {
+      _provider = provider;
+
       int? state = provider.deviceData.otaValue("s", null);
       String? version = provider.deviceData.otaValue("v", null);
+
+      int? currentStep = _getCurrentStep(state);
 
       previousVersion ??= version;
 
@@ -367,7 +459,7 @@ class _DeviceFirmwareUpdaterScreenState
             ),
           ],
         ).animate().fade(duration: 500.ms);
-      } else if (state == BLEDeviceData.OTA_STA_READY) {
+      } else {
         /*!firmwareFileDownloaded
                 ? FilledButton(
                     onPressed: () async {
@@ -585,40 +677,76 @@ class _DeviceFirmwareUpdaterScreenState
                     Stack(
                       alignment: Alignment.center,
                       children: [
-                        SizedBox(
-                          width: 150,
-                          height: 150,
-                          child: CircularProgressIndicator(
-                            value: progress,
-                            backgroundColor: Colors.blue.withOpacity(0.2),
-                            strokeWidth: 7,
-                          ),
+                        CircularPercentIndicator(
+                          radius: 75,
+                          lineWidth: 10.0,
+                          percent: progress ?? 0,
+                          progressColor: Colors.blue,
+                          circularStrokeCap: CircularStrokeCap.round,
                         ),
                         Column(
                           children: [
-                            progress != null
-                                ? Text(
-                                    "${(progress! * 100).toInt()}%",
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.blue,
-                                      fontSize: 28,
-                                    ),
-                                  )
-                                : const Icon(
-                                    Icons.sync_rounded,
-                                    color: Colors.blue,
-                                    size: 40,
-                                  ),
+                            [
+                              _iconDownload(),
+                              _iconUpload(),
+                              _iconSync(),
+                              _iconSync(),
+                            ][currentStep!],
                           ],
+                        ),
+                      ],
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(top: 20, bottom: 60),
+                      child: progress != null
+                          ? Text(
+                              "${(progress! * 100).toInt()}% Completed",
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            )
+                          : const Text(
+                              "Please wait...",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                    ),
+                    const Column(
+                      children: [
+                        Text(
+                          "When download is complete,",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        Text(
+                          "firmware update process will start automatically.",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        Text(
+                          "Please do not turn off device power during update process.",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 70),
                     SizedBox(
-                      height: 300,
+                      height: 100,
                       child: SimpleStepper(
-                        currentStep: 0,
+                        currentStep: currentStep!,
                         indicatorSize: 20,
                         lineStrokeWidth: 2,
                         inactiveColor: Colors.grey.shade400,
@@ -634,81 +762,6 @@ class _DeviceFirmwareUpdaterScreenState
                   ],
                 ),
               );
-      } else if (state == BLEDeviceData.OTA_STA_RECEIVING) {
-        view = Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text("Sending the file..."),
-            const SizedBox(height: 10),
-            LinearProgressIndicator(
-              value: progress,
-            ),
-          ],
-        );
-      } else if (state == BLEDeviceData.OTA_STA_RECEIVED) {
-        view = const Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "File Successfully Received",
-              style: TextStyle(
-                fontSize: 24,
-                color: Colors.blue,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text("starting OTA update..."),
-          ],
-        );
-      } else if (state == BLEDeviceData.OTA_STA_UPDATING) {
-        view = const Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "OTA Updating...",
-              style: TextStyle(
-                fontSize: 24,
-                color: Colors.blue,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        );
-      } else if (state == BLEDeviceData.OTA_STA_REBOOTING) {
-        view = const Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "Rebooting The Device...",
-              style: TextStyle(
-                fontSize: 24,
-                color: Colors.blue,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text("looking for re-connecting"),
-          ],
-        );
-      } else if (state == BLEDeviceData.OTA_STA_ERROR) {
-        view = Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              "Error",
-              style: TextStyle(
-                fontSize: 24,
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(provider.deviceData.otaValue("e", "[no description]")),
-          ],
-        );
       }
 
       return Scaffold(
