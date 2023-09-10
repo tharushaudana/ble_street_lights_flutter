@@ -64,6 +64,7 @@ dev_dependencies:
   sleek_circular_slider: ^2.0.1
   syncfusion_flutter_sliders: ^22.1.39
   time_range_picker: ^2.2.0
+  linear_step_indicator: ^1.0.0+3
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

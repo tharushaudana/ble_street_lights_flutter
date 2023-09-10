@@ -36,6 +36,8 @@ class _DeviceFirmwareUpdaterScreenState
 
   String? previousVersion;
 
+  late PageController setpPageController;
+
   _getInfo() async {
     setState(() {
       errorLoadInfo = false;
@@ -102,7 +104,7 @@ class _DeviceFirmwareUpdaterScreenState
     await Future.delayed(const Duration(milliseconds: 1000));
 
     try {
-      await _downloadFirmwareFile();
+      //await _downloadFirmwareFile();
 
       await Future.delayed(const Duration(milliseconds: 500));
 
@@ -189,6 +191,7 @@ class _DeviceFirmwareUpdaterScreenState
 
   @override
   void initState() {
+    setpPageController = PageController();
     super.initState();
     _getInfo();
   }
@@ -568,12 +571,34 @@ class _DeviceFirmwareUpdaterScreenState
                       ],
                     ),
                     const SizedBox(height: 30),
-                    Text(
-                      "Downloading...",
-                      style: TextStyle(
-                        fontSize: 20,
+                    SizedBox(
+                      child: Stepper(
+                        type: StepperType.vertical,
+                        controlsBuilder: (context, details) => SizedBox(
+                          width: double.infinity,
+                          child: Text(["Downloading the file...", "", "", ""][details.stepIndex]),
+                        ),
+                        steps: [
+                          Step(
+                            title: Text("Download"),
+                            content: Text(""),
+                            isActive: true,
+                          ),
+                          Step(
+                            title: Text("Upload"),
+                            content: Text("Downloading the firmware file"),
+                          ),
+                          Step(
+                            title: Text("OTA"),
+                            content: Text("Downloading the firmware file"),
+                          ),
+                          Step(
+                            title: Text("Reboot"),
+                            content: Text("Downloading the firmware file"),
+                          ),
+                        ],
                       ),
-                    ),
+                    )
                   ],
                 ),
               );

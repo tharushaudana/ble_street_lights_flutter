@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:ble_street_lights/bledevice/bledevice.dart';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:ble_street_lights/components/bottomtabbarlayout/bottomtabbarlayout.dart';
+import 'package:ble_street_lights/safestate/safestate.dart';
 import 'package:ble_street_lights/screens/device/dialogs/deviceconnectingdialog.dart';
 import 'package:ble_street_lights/screens/device/screens/astro/astro.dart';
 import 'package:ble_street_lights/screens/device/screens/firmwareupdater/firmwareupdate.dart';
@@ -27,7 +28,7 @@ class DeviceScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _DeviceScreenState();
 }
 
-class _DeviceScreenState extends State<DeviceScreen>
+class _DeviceScreenState extends SafeState<DeviceScreen>
     with WidgetsBindingObserver {
   final autoCloseDuration = const Duration(minutes: 15);
 
