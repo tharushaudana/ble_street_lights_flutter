@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:ble_street_lights/bledevice/data.dart';
+import 'package:ble_street_lights/components/simplestepper/simplestepper.dart';
 import 'package:ble_street_lights/safestate/safestate.dart';
 import 'package:ble_street_lights/screens/device/devicesyncer.dart';
 import 'package:flutter/foundation.dart';
@@ -10,6 +11,9 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:flutter/material.dart';
+import 'package:enhance_stepper/enhance_stepper.dart';
+import 'package:cupertino_stepper/cupertino_stepper.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 
 class DeviceFirmwareUpdaterScreen extends StatefulWidget {
   @override
@@ -28,7 +32,6 @@ class _DeviceFirmwareUpdaterScreenState
   bool errorFirmwareFileDownload = false;
 
   bool isSending = false;
-  double sentPercent = 0;
 
   double? progress;
 
@@ -141,6 +144,12 @@ class _DeviceFirmwareUpdaterScreenState
   }
 
   _startUpdate(BLEDeviceConnectionProvider provider) async {
+    setState(() {
+      progress = null;
+    });
+
+    await Future.delayed(const Duration(milliseconds: 1000));
+
     bool b = await showDeviceSyncDialog(
       context: context,
       initialText: "Starting Send...",
@@ -163,23 +172,18 @@ class _DeviceFirmwareUpdaterScreenState
     if (b) {
       setState(() {
         isSending = true;
-        sentPercent = 0;
+        progress = 0;
       });
 
       log("Start sending firmware file...");
 
       int totalLen = firmwareBytes!.length;
-      //int totalLen = 1182456;
-
-      //Uint8List list = Uint8List(1182456);
-      //list.fillRange(0, 1182456, 1);
 
       provider.sendFirmwareFile(
         firmwareBytes!.buffer,
-        //list.buffer,
         onWrite: (writtenLen) {
           setState(() {
-            sentPercent = (writtenLen / totalLen);
+            progress = (writtenLen / totalLen);
           });
         },
         onDone: () {
@@ -264,20 +268,50 @@ class _DeviceFirmwareUpdaterScreenState
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.done_outline,
-              size: 60,
-              color: Colors.blue.withOpacity(0.5),
+            Container(
+              width: 120,
+              height: 120,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blue.withOpacity(0.5),
+                    blurRadius: 20,
+                  ),
+                ],
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 3,
+                    color: Colors.blue,
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.done_rounded,
+                  size: 60,
+                  color: Colors.blue,
+                ),
+              ),
             ),
-            Text(
-              "Welcome to Version $version",
-              style: const TextStyle(
-                fontSize: 24,
-                color: Colors.blue,
+            const SizedBox(height: 45),
+            const Text(
+              "Update Completed",
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Text("updated ${previousVersion!} to $version"),
+            const SizedBox(height: 100),
+            Text(
+              "Successfully updated $previousVersion to $version",
+              style: const TextStyle(
+                color: Colors.grey,
+                fontSize: 12,
+              ),
+            ),
           ],
         );
       }
@@ -557,45 +591,43 @@ class _DeviceFirmwareUpdaterScreenState
                           child: CircularProgressIndicator(
                             value: progress,
                             backgroundColor: Colors.blue.withOpacity(0.2),
+                            strokeWidth: 7,
                           ),
                         ),
                         Column(
                           children: [
-                            Icon(
-                              Icons.download_rounded,
-                              color: Colors.blue,
-                              size: 40,
-                            ),
+                            progress != null
+                                ? Text(
+                                    "${(progress! * 100).toInt()}%",
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue,
+                                      fontSize: 28,
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.sync_rounded,
+                                    color: Colors.blue,
+                                    size: 40,
+                                  ),
                           ],
                         ),
                       ],
                     ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 70),
                     SizedBox(
-                      child: Stepper(
-                        type: StepperType.vertical,
-                        controlsBuilder: (context, details) => SizedBox(
-                          width: double.infinity,
-                          child: Text(["Downloading the file...", "", "", ""][details.stepIndex]),
-                        ),
-                        steps: [
-                          Step(
-                            title: Text("Download"),
-                            content: Text(""),
-                            isActive: true,
-                          ),
-                          Step(
-                            title: Text("Upload"),
-                            content: Text("Downloading the firmware file"),
-                          ),
-                          Step(
-                            title: Text("OTA"),
-                            content: Text("Downloading the firmware file"),
-                          ),
-                          Step(
-                            title: Text("Reboot"),
-                            content: Text("Downloading the firmware file"),
-                          ),
+                      height: 300,
+                      child: SimpleStepper(
+                        currentStep: 0,
+                        indicatorSize: 20,
+                        lineStrokeWidth: 2,
+                        inactiveColor: Colors.grey.shade400,
+                        lineColor: Colors.grey.shade400,
+                        stepTitles: const [
+                          ["Download", "Downloading..."],
+                          ["Upload", "Uploading..."],
+                          ["Update", "Upating..."],
+                          ["Reboot", "Rebooting..."],
                         ],
                       ),
                     )
@@ -610,7 +642,7 @@ class _DeviceFirmwareUpdaterScreenState
             const Text("Sending the file..."),
             const SizedBox(height: 10),
             LinearProgressIndicator(
-              value: sentPercent,
+              value: progress,
             ),
           ],
         );
