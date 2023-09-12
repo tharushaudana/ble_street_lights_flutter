@@ -117,7 +117,11 @@ class AstroMode extends StatelessWidget {
                 thumbSize: 30,
                 tricksCount: 50,
                 tricksHeight: 15,
-                colors: const [Colors.blue, Color(0xffffd4cb)],
+                colors: const [
+                  Colors.blue,
+                  //Color(0xffffd4cb),
+                  Colors.purpleAccent,
+                ],
                 tricksColor: Colors.grey.shade300,
                 thumbBorderColor: Colors.blue,
                 thumbLabelTextStyle: const TextStyle(
@@ -150,12 +154,13 @@ class AstroMode extends StatelessWidget {
                               children: [
                                 CircularValueIndicator(
                                   size: 55,
-                                  highColor: Color(0xffffd4cb),
-                                  //highColor: Color(0xff55d0ff),
+                                  //highColor: Color(0xffffd4cb),
+                                  highColor: Colors.purpleAccent,
                                   lowColor: Colors.blue,
-                                  //lowColor: Color(0xff413be7),
                                   trackWidth: 3,
-                                  value: disabled.contains(i) ? 0 : currentBrightness.toDouble(),
+                                  value: disabled.contains(i)
+                                      ? 0
+                                      : currentBrightness.toDouble(),
                                 ),
                                 Container(
                                   width: 45,

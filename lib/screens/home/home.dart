@@ -292,6 +292,10 @@ class _HomeScreenState extends State<HomeScreen> {
           /*systemOverlayStyle: SystemUiOverlayStyle(
             statusBarColor: Colors.blue
           ),*/
+          systemOverlayStyle: const SystemUiOverlayStyle(
+            statusBarColor: Colors.blue,
+            statusBarIconBrightness: Brightness.light,
+          ),
           actions: [
             IconButton(
               onPressed: () {

@@ -11,6 +11,7 @@ import 'package:ble_street_lights/screens/device/screens/profile/profile.dart';
 import 'package:ble_street_lights/screens/device/screens/settings/settings.dart';
 import 'package:ble_street_lights/time/time.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
@@ -195,6 +196,10 @@ class _DeviceScreenState extends SafeState<DeviceScreen>
       },
       child: Scaffold(
         appBar: AppBar(
+          systemOverlayStyle: const SystemUiOverlayStyle(
+            statusBarColor: Colors.blue,
+            statusBarIconBrightness: Brightness.light,
+          ),
           title: Row(
             children: [
               Expanded(

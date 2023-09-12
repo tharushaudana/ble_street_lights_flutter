@@ -3,9 +3,11 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:ble_street_lights/bledevice/data.dart';
 import 'package:ble_street_lights/components/simplestepper/simplestepper.dart';
+import 'package:ble_street_lights/extensions/withopacitynotrans/colorwithopacitynotrans.dart';
 import 'package:ble_street_lights/safestate/safestate.dart';
 import 'package:ble_street_lights/screens/device/devicesyncer.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
@@ -87,6 +89,8 @@ class _DeviceFirmwareUpdaterScreenState
       setState(() {
         infoLoaded = true;
       });
+
+      //print(info);
     } catch (e) {
       log("Info Load Error: $e");
 
@@ -115,7 +119,7 @@ class _DeviceFirmwareUpdaterScreenState
         firmwareFileDownloaded = true;
       });
 
-      _startUpdate();
+      //_startUpdate();
     } catch (e) {
       setState(() {
         errorFirmwareFileDownload = true;
@@ -460,217 +464,288 @@ class _DeviceFirmwareUpdaterScreenState
           ],
         ).animate().fade(duration: 500.ms);
       } else {
-        /*!firmwareFileDownloaded
-                ? FilledButton(
-                    onPressed: () async {
-                      firmwareBytes = await _downloadFirmwareFile();
-
-                      setState(() {
-                        firmwareFileDownloaded = true;
-                      });
-                    },
-                    child: Text("Download Firmware File"),
-                  )
-                : FilledButton(
-                    onPressed: () {
-                      _startUpdate(provider);
-                    },
-                    child: Text("Update Now"),
-                  ),
-            firmwareBytes != null
-                ? Text("Download successfully. ${firmwareBytes!.length} bytes")
-                : Container(),*/
-
         view = !firmwareUpdateStarted
             ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 10,
-                      horizontal: 15,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        width: 1,
-                        color: Colors.grey,
-                      ),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            const Text(
-                              "Device:",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const Spacer(),
-                            Text(
-                              info!["device"],
-                              style: const TextStyle(
-                                fontSize: 18,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 5),
-                        Row(
-                          children: [
-                            const Text(
-                              "Current Version:",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const Spacer(),
-                            Text(
-                              version,
-                              style: const TextStyle(
-                                fontSize: 18,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
                   const SizedBox(height: 20),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      vertical: 10,
-                      horizontal: 15,
+                      horizontal: 20,
                     ),
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(
-                          width: 1,
-                          color: Colors.blue,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.blue,
-                            blurRadius: 5,
-                          )
-                        ]),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.switch_access_shortcut_outlined,
-                          size: 60,
-                          color: Colors.blue.withOpacity(0.8),
-                        ),
-                        const SizedBox(width: 25),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Update Available",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              info!["available_version"],
-                              style: const TextStyle(
-                                fontSize: 40,
-                                fontFamily: "monospace",
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Container(
-                    width: double.infinity,
-                    child: Column(
+                    child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          "Description",
+                        Text(
+                          "New Update Available",
                           style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 25,
                           ),
                         ),
-                        const SizedBox(height: 10),
-                        Text(info!["description"]),
                       ],
                     ),
                   ),
                   const SizedBox(height: 30),
-                  Container(
-                    width: double.infinity,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Release Note",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Text(info!["relase"]),
-                      ],
-                    ),
-                  ),
-                  const Spacer(),
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (mContext) => AlertDialog(
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(20),
+                  Expanded(
+                    child: Container(
+                      child: Column(
+                        children: [
+                          Stack(
+                            children: [
+                              Container(
+                                height: 135,
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 25,
+                                ),
+                                decoration: const BoxDecoration(
+                                  borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(20),
+                                  ),
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.blue,
+                                      Colors.purpleAccent,
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
-                            title: const Text(
-                              "Warning",
-                              textAlign: TextAlign.center,
-                            ),
-                            content: const Text(
-                              "Download firmware will generate data traffic, are you sure to continue?",
-                              textAlign: TextAlign.center,
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(mContext);
-                                },
-                                child: const Text("Cancel"),
+                              Container(
+                                height: 135,
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 25,
+                                ),
+                                decoration:  BoxDecoration(
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(20),
+                                  ),
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.white.withOpacity(0),
+                                      Colors.white,
+                                    ],
+                                    stops: const [
+                                      0.5, 1
+                                    ]
+                                  ),
+                                ),
                               ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(mContext);
-                                  _startDownloadFirmwareFile();
-                                },
-                                child: const Text("Download"),
+                              Container(
+                                height: 100,
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 25,
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "What's New",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 25,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        SizedBox(height: 5),
+                                        Text(
+                                          "Find out what's included in this update.",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const Spacer(),
+                                    Text(
+                                      info!["available_version"] + "v",
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 35,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: "monospace",
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
-                        );
-                      },
-                      child: const Text("UPDATE NOW"),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 5,
+                            ),
+                            decoration: const BoxDecoration(
+                              borderRadius: BorderRadius.vertical(
+                                bottom: Radius.circular(20),
+                              ),
+                            ),
+                            child: Column(
+                              children: [
+                                for (String note in info!["relase"])
+                                  Container(
+                                    margin: const EdgeInsets.only(bottom: 6),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        const Icon(Icons.circle, size: 6, color: Colors.grey,),
+                                        const SizedBox(width: 8),
+                                        Text(note)
+                                      ],
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 15,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  "Firmware Information",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Row(
+                                  children: [
+                                    const Text("Version:"),
+                                    const SizedBox(width: 8),
+                                    Text(info!["available_version"])
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    const Text("Release Date:"),
+                                    const SizedBox(width: 8),
+                                    Text(info!["date"])
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 15,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  "Device Information",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Row(
+                                  children: [
+                                    const Text("DID:"),
+                                    const SizedBox(width: 8),
+                                    Text("STXXXXXX"),
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    const Text("Serial:"),
+                                    const SizedBox(width: 8),
+                                    Text(info!["serial"]),
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    const Text("Current Version:"),
+                                    const SizedBox(width: 8),
+                                    Text(version),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Spacer(),
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            width: double.infinity,
+                            child: FilledButton(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (mContext) => AlertDialog(
+                                    shape: const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(20),
+                                      ),
+                                    ),
+                                    title: const Text(
+                                      "Warning",
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    content: const Text(
+                                      "Download firmware will generate data traffic, are you sure to continue?",
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(mContext);
+                                        },
+                                        child: const Text("Cancel"),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(mContext);
+                                          _startDownloadFirmwareFile();
+                                        },
+                                        child: const Text("Download"),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                              child: const Text("UPDATE NOW"),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
               )
             : Container(
+                padding: const EdgeInsets.all(20),
                 margin: const EdgeInsets.only(top: 20),
                 child: Column(
                   children: [
@@ -766,12 +841,26 @@ class _DeviceFirmwareUpdaterScreenState
 
       return Scaffold(
         appBar: AppBar(
-          title: const Text("Firmware Updater"),
+          title: const Text(
+            "Firmware Updater",
+            style: TextStyle(
+              color: Colors.black,
+            ),
+          ),
+          elevation: 0,
+          backgroundColor: Colors.white,
+          iconTheme: const IconThemeData(
+            color: Colors.black,
+          ),
+          systemOverlayStyle: const SystemUiOverlayStyle(
+            statusBarColor: Colors.white,
+            statusBarIconBrightness: Brightness.dark,
+          ),
         ),
         body: Container(
+          color: Colors.white,
           width: double.infinity,
           height: double.infinity,
-          padding: EdgeInsets.all(20),
           child: view,
         ),
       );

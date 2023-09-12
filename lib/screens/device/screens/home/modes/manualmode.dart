@@ -33,8 +33,8 @@ class ManualMode extends StatelessWidget {
             children: [
               CircularValueIndicator(
                 size: 100,
-                highColor: Color(0xffffd4cb),
-                //highColor: Color(0xff55d0ff),
+                //highColor: Color(0xffffd4cb),
+                highColor: Colors.purpleAccent,
                 lowColor: Colors.blue,
                 //lowColor: Color(0xff413be7),
                 trackWidth: 4,
@@ -95,9 +95,10 @@ class ManualMode extends StatelessWidget {
           thumbSize: 30,
           tricksCount: 50,
           tricksHeight: 15,
-          colors: const [
+          colors: [
             Colors.blue,
-            Color(0xffffd4cb)
+            //Color(0xffffd4cb)
+            Colors.purpleAccent
           ],
           tricksColor: Colors.grey.shade300,
           thumbBorderColor: Colors.blue,
