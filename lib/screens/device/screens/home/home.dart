@@ -76,8 +76,16 @@ class _DeviceHomeScreenState extends SafeState<DeviceHomeScreen> {
           });
         }
 
-        int motionSensorCount = provider.deviceData.settingsData['settingstab']
+        bool motionSensorEnabled = provider.deviceData.settingsData['settingstab']
+            ['motionSensor']['enabled'];
+
+        int motionSensorCount = 0;
+
+        if (motionSensorEnabled) {
+          motionSensorCount = provider.deviceData.settingsData['settingstab']
             ['motionSensor']['sensorCount'];
+        }
+
         Map motionSensorStates = provider.deviceData.currentValue<Map>("p", {});
 
         //#### for Astro mode only

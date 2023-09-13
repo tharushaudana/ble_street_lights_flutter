@@ -112,243 +112,240 @@ class _MotionSensorSettingsScreenState
       appBar: AppBar(
         title: const Text("Motion Sensor Settings"),
       ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(
-          children: [
-            const SizedBox(height: 15),
-            _settingCard(
-              Row(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Status",
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                        ),
+      body: Column(
+        children: [
+          const SizedBox(height: 15),
+          _settingCard(
+            Row(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Status",
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(height: 5),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          const Icon(
-                            Icons.subdirectory_arrow_right_rounded,
-                            size: 20,
+                    ),
+                    const SizedBox(height: 5),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        const Icon(
+                          Icons.subdirectory_arrow_right_rounded,
+                          size: 20,
+                        ),
+                        Text(
+                          widget.settingsData["enabled"] ? "ON" : "OFF",
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold,
                           ),
-                          Text(
-                            widget.settingsData["enabled"] ? "ON" : "OFF",
-                            style: const TextStyle(
-                              color: Colors.grey,
-                              fontWeight: FontWeight.bold,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                NeumorphismButton(
+                  initialSwitched: widget.settingsData["enabled"],
+                  glowEnabled: false,
+                  onSwitching: (will) async {
+                    setState(() {
+                      widget.settingsData["enabled"] = will;
+                    });
+
+                    if (will) {
+                      return true;
+                    }
+
+                    bool result = await syncSettings(
+                      widget.provider,
+                      {"e": will ? 1 : 0},
+                      closeOnSuccess: true,
+                    );
+
+                    if (!result) {
+                      WidgetsBinding.instance.addPostFrameCallback((
+                        timeStamp,
+                      ) {
+                        setState(() {
+                          widget.settingsData["enabled"] = !will;
+                        });
+                      });
+                    }
+
+                    return result;
+                  },
+                ),
+              ],
+            ),
+            shadow: false,
+            border: true,
+          ),
+          widget.settingsData["enabled"]
+              ? Column(
+                  children: [
+                    _settingCard(
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Row(
+                                  children: [
+                                    Icon(Icons.auto_awesome_motion_rounded,
+                                        size: 18),
+                                    SizedBox(width: 10),
+                                    Text(
+                                      "Sensor Count",
+                                      style: TextStyle(
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                Row(
+                                  children: [
+                                    InkWell(
+                                      onTap: () {
+                                        if (widget
+                                                .settingsData["sensorCount"] ==
+                                            1) return;
+                                        setState(() {
+                                          widget.settingsData["sensorCount"]--;
+                                        });
+                                      },
+                                      child: Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue,
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                        ),
+                                        child: const Icon(
+                                          Icons.keyboard_arrow_down_rounded,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    InkWell(
+                                      onTap: () {
+                                        if (widget
+                                                .settingsData["sensorCount"] ==
+                                            4) return;
+                                        setState(() {
+                                          widget.settingsData["sensorCount"]++;
+                                        });
+                                      },
+                                      child: Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue,
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                        ),
+                                        child: const Icon(
+                                          Icons.keyboard_arrow_up_rounded,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "${widget.settingsData['sensorCount']}",
+                                style: const TextStyle(
+                                  fontSize: 35,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                              Text(
+                                "sensors",
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.blue.withOpacity(0.5)),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                  const Spacer(),
-                  NeumorphismButton(
-                    initialSwitched: widget.settingsData["enabled"],
-                    glowEnabled: false,
-                    onSwitching: (will) async {
-                      setState(() {
-                        widget.settingsData["enabled"] = will;
-                      });
-
-                      if (will) {
-                        return true;
-                      }
-
-                      bool result = await syncSettings(
-                        widget.provider,
-                        {"e": will ? 1 : 0},
-                        closeOnSuccess: true,
-                      );
-
-                      if (!result) {
-                        WidgetsBinding.instance.addPostFrameCallback((
-                          timeStamp,
-                        ) {
-                          setState(() {
-                            widget.settingsData["enabled"] = !will;
-                          });
-                        });
-                      }
-
-                      return result;
-                    },
-                  ),
-                ],
-              ),
-              shadow: false,
-              border: true,
-            ),
-            widget.settingsData["enabled"]
-                ? Column(
-                    children: [
-                      _settingCard(
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Row(
-                                    children: [
-                                      Icon(Icons.auto_awesome_motion_rounded, size: 18),
-                                      SizedBox(width: 10),
-                                      Text(
-                                        "Sensor Count",
-                                        style: TextStyle(
-                                          fontSize: 17,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Row(
-                                    children: [
-                                      InkWell(
-                                        onTap: () {
-                                          if (widget.settingsData[
-                                                  "sensorCount"] ==
-                                              1) return;
-                                          setState(() {
-                                            widget
-                                                .settingsData["sensorCount"]--;
-                                          });
-                                        },
-                                        child: Container(
-                                          width: 40,
-                                          height: 40,
-                                          decoration: BoxDecoration(
-                                            color: Colors.blue,
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                          ),
-                                          child: const Icon(
-                                            Icons.keyboard_arrow_down_rounded,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 6),
-                                      InkWell(
-                                        onTap: () {
-                                          if (widget.settingsData[
-                                                  "sensorCount"] ==
-                                              4) return;
-                                          setState(() {
-                                            widget
-                                                .settingsData["sensorCount"]++;
-                                          });
-                                        },
-                                        child: Container(
-                                          width: 40,
-                                          height: 40,
-                                          decoration: BoxDecoration(
-                                            color: Colors.blue,
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                          ),
-                                          child: const Icon(
-                                            Icons.keyboard_arrow_up_rounded,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                    ),
+                    _settingCard(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Row(
+                            children: [
+                              Icon(Icons.settings, size: 18),
+                              SizedBox(width: 10),
+                              Text(
+                                "Sensitive Configuration",
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                            Column(
-                              children: [
-                                Text(
-                                  "${widget.settingsData['sensorCount']}",
-                                  style: const TextStyle(
-                                    fontSize: 35,
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                                Text(
-                                  "sensors",
-                                  style: TextStyle(
-                                      fontSize: 15,
-                                      color: Colors.blue.withOpacity(0.5)),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      _settingCard(
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Row(
-                              children: [
-                                Icon(Icons.settings, size: 18),
-                                SizedBox(width: 10),
-                                Text(
-                                  "Sensitive Configuration",
-                                  style: TextStyle(
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 5),
-                            Row(
-                              children: [
-                                Row(
-                                  children: [
-                                    // A, B only sensitive
-                                    for (int i = 0; i < 2; i++)
-                                      InkWell(
-                                        onTap: () {
-                                          setState(() {
-                                            _selectedSensorIndex = i;
-                                          });
-                                        },
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 3,
-                                            horizontal: 15,
-                                          ),
-                                          margin:
-                                              const EdgeInsets.only(right: 6),
-                                          decoration: BoxDecoration(
+                            ],
+                          ),
+                          const SizedBox(height: 5),
+                          Row(
+                            children: [
+                              Row(
+                                children: [
+                                  // A, B only sensitive
+                                  for (int i = 0; i < 2; i++)
+                                    InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          _selectedSensorIndex = i;
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 3,
+                                          horizontal: 15,
+                                        ),
+                                        margin: const EdgeInsets.only(right: 6),
+                                        decoration: BoxDecoration(
+                                            color: _selectedSensorIndex == i
+                                                ? Colors.blue
+                                                : Colors.transparent,
+                                            border: Border.all(
                                               color: _selectedSensorIndex == i
                                                   ? Colors.blue
-                                                  : Colors.transparent,
-                                              border: Border.all(
-                                                color: _selectedSensorIndex == i
-                                                    ? Colors.blue
-                                                    : Colors.black,
-                                                width: 1,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(20)),
-                                          child: Text(
-                                            ['A', 'B'][i],
-                                            style: TextStyle(
-                                              fontSize: 11,
-                                              color: _selectedSensorIndex == i
-                                                  ? Colors.white
                                                   : Colors.black,
+                                              width: 1,
                                             ),
+                                            borderRadius:
+                                                BorderRadius.circular(20)),
+                                        child: Text(
+                                          ['A', 'B'][i],
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: _selectedSensorIndex == i
+                                                ? Colors.white
+                                                : Colors.black,
                                           ),
                                         ),
                                       ),
-                                  ],
-                                ),
-                                Expanded(child: SfSlider(
+                                    ),
+                                ],
+                              ),
+                              Expanded(
+                                child: SfSlider(
                                   min: 0,
                                   max: 100,
                                   stepSize: 25,
@@ -363,111 +360,114 @@ class _MotionSensorSettingsScreenState
                                         [_selectedSensorIndex] = value.toInt();
                                     setState(() {});
                                   },
-                                ),),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      _settingCard(
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Row(
-                                    children: [
-                                      Icon(Icons.timelapse_rounded, size: 18),
-                                      SizedBox(width: 10),
-                                      Text(
-                                        "Hold Time",
-                                        style: TextStyle(
-                                          fontSize: 17,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 5),
-                                  SfSlider(
-                                    min: 15,
-                                    max: 300,
-                                    interval: 57,
-                                    showTicks: true,
-                                    showLabels: true,
-                                    showDividers: true,
-                                    minorTicksPerInterval: 1,
-                                    value: widget.settingsData['holdTime'],
-                                    onChanged: (value) {
-                                      if (value < 1) return;
-                                      setState(() {
-                                        widget.settingsData['holdTime'] =
-                                            value.toInt();
-                                      });
-                                    },
-                                  ),
-                                ],
+                                ),
                               ),
-                            ),
-                            Column(
-                              children: [
-                                Text(
-                                  "${widget.settingsData['holdTime']}",
-                                  style: const TextStyle(
-                                    fontSize: 35,
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                                Text(
-                                  "seconds",
-                                  style: TextStyle(
-                                      fontSize: 15,
-                                      color: Colors.blue.withOpacity(0.5)),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 20,
-                        ),
-                        width: double.infinity,
-                        child: FilledButton(
-                          onPressed: () {
-                            //########### configuration
-
-                            //###########
-
-                            syncSettings(
-                              widget.provider,
-                              {
-                                'e': 1,
-                                'sc': widget.settingsData["sensorCount"],
-                                'ht': widget.settingsData["holdTime"],
-                                'co': widget.settingsData["slevels"]
-                              },
-                            );
-                          },
-                          child: const Text("UPDATE"),
-                        ),
-                      ),
-                    ],
-                  ).animate().fade(duration: 100.ms)
-                : const SizedBox(
-                    height: 100,
-                    child: Center(
-                      child: Text(
-                        "Turn on for show settings.",
-                        style: TextStyle(color: Colors.grey),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
+                    _settingCard(
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Row(
+                                  children: [
+                                    Icon(Icons.timelapse_rounded, size: 18),
+                                    SizedBox(width: 10),
+                                    Text(
+                                      "Hold Time",
+                                      style: TextStyle(
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                SfSlider(
+                                  min: 15,
+                                  max: 300,
+                                  interval: 57,
+                                  showTicks: true,
+                                  showLabels: true,
+                                  showDividers: true,
+                                  minorTicksPerInterval: 1,
+                                  value: widget.settingsData['holdTime'],
+                                  onChanged: (value) {
+                                    if (value < 1) return;
+                                    setState(() {
+                                      widget.settingsData['holdTime'] =
+                                          value.toInt();
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "${widget.settingsData['holdTime']}",
+                                style: const TextStyle(
+                                  fontSize: 35,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                              Text(
+                                "seconds",
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.blue.withOpacity(0.5)),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ).animate().fade(duration: 100.ms)
+              : const SizedBox(
+                  height: 100,
+                  child: Center(
+                    child: Text(
+                      "Turn on for show settings.",
+                      style: TextStyle(color: Colors.grey),
+                    ),
                   ),
-          ],
-        ),
+                ),
+          const Spacer(),
+          widget.settingsData["enabled"]
+              ? Container(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 20,
+                  ),
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () {
+                      //########### configuration
+
+                      //###########
+
+                      syncSettings(
+                        widget.provider,
+                        {
+                          'e': 1,
+                          'sc': widget.settingsData["sensorCount"],
+                          'ht': widget.settingsData["holdTime"],
+                          'co': widget.settingsData["slevels"]
+                        },
+                      );
+                    },
+                    child: const Text("UPDATE"),
+                  ),
+                )
+              : Container(),
+        ],
       ),
     );
   }

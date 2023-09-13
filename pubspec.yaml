@@ -64,8 +64,6 @@ dev_dependencies:
   sleek_circular_slider: ^2.0.1
   syncfusion_flutter_sliders: ^22.1.39
   time_range_picker: ^2.2.0
-  enhance_stepper: ^0.1.1
-  cupertino_stepper: ^0.2.1
   percent_indicator: ^4.2.3
 
 # For information on the generic Dart part of this file, see the

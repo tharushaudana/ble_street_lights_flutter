@@ -1,23 +1,28 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:ble_street_lights/bledevice/data.dart';
+import 'package:ble_street_lights/bledevice/request.dart';
 import 'package:ble_street_lights/components/simplestepper/simplestepper.dart';
-import 'package:ble_street_lights/extensions/withopacitynotrans/colorwithopacitynotrans.dart';
 import 'package:ble_street_lights/safestate/safestate.dart';
-import 'package:ble_street_lights/screens/device/devicesyncer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
 import 'package:flutter/material.dart';
-import 'package:enhance_stepper/enhance_stepper.dart';
-import 'package:cupertino_stepper/cupertino_stepper.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'dart:math' as math;
 
 class DeviceFirmwareUpdaterScreen extends StatefulWidget {
+  const DeviceFirmwareUpdaterScreen({
+    super.key,
+    required this.did,
+  });
+
+  final String did;
+
   @override
   State<StatefulWidget> createState() => _DeviceFirmwareUpdaterScreenState();
 }
@@ -35,6 +40,19 @@ class _DeviceFirmwareUpdaterScreenState
 
   bool isSending = false;
 
+  int showWidgetId = 0;
+  /*
+    0: CircularPercentageIndicator
+    1: Done Gif
+    2: CircularProgressIndicator (for loading)
+    3: Error Icon
+  */
+
+  String loadingText = "";
+  String errorText = "";
+
+  int currentStep = 0;
+
   double? progress;
 
   Uint8List? firmwareBytes;
@@ -42,6 +60,10 @@ class _DeviceFirmwareUpdaterScreenState
   String? previousVersion;
 
   BLEDeviceConnectionProvider? _provider;
+
+  bool canPop = true;
+
+  late AssetImage _doneGif;
 
   _getInfo() async {
     setState(() {
@@ -51,7 +73,7 @@ class _DeviceFirmwareUpdaterScreenState
 
     Map formData = {
       "api_key": "tPmAT5Ab3j7F9",
-      "id": "test",
+      "id": widget.did,
     };
 
     final String formBody = formData.entries
@@ -95,13 +117,19 @@ class _DeviceFirmwareUpdaterScreenState
       log("Info Load Error: $e");
 
       setState(() {
+        canPop = true;
         errorLoadInfo = true;
       });
     }
   }
 
   _startDownloadFirmwareFile() async {
+    canPop = false;
+
+    _setShowWidgetId(0); // percent
+
     setState(() {
+      progress = 0;
       firmwareUpdateStarted = true;
       errorFirmwareFileDownload = false;
     });
@@ -115,15 +143,15 @@ class _DeviceFirmwareUpdaterScreenState
 
       await Future.delayed(const Duration(milliseconds: 500));
 
-      setState(() {
-        firmwareFileDownloaded = true;
-      });
+      firmwareFileDownloaded = true;
+      _setShowWidgetId(1); // done
 
-      //_startUpdate();
+      await Future.delayed(const Duration(milliseconds: 2000));
+
+      _startUpdate();
     } catch (e) {
-      setState(() {
-        errorFirmwareFileDownload = true;
-      });
+      errorFirmwareFileDownload = true;
+      _setErrorText("Download failed!");
     }
   }
 
@@ -152,36 +180,16 @@ class _DeviceFirmwareUpdaterScreenState
   _startUpdate() async {
     if (_provider == null || firmwareBytes == null) return;
 
-    setState(() {
-      progress = null;
-    });
+    _setLoadingText("Turning to Firmware Mode...");
 
-    await Future.delayed(const Duration(milliseconds: 1000));
+    await Future.delayed(const Duration(milliseconds: 2000));
 
-    bool b = await showDeviceSyncDialog(
-      context: context,
-      initialText: "Starting Send...",
-      provider: _provider!,
-      action: "set",
-      subject: "fus",
-      data: {
-        's': firmwareBytes!.length,
-        //'s': 1182456,
-      },
-      closeOnSuccess: true,
-      doSync: (
-        dialogController,
-        sendNow,
-      ) {
-        sendNow();
-      },
-    );
+    bool b = await _turnDeviceToFirmwareMode();
 
     if (b) {
-      setState(() {
-        isSending = true;
-        progress = 0;
-      });
+      isSending = true;
+      progress = 0;
+      _setShowWidgetId(0); // percent
 
       log("Start sending firmware file...");
 
@@ -201,21 +209,85 @@ class _DeviceFirmwareUpdaterScreenState
     }
   }
 
-  int? _getCurrentStep(int? state) {
-    if (state == BLEDeviceData.OTA_STA_READY && firmwareUpdateStarted) return 0;
+  Future<bool> _turnDeviceToFirmwareMode() {
+    final c = Completer<bool>();
 
-    if (state == BLEDeviceData.OTA_STA_RECEIVING) return 1;
+    BLEDeviceRequest request = BLEDeviceRequest("set")
+      ..subject("fus")
+      ..data({
+        's': firmwareBytes!.length,
+      });
 
-    if (state == BLEDeviceData.OTA_STA_RECEIVED) {
-      progress = null;
-      return 1;
+    request.listen(
+      onSuccess: (_) {
+        c.complete(true);
+      },
+      onFailed: (err) {
+        _setErrorText("Unknown error!");
+        c.complete(false);
+      },
+      onTimeOut: () {
+        _setErrorText("Request Timed Out!");
+        c.complete(false);
+      },
+    );
+
+    _provider!.makeRequest(request);
+
+    return c.future;
+  }
+
+  _setShowWidgetId(int id) {
+    setState(() {
+      showWidgetId = id;
+    });
+  }
+
+  _setErrorText(String err) {
+    showWidgetId = 3;
+    errorText = err;
+    canPop = true;
+    setState(() {});
+  }
+
+  _setLoadingText(String txt) {
+    showWidgetId = 2;
+    loadingText = txt;
+    setState(() {});
+  }
+
+  _setCurrentStep(int? state) {
+    if (state == BLEDeviceData.OTA_STA_READY && firmwareUpdateStarted) {
+      currentStep = 0;
+      return;
     }
 
-    if (state == BLEDeviceData.OTA_STA_UPDATING) return 2;
+    if (state == BLEDeviceData.OTA_STA_RECEIVING) currentStep = 1;
 
-    if (state == BLEDeviceData.OTA_STA_REBOOTING) return 3;
+    if (state == BLEDeviceData.OTA_STA_RECEIVED) {
+      //showWidgetId = 1; // done
+      currentStep = 1;
+    }
 
-    return null;
+    if (state == BLEDeviceData.OTA_STA_UPDATING) {
+      showWidgetId = 0; // percent
+      loadingText = "Please wait...";
+      progress = null;
+      currentStep = 2;
+    }
+
+    if (state == BLEDeviceData.OTA_STA_REBOOTING) {
+      showWidgetId = 0; // percent
+      loadingText = "Please wait...";
+      progress = null;
+      currentStep = 3;
+    }
+
+    if (state == BLEDeviceData.OTA_STA_ERROR) {
+      showWidgetId = 3; // error
+      errorText = "Process failed!";
+      canPop = true;
+    }
   }
 
   //############################### Animated Icons ###################################
@@ -288,8 +360,15 @@ class _DeviceFirmwareUpdaterScreenState
 
   @override
   void initState() {
+    _doneGif = const AssetImage("assets/images/done-loop-10.gif");
     super.initState();
     _getInfo();
+  }
+
+  @override
+  void dispose() {
+    _doneGif.evict();
+    super.dispose();
   }
 
   @override
@@ -304,7 +383,7 @@ class _DeviceFirmwareUpdaterScreenState
       int? state = provider.deviceData.otaValue("s", null);
       String? version = provider.deviceData.otaValue("v", null);
 
-      int? currentStep = _getCurrentStep(state);
+      _setCurrentStep(state);
 
       previousVersion ??= version;
 
@@ -402,14 +481,23 @@ class _DeviceFirmwareUpdaterScreenState
             ),
             const SizedBox(height: 100),
             Text(
-              "Successfully updated $previousVersion to $version",
+              "Successfully updated ${previousVersion}v to ${version}v",
               style: const TextStyle(
                 color: Colors.grey,
                 fontSize: 12,
               ),
             ),
+            const SizedBox(height: 40),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("BACK TO HOME"),
+            ),
           ],
         );
+
+        canPop = true;
       }
 
       //##################### OTA STATES (BEFORE DONE) #####################
@@ -518,21 +606,21 @@ class _DeviceFirmwareUpdaterScreenState
                                   horizontal: 20,
                                   vertical: 25,
                                 ),
-                                decoration:  BoxDecoration(
+                                decoration: BoxDecoration(
                                   borderRadius: const BorderRadius.vertical(
                                     top: Radius.circular(20),
                                   ),
                                   gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      Colors.white.withOpacity(0),
-                                      Colors.white,
-                                    ],
-                                    stops: const [
-                                      0.5, 1
-                                    ]
-                                  ),
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        Colors.white.withOpacity(0),
+                                        Colors.white,
+                                      ],
+                                      stops: const [
+                                        0.5,
+                                        1
+                                      ]),
                                 ),
                               ),
                               Container(
@@ -547,7 +635,8 @@ class _DeviceFirmwareUpdaterScreenState
                                     const Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Text(
                                           "What's New",
@@ -602,7 +691,11 @@ class _DeviceFirmwareUpdaterScreenState
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
                                       children: [
-                                        const Icon(Icons.circle, size: 6, color: Colors.grey,),
+                                        const Icon(
+                                          Icons.circle,
+                                          size: 5,
+                                          color: Colors.blue,
+                                        ),
                                         const SizedBox(width: 8),
                                         Text(note)
                                       ],
@@ -673,7 +766,7 @@ class _DeviceFirmwareUpdaterScreenState
                                   children: [
                                     const Text("DID:"),
                                     const SizedBox(width: 8),
-                                    Text("STXXXXXX"),
+                                    Text(widget.did),
                                   ],
                                 ),
                                 const SizedBox(height: 5),
@@ -752,67 +845,112 @@ class _DeviceFirmwareUpdaterScreenState
                     Stack(
                       alignment: Alignment.center,
                       children: [
-                        CircularPercentIndicator(
-                          radius: 75,
-                          lineWidth: 10.0,
-                          percent: progress ?? 0,
-                          progressColor: Colors.blue,
-                          circularStrokeCap: CircularStrokeCap.round,
+                        SizedBox(
+                          height: 150,
+                          child: Center(
+                            child: [
+                              CircularPercentIndicator(
+                                radius: 75,
+                                lineWidth: 10.0,
+                                percent: progress ?? 1,
+                                progressColor: Colors.blue,
+                                circularStrokeCap: CircularStrokeCap.round,
+                              ),
+                              Image(
+                                image: _doneGif,
+                                width: 95,
+                                height: 95,
+                              ),
+                              const CircularProgressIndicator(),
+                              const Icon(
+                                Icons.warning_amber_rounded,
+                                size: 95,
+                                color: Colors.red,
+                              ),
+                            ][showWidgetId],
+                          ),
                         ),
-                        Column(
-                          children: [
-                            [
-                              _iconDownload(),
-                              _iconUpload(),
-                              _iconSync(),
-                              _iconSync(),
-                            ][currentStep!],
-                          ],
-                        ),
+                        showWidgetId == 0
+                            ? Column(
+                                children: [
+                                  [
+                                    _iconDownload(),
+                                    _iconUpload(),
+                                    _iconSync(),
+                                    _iconSync(),
+                                  ][currentStep!],
+                                ],
+                              )
+                            : Container(),
                       ],
                     ),
                     Container(
                       margin: const EdgeInsets.only(top: 20, bottom: 60),
-                      child: progress != null
+                      child: showWidgetId == 3
                           ? Text(
-                              "${(progress! * 100).toInt()}% Completed",
+                              errorText,
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
+                                color: Colors.red,
                               ),
                             )
-                          : const Text(
-                              "Please wait...",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                          : showWidgetId == 0 && progress != null
+                              ? Text(
+                                  "${(progress! * 100).toInt()}% Completed",
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              : Text(
+                                  loadingText,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                     ),
-                    const Column(
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          "When download is complete,",
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
+                        [
+                          const Text(
+                            "When download is complete, firmware update process will start automatically.",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey,
+                            ),
                           ),
-                        ),
-                        Text(
-                          "firmware update process will start automatically.",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
+                          const Text(
+                            "When device started updating, system LED flashing faster.",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 20),
-                        Text(
-                          "Please do not turn off device power during update process.",
-                          textAlign: TextAlign.center,
+                          const Text(
+                            "When device started updating, system LED flashing faster.",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const Text(
+                            "Wait a few seconds for complete reboot.",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ][currentStep!],
+                        const SizedBox(height: 20),
+                        const Text(
+                          "Please do not turn off device power & bluetooth during update process.",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.grey,
+                            fontSize: 15,
                           ),
                         ),
                       ],
@@ -839,29 +977,61 @@ class _DeviceFirmwareUpdaterScreenState
               );
       }
 
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            "Firmware Updater",
-            style: TextStyle(
+      return WillPopScope(
+        onWillPop: () async {
+          if (!canPop) {
+            showDialog(
+              context: context,
+              builder: (mContext) => AlertDialog(
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(20),
+                  ),
+                ),
+                title: const Text(
+                  "Update In Progress",
+                ),
+                content: const Text(
+                  "Please wait until it's done.",
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(mContext);
+                    },
+                    child: const Text("OK"),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return canPop;
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text(
+              "Firmware Updater",
+              style: TextStyle(
+                color: Colors.black,
+              ),
+            ),
+            elevation: 0,
+            backgroundColor: Colors.white,
+            iconTheme: const IconThemeData(
               color: Colors.black,
             ),
+            systemOverlayStyle: const SystemUiOverlayStyle(
+              statusBarColor: Colors.white,
+              statusBarIconBrightness: Brightness.dark,
+            ),
           ),
-          elevation: 0,
-          backgroundColor: Colors.white,
-          iconTheme: const IconThemeData(
-            color: Colors.black,
+          body: Container(
+            color: Colors.white,
+            width: double.infinity,
+            height: double.infinity,
+            child: view,
           ),
-          systemOverlayStyle: const SystemUiOverlayStyle(
-            statusBarColor: Colors.white,
-            statusBarIconBrightness: Brightness.dark,
-          ),
-        ),
-        body: Container(
-          color: Colors.white,
-          width: double.infinity,
-          height: double.infinity,
-          child: view,
         ),
       );
     });

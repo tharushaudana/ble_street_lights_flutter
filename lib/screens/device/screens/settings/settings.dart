@@ -1,23 +1,22 @@
 import 'dart:developer';
 import 'dart:ui';
 import 'package:ble_street_lights/bledevice/connectionprovider.dart';
-import 'package:ble_street_lights/backupableitrs/blist/blist.dart';
 import 'package:ble_street_lights/backupableitrs/bmap/bmap.dart';
-import 'package:ble_street_lights/components/sliverpersistentheaderbuilder/sliverpersistentheaderbuilder.dart';
 import 'package:ble_street_lights/components/neumorphismbutton/neumorphismbutton.dart';
 import 'package:ble_street_lights/safestate/safestate.dart';
 import 'package:ble_street_lights/screens/device/screens/settings/screens/dimmingstagessettingsscreen.dart';
 import 'package:ble_street_lights/screens/device/screens/settings/screens/motionsensorsettings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({
     super.key,
+    required this.onClickOpenFirmwareUpdate,
   });
+
+  final VoidCallback onClickOpenFirmwareUpdate;
 
   @override
   State<StatefulWidget> createState() => _SettingsScreenState();
@@ -508,6 +507,32 @@ class _SettingsScreenState extends SafeState<SettingsScreen> {
                     children: [
                       const Text(
                         "Reboot Device",
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            shadow: true,
+            border: true,
+          ),
+
+          _settingCard(
+            GestureDetector(
+              onTap: () {
+                widget.onClickOpenFirmwareUpdate();
+              },
+              child: const Row(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Firmware Update",
                         style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,

@@ -70,7 +70,9 @@ class _DeviceScreenState extends SafeState<DeviceScreen>
       MaterialPageRoute(
         builder: (context) => ChangeNotifierProvider(
           create: (_) => BLEDeviceConnectionProvider(device),
-          child: DeviceFirmwareUpdaterScreen(),
+          child: DeviceFirmwareUpdaterScreen(
+            did: widget.deviceData[0],
+          ),
         ),
       ),
     );
@@ -245,7 +247,7 @@ class _DeviceScreenState extends SafeState<DeviceScreen>
               ),
               IconButton(
                 onPressed: () {
-                  openFirmwareUpdaterScreen();
+                  
                 },
                 icon: const Icon(Icons.more_vert),
               ),
@@ -285,7 +287,9 @@ class _DeviceScreenState extends SafeState<DeviceScreen>
             ),
             ChangeNotifierProvider(
               create: (_) => BLEDeviceConnectionProvider(device),
-              child: SettingsScreen(),
+              child: SettingsScreen(
+                onClickOpenFirmwareUpdate: () => openFirmwareUpdaterScreen(),
+              ),
             ),
           ],
         ),

@@ -67,7 +67,7 @@ class _DimmingStagesSettingsScreenState
       width: double.infinity,
       margin: const EdgeInsets.symmetric(
         horizontal: 20,
-        vertical: 10,
+        vertical: 6,
       ),
       padding: const EdgeInsets.symmetric(
         horizontal: 20,
@@ -350,43 +350,6 @@ class _DimmingStagesSettingsScreenState
                             ),
                           ).animate().fade(duration: 100.ms)
                         : Container(),
-                    Container(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 20,
-                      ),
-                      width: double.infinity,
-                      child: FilledButton(
-                        onPressed: () {
-                          Map data = {
-                            'e': 1,
-                            'm':
-                                widget.settingsData["mode"] == "manual" ? 1 : 2,
-                          };
-
-                          if (widget.settingsData["mode"] == "manual") {
-                            data['c'] = widget.settingsData['stages'].length;
-                            data['b'] = []; // pwms
-                            data['f'] = []; // from times
-                            data['o'] = []; // to times
-
-                            for (var stage in widget.settingsData['stages']) {
-                              data['b'].add(stage['pwm']);
-                              data['f'].add(stage['from'].hour +
-                                  stage['from'].minute / 100);
-                              data['o'].add(
-                                  stage['to'].hour + stage['to'].minute / 100);
-                            }
-                          }
-
-                          syncSettings(
-                            widget.provider,
-                            data,
-                          );
-                        },
-                        child: const Text("UPDATE"),
-                      ),
-                    ),
                   ],
                 ).animate().fade(duration: 100.ms)
               : const SizedBox(
@@ -398,6 +361,45 @@ class _DimmingStagesSettingsScreenState
                     ),
                   ),
                 ),
+          const Spacer(),
+          widget.settingsData["enabled"]
+              ? Container(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 20,
+                  ),
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () {
+                      Map data = {
+                        'e': 1,
+                        'm': widget.settingsData["mode"] == "manual" ? 1 : 2,
+                      };
+
+                      if (widget.settingsData["mode"] == "manual") {
+                        data['c'] = widget.settingsData['stages'].length;
+                        data['b'] = []; // pwms
+                        data['f'] = []; // from times
+                        data['o'] = []; // to times
+
+                        for (var stage in widget.settingsData['stages']) {
+                          data['b'].add(stage['pwm']);
+                          data['f'].add(
+                              stage['from'].hour + stage['from'].minute / 100);
+                          data['o']
+                              .add(stage['to'].hour + stage['to'].minute / 100);
+                        }
+                      }
+
+                      syncSettings(
+                        widget.provider,
+                        data,
+                      );
+                    },
+                    child: const Text("UPDATE"),
+                  ),
+                )
+              : Container(),
         ],
       ),
     );
